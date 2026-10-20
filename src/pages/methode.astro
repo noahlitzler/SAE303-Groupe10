@@ -1,0 +1,319 @@
+
+---
+import Layout from "../layouts/Layout.astro";
+
+const sources = [
+  {
+    number: "01",
+    name: "ECOLOGITS",
+    category: "ESTIMATIONS",
+    description:
+      "Estimations de l'impact environnemental de différentes configurations de modèles d'intelligence artificielle.",
+    limitation:
+      "Les résultats dépendent des hypothèses de calcul. Ils ne constituent pas des mesures directes de chaque requête.",
+    url: "https://ecologits.ai/",
+  },
+  {
+    number: "02",
+    name: "AI ENERGY SCORE",
+    category: "MESURES",
+    description:
+      "Données de consommation énergétique GPU selon les tâches et configurations testées.",
+    limitation:
+      "Les mesures correspondent à un protocole précis et ne représentent pas nécessairement la consommation totale d'un service d'IA.",
+    url: "https://huggingface.co/spaces/AIEnergyScore/Leaderboard",
+  },
+  {
+    number: "03",
+    name: "DATACENTERS FRANCE",
+    category: "LOCALISATIONS",
+    description:
+      "Inventaire de centres de données utilisé pour représenter les infrastructures physiques sur une carte.",
+    limitation:
+      "La présence d'un datacenter ne signifie pas que les requêtes étudiées y sont traitées.",
+    url: "",
+  },
+];
+
+const etapes = [
+  {
+    number: "01",
+    title: "COLLECTER",
+    description:
+      "Identifier les producteurs, les sources et les variables utiles à notre question.",
+  },
+  {
+    number: "02",
+    title: "VÉRIFIER",
+    description:
+      "Contrôler les unités, les doublons, les valeurs manquantes et les limites de comparaison.",
+  },
+  {
+    number: "03",
+    title: "TRANSFORMER",
+    description:
+      "Préparer les données, harmoniser les unités et conserver les informations nécessaires à leur interprétation.",
+  },
+  {
+    number: "04",
+    title: "RACONTER",
+    description:
+      "Construire quatre visualisations pour rendre les résultats compréhensibles sans effacer leurs incertitudes.",
+  },
+];
+---
+
+<Layout title="Méthode — Derrière le Prompt">
+  <main class="method-page">
+    <div class="ambient ambient-a"></div>
+    <div class="ambient ambient-b"></div>
+
+    <header class="method-header">
+      <a href="/" class="back-link" aria-label="Retour à l'expérience">
+        <span aria-hidden="true">←</span>
+        RETOUR À L'EXPÉRIENCE
+      </a>
+      <span class="header-id">DLP / MÉTHODOLOGIE / 2026</span>
+    </header>
+
+    <section class="hero">
+      <div class="hero-kicker">
+        <span class="signal"></span>
+        TRANSPARENCE DES DONNÉES
+      </div>
+
+      <h1>AU-DELÀ<br /><span>DES CHIFFRES.</span></h1>
+
+      <div class="hero-bottom">
+        <p>
+          Une visualisation ne vaut que par les données qui la composent.
+          Découvrez les sources, les choix et les limites de notre exploration
+          de l'impact environnemental de l'intelligence artificielle.
+        </p>
+        <div class="hero-index">00 / MÉTHODE</div>
+      </div>
+    </section>
+
+    <section class="section" id="sources">
+      <div class="section-heading">
+        <span class="eyebrow">01 / ORIGINE</span>
+        <h2>D'OÙ VIENNENT<br />NOS DONNÉES ?</h2>
+      </div>
+
+      <div class="sources">
+        {sources.map((source) => (
+          <article class="source-card">
+            <div class="source-top">
+              <span>{source.number} / SOURCE</span>
+              <span class="source-category">{source.category}</span>
+            </div>
+            <h3>{source.name}</h3>
+            <p>{source.description}</p>
+            <div class="source-limitation">
+              <span>À RETENIR</span>
+              <p>{source.limitation}</p>
+            </div>
+            {source.url && (
+              <a href={source.url} target="_blank" rel="noopener noreferrer">
+                CONSULTER LA SOURCE ↗
+              </a>
+            )}
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section" id="traitements">
+      <div class="section-heading">
+        <span class="eyebrow">02 / PROCESSUS</span>
+        <h2>DE LA DONNÉE<br />AU RÉCIT.</h2>
+      </div>
+
+      <div class="process">
+        {etapes.map((etape) => (
+          <div class="process-row">
+            <span class="process-number">{etape.number}</span>
+            <h3>{etape.title}</h3>
+            <p>{etape.description}</p>
+            <span class="process-arrow" aria-hidden="true">↗</span>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="section" id="limites">
+      <div class="section-heading">
+        <span class="eyebrow">03 / REGARD CRITIQUE</span>
+        <h2>CE QUE LES DONNÉES<br /><em>NE DISENT PAS.</em></h2>
+      </div>
+
+      <div class="limitations">
+        <div>
+          <span>01 — ESTIMER N'EST PAS MESURER</span>
+          <p>
+            Une estimation repose sur un modèle de calcul. Une mesure dépend
+            d'un appareil et d'un protocole. Ces deux résultats ne doivent pas
+            être confondus.
+          </p>
+        </div>
+        <div>
+          <span>02 — LE CONTEXTE CHANGE TOUT</span>
+          <p>
+            Le modèle, la tâche, la longueur de la réponse et l'infrastructure
+            utilisée influencent la consommation. Il n'existe pas de valeur
+            universelle pour une requête d'IA.
+          </p>
+        </div>
+        <div>
+          <span>03 — UNE CARTE N'EST PAS UNE PREUVE DE TRAJET</span>
+          <p>
+            Nos cartes montrent des lieux identifiés. Elles ne permettent pas
+            de connaître le datacenter qui traite une conversation donnée.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="exploration">
+      <div class="section-heading">
+        <span class="eyebrow">04 / EXPLORATION</span>
+        <h2>QUATRE REGARDS.<br />UNE QUESTION.</h2>
+      </div>
+
+      <div class="viz-grid">
+        <article><span>V1</span><h3>COMPARER LES MODÈLES</h3><p>Observer la distribution des estimations.</p></article>
+        <article><span>V2</span><h3>LOCALISER LES INFRASTRUCTURES</h3><p>Identifier des datacenters dont la position est vérifiée.</p></article>
+        <article><span>V3</span><h3>COMPARER LES TÂCHES</h3><p>Explorer les mesures de consommation énergétique.</p></article>
+        <article><span>V4</span><h3>INTERROGER UNE REQUÊTE</h3><p>Comparer les indicateurs estimés selon le modèle sélectionné.</p></article>
+      </div>
+    </section>
+
+    <section class="closing">
+      <span class="eyebrow">05 / CONCLUSION</span>
+      <h2>COMPRENDRE,<br /><span>AVANT DE COMPARER.</span></h2>
+      <p>
+        Notre objectif n'est pas de donner un chiffre définitif à l'impact
+        d'une requête, mais de rendre visibles les méthodes, les différences
+        et les incertitudes qui se cachent derrière chaque résultat.
+      </p>
+      <a href="/" class="closing-link">RETOURNER À L'EXPÉRIENCE <span>↗</span></a>
+    </section>
+
+    <footer class="method-footer">
+      <span>DERRIÈRE LE PROMPT — SAE 303</span>
+      <span>CLÉMENT BERTRAND · NOAH LITZLER</span>
+      <span>2026</span>
+    </footer>
+  </main>
+</Layout>
+
+<style>
+  :global(html) { scroll-behavior: smooth; }
+  :global(body) { margin: 0; background: #090f20; }
+  :global(*) { box-sizing: border-box; }
+
+  .method-page {
+    --cyan: #8ce8f1;
+    --muted: #a5b1c9;
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    background: #090f20;
+    color: #f5f7ff;
+    font-family: "Arial", sans-serif;
+  }
+  .ambient { position: absolute; border-radius: 50%; filter: blur(110px); pointer-events: none; opacity: .25; }
+  .ambient-a { width: 600px; height: 600px; top: 150px; right: -350px; background: #194e83; }
+  .ambient-b { width: 500px; height: 500px; top: 1200px; left: -350px; background: #233a79; }
+
+  .method-header, .hero, .section, .closing, .method-footer {
+    position: relative; z-index: 1;
+  }
+  .method-header {
+    padding: 30px 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #ffffff1a;
+  }
+  .back-link, .header-id, .eyebrow, .hero-kicker, .hero-index,
+  .source-top, .source-category, .source-limitation span, .source-card a,
+  .process-number, .limitations span, .viz-grid article > span,
+  .closing-link, .method-footer {
+    font-family: monospace; font-size: 12px; letter-spacing: .12em;
+  }
+  a { color: inherit; text-decoration: none; }
+  .back-link { color: var(--cyan); display: flex; gap: 16px; align-items: center; }
+  .back-link:hover, .source-card a:hover { color: #fff; }
+  .header-id { color: #8b98b4; }
+
+  .hero { padding: 105px 5% 90px; border-bottom: 1px solid #ffffff22; }
+  .hero-kicker { display: flex; align-items: center; gap: 12px; color: var(--cyan); }
+  .signal { width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 18px var(--cyan); }
+  h1, h2, h3, p { margin: 0; }
+  h1, h2, .closing h2 { font-family: Impact, "Arial Narrow", sans-serif; font-stretch: condensed; }
+  h1 { font-size: clamp(75px, 12vw, 210px); line-height: .85; letter-spacing: -.035em; margin: 45px 0 75px; }
+  h1 span, .closing h2 span { color: var(--cyan); }
+  .hero-bottom { display: flex; align-items: end; justify-content: space-between; gap: 40px; }
+  .hero-bottom p { font-size: clamp(17px, 1.5vw, 23px); line-height: 1.6; color: var(--muted); max-width: 710px; }
+  .hero-index { color: var(--cyan); white-space: nowrap; }
+
+  .section { padding: 115px 5%; border-bottom: 1px solid #ffffff20; }
+  .eyebrow { color: var(--cyan); }
+  .section-heading { display: flex; align-items: start; justify-content: space-between; gap: 50px; margin-bottom: 65px; }
+  .section-heading h2 { width: 70%; font-size: clamp(48px, 6vw, 100px); line-height: .95; letter-spacing: -.025em; }
+  .section-heading h2 em { color: var(--cyan); font-style: normal; }
+
+  .sources { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
+  .source-card { background: #111b30; border: 1px solid #ffffff20; padding: 30px; min-height: 440px; display: flex; flex-direction: column; transition: border-color .3s, transform .3s; }
+  .source-card:hover { border-color: #8ce8f18c; transform: translateY(-5px); }
+  .source-top { display: flex; justify-content: space-between; gap: 12px; color: #8c9bb6; }
+  .source-category { color: var(--cyan); }
+  .source-card h3 { font-size: clamp(24px, 2.5vw, 38px); margin: 50px 0 20px; overflow-wrap: anywhere; }
+  .source-card > p { color: var(--muted); line-height: 1.7; }
+  .source-limitation { margin-top: auto; padding-top: 35px; }
+  .source-limitation span { color: var(--cyan); }
+  .source-limitation p { margin: 10px 0 20px; color: #c4cee0; line-height: 1.6; font-size: 14px; }
+  .source-card a { color: var(--cyan); border-top: 1px solid #ffffff20; padding-top: 18px; }
+
+  .process { border-top: 1px solid #ffffff3b; }
+  .process-row { display: grid; grid-template-columns: 80px 1fr 1fr 30px; align-items: center; gap: 30px; padding: 32px 0; border-bottom: 1px solid #ffffff30; }
+  .process-number { color: var(--cyan); }
+  .process-row h3 { font-size: clamp(28px, 3.2vw, 52px); }
+  .process-row p { color: var(--muted); line-height: 1.6; max-width: 500px; }
+  .process-arrow { font-size: 25px; color: var(--cyan); }
+
+  .limitations { display: grid; grid-template-columns: repeat(3, 1fr); gap: 45px; }
+  .limitations > div { border-top: 2px solid var(--cyan); padding-top: 25px; }
+  .limitations span { color: var(--cyan); }
+  .limitations p { color: #c1cce0; line-height: 1.8; margin-top: 20px; }
+
+  .viz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .viz-grid article { background: #101a2e; border: 1px solid #ffffff20; padding: 35px; min-height: 230px; }
+  .viz-grid article > span { color: var(--cyan); }
+  .viz-grid h3 { margin: 25px 0 15px; font-size: 25px; }
+  .viz-grid p { color: var(--muted); line-height: 1.6; }
+
+  .closing { padding: 140px 5%; }
+  .closing h2 { font-size: clamp(60px, 9vw, 150px); line-height: .9; margin: 35px 0 45px; }
+  .closing p { max-width: 750px; font-size: 20px; color: var(--muted); line-height: 1.8; }
+  .closing-link { display: inline-flex; gap: 60px; align-items: center; padding: 22px 28px; border: 1px solid var(--cyan); margin-top: 55px; color: var(--cyan); transition: background .3s, color .3s; }
+  .closing-link:hover { background: var(--cyan); color: #090f20; }
+
+  .method-footer { display: flex; justify-content: space-between; gap: 20px; padding: 25px 5%; border-top: 1px solid #ffffff30; color: #8b98b4; }
+
+  @media (max-width: 850px) {
+    .header-id { display: none; }
+    .hero { padding-top: 80px; }
+    .hero-bottom, .section-heading { flex-direction: column; align-items: start; }
+    .section-heading h2 { width: 100%; }
+    .sources, .limitations { grid-template-columns: 1fr; }
+    .source-card { min-height: 330px; }
+    .process-row { grid-template-columns: 40px 1fr 25px; }
+    .process-row p { grid-column: 2 / 3; }
+    .process-arrow { grid-column: 3; grid-row: 1; }
+    .viz-grid { grid-template-columns: 1fr; }
+    .method-footer { flex-direction: column; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>

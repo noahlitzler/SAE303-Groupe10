@@ -742,7 +742,7 @@ function dessinerConstellation(donnees, {largeur = 900, rayonMax, rayonMin = 12}
   const largeurSvg = largeur > 720 ? largeur - 64 - 276 : largeur - 30;
   const etroit = largeurSvg < 520;
   const W = Math.max(300, Math.round(largeurSvg));
-  const H = etroit ? 700 : 540;
+  const H = etroit ? 700 : 430;
   const rMax = rayonMax ?? (etroit ? 78 : 112);
   const vMax = lignes[0].energie_milieu_Wh;
   const valeurs = lignes.map(d => d.energie_milieu_Wh).sort((a, b) => a - b);
@@ -799,15 +799,15 @@ function dessinerConstellation(donnees, {largeur = 900, rayonMax, rayonMin = 12}
   racine.className = "dlp-constellation";
   const style = document.createElement("style");
   style.textContent = `
-    .dlp-constellation{--texte:#1f2328;--texte2:#5b616b;--bord:#e5e3dd;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--texte);background:#fbfaf7;border:1px solid var(--bord);border-radius:16px;padding:24px clamp(14px,3vw,32px) 18px;max-width:1000px;box-sizing:border-box;position:relative}
+    .dlp-constellation{--texte:#1f2328;--texte2:#5b616b;--bord:#e5e3dd;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--texte);background:#fbfaf7;border:1px solid var(--bord);border-radius:16px;padding:12px clamp(12px,2vw,22px) 10px;width:100%;max-width:none;box-sizing:border-box;position:relative}
     .dlp-constellation *{box-sizing:border-box}
     .dlp-constellation h3{margin:0 0 4px;font-size:clamp(20px,2.4vw,26px);line-height:1.2;font-weight:750}
-    .dlp-constellation .st{margin:0 0 10px;font-size:14px;line-height:1.5;color:var(--texte2);max-width:66ch}
+    .dlp-constellation .st{margin:0 0 5px;font-size:14px;line-height:1.5;color:var(--texte2);max-width:66ch}
     .dlp-constellation .barre-outils{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px;font-size:12.5px;color:var(--texte2)}
     .dlp-constellation .sphere:focus-visible{outline:none}
     .dlp-constellation .legende-f{display:flex;flex-wrap:wrap;gap:4px 14px;color:var(--texte)}
     .dlp-constellation .legende-f i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px;opacity:.85}
-    .dlp-constellation .scene{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:16px;align-items:center}
+    .dlp-constellation .scene{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:12px;align-items:center}
     @media (max-width:720px){.dlp-constellation .scene{grid-template-columns:1fr}}
     .dlp-constellation svg{width:100%;height:auto;display:block;overflow:visible}
     .dlp-constellation .sphere{cursor:pointer}
@@ -836,8 +836,8 @@ function dessinerConstellation(donnees, {largeur = 900, rayonMax, rayonMin = 12}
     .dlp-constellation .fiche .f-int{font-size:12.5px;color:var(--texte2);margin:6px 0 10px}
     .dlp-constellation .fiche .f-situ{font-size:13px;line-height:1.5;margin:0;border-top:1px dashed var(--bord);padding-top:9px}
     .dlp-constellation .bulle{position:absolute;pointer-events:none;background:#fff;color:var(--texte);border:1px solid #cfccc4;box-shadow:0 6px 18px rgba(0,0,0,.12);border-radius:9px;padding:6px 9px;font-size:12.5px;line-height:1.35;opacity:0;transition:opacity .15s;z-index:3;white-space:nowrap}
-    .dlp-constellation .conclusion{margin:16px 0 0;padding:11px 14px;border-left:4px solid #2878D0;background:#fff;border-radius:0 10px 10px 0;font-size:14.5px;line-height:1.5}
-    .dlp-constellation .note{margin:10px 0 0;font-size:12.5px;line-height:1.5;color:var(--texte2);max-width:85ch}
+    .dlp-constellation .conclusion{margin:6px 0 0;padding:8px 12px;border-left:4px solid #2878D0;background:#fff;border-radius:0 10px 10px 0;font-size:14.5px;line-height:1.5}
+    .dlp-constellation .note{margin:5px 0 0;font-size:12.5px;line-height:1.5;color:var(--texte2);max-width:85ch}
     .dlp-constellation figcaption{margin-top:8px;font-size:11.5px;line-height:1.45;color:var(--texte2)}
   `;
   const titre = document.createElement("h3");
@@ -856,7 +856,7 @@ function dessinerConstellation(donnees, {largeur = 900, rayonMax, rayonMin = 12}
 
   const scene = document.createElement("div");
   scene.className = "scene";
-  const haut = Math.min(...lignes.map(d => d.y - d.r)) - 18, bas = Math.max(...lignes.map(d => d.y + d.r + ETIQ)) + 14;
+  const haut = Math.min(...lignes.map(d => d.y - d.r * 1.15)) - 24, bas = Math.max(...lignes.map(d => d.y + d.r + ETIQ)) + 24;
   const svg = el("svg", {viewBox: `0 ${haut.toFixed(0)} ${W} ${(bas - haut).toFixed(0)}`, role: "group", "aria-label": `Constellation de ${n} configurations d'IA, taille proportionnelle à l'électricité estimée par requête`});
   const defs = el("defs", {}, svg);
   const filtre = el("filter", {id: "dlp-flou", x: "-50%", y: "-50%", width: "200%", height: "200%"}, defs);
@@ -944,7 +944,7 @@ function dessinerConstellation(donnees, {largeur = 900, rayonMax, rayonMin = 12}
 )};
 
 const _205 = function(dessinerConstellation,donneesV1,width){return(
-dessinerConstellation(donneesV1, {largeur: Math.min(width, 980)})
+dessinerConstellation(donneesV1, {largeur: Math.max(320, width)})
 )};
 
 const _181 = (md) => {
@@ -984,7 +984,7 @@ function dessinerCarte(installations, {L, consommationsZones = null, entreesTota
   racine.className = "dlp-carte";
   const style = document.createElement("style");
   style.textContent = `
-    .dlp-carte{--texte:#1f2328;--texte2:#5b616b;--bord:#e5e3dd;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--texte);background:#fbfaf7;border:1px solid var(--bord);border-radius:16px;padding:24px clamp(14px,3vw,32px) 18px;max-width:1100px;box-sizing:border-box}
+    .dlp-carte{--texte:#1f2328;--texte2:#5b616b;--bord:#e5e3dd;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--texte);background:#fbfaf7;border:1px solid var(--bord);border-radius:16px;padding:12px clamp(12px,2vw,22px) 10px;width:100%;max-width:none;box-sizing:border-box}
     .dlp-carte *{box-sizing:border-box}
     .dlp-carte h3{margin:0 0 4px;font-size:clamp(20px,2.4vw,26px);line-height:1.2;font-weight:750}
     .dlp-carte .st{margin:0 0 16px;font-size:14px;line-height:1.5;color:var(--texte2);max-width:70ch}
@@ -1155,7 +1155,7 @@ function dessinerTaches(donnees, {campagne = "Février 2025", echelle = "log", c
   racine.className = "dlp-taches";
   const style = document.createElement("style");
   style.textContent = `
-    .dlp-taches{--fond:#fbfaf7;--texte:#1f2328;--texte2:#5b616b;--bord:#e5e3dd;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--texte);background:var(--fond);border:1px solid var(--bord);border-radius:16px;padding:24px clamp(14px,3vw,32px) 18px;max-width:1000px;box-sizing:border-box;position:relative}
+    .dlp-taches{--fond:#fbfaf7;--texte:#1f2328;--texte2:#5b616b;--bord:#e5e3dd;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--texte);background:var(--fond);border:1px solid var(--bord);border-radius:16px;padding:12px clamp(12px,2vw,22px) 10px;width:100%;max-width:none;box-sizing:border-box;position:relative}
     .dlp-taches *{box-sizing:border-box}
     .dlp-taches h3{margin:0 0 4px;font-size:clamp(20px,2.4vw,26px);line-height:1.2;font-weight:750;letter-spacing:-.01em}
     .dlp-taches .st{margin:0 0 16px;font-size:14px;line-height:1.5;color:var(--texte2);max-width:64ch}
@@ -1331,7 +1331,7 @@ function dessinerImpact(donnees, {modeleInitial, animation = true, indicateurs} 
   racine.className = "dlp-impact";
   const style = document.createElement("style");
   style.textContent = `
-    .dlp-impact{--fond:#fbfaf7;--texte:#1f2328;--texte2:#5b616b;--bord:#e5e3dd;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--texte);background:var(--fond);border:1px solid var(--bord);border-radius:16px;padding:24px clamp(16px,3vw,32px) 18px;max-width:1000px;box-sizing:border-box}
+    .dlp-impact{display:flex;flex-direction:column;min-height:100%;--fond:#fbfaf7;--texte:#1f2328;--texte2:#5b616b;--bord:#e5e3dd;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--texte);background:var(--fond);border:1px solid var(--bord);border-radius:16px;padding:24px clamp(16px,3vw,32px) 18px;width:100%;max-width:none;box-sizing:border-box}
     .dlp-impact *{box-sizing:border-box}
     .dlp-impact h3{margin:0 0 4px;font-size:clamp(20px,2.4vw,26px);line-height:1.2;font-weight:750;letter-spacing:-.01em}
     .dlp-impact .st{margin:0 0 18px;font-size:14px;line-height:1.5;color:var(--texte2);max-width:64ch}
@@ -1342,7 +1342,7 @@ function dessinerImpact(donnees, {modeleInitial, animation = true, indicateurs} 
     .dlp-impact button.modele:hover{border-color:#b9b6ad;transform:translateY(-1px)}
     .dlp-impact button.modele:focus-visible{outline:3px solid #2878D0;outline-offset:2px}
     .dlp-impact button.modele[aria-pressed="true"]{background:var(--texte);border-color:var(--texte);color:#fff}
-    .dlp-impact .compteurs{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:16px}
+    .dlp-impact .compteurs{flex:1;align-content:center;display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:16px}
     .dlp-impact .compteur{position:relative;background:#fff;border:1px solid var(--bord);border-radius:14px;padding:18px 16px 16px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;overflow:hidden}
     .dlp-impact .compteur::before{content:"";position:absolute;inset:auto -30% -60% auto;width:180px;height:180px;border-radius:50%;background:var(--c);opacity:.07;filter:blur(8px);transition:transform 1.2s ease}
     .dlp-impact .compteur.anime::before{transform:scale(1.25)}

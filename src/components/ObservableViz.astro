@@ -1,73 +1,23 @@
 ---
-// Emplacement d'une visualisation du notebook Observable. Le notebook est chargé une seule fois
-// côté navigateur (src/observable/notebook-client.ts), quel que soit le nombre d'emplacements.
 interface Props {
   viz: "v1" | "v2" | "v3" | "v4";
   label: string;
   class?: string;
 }
-
 const { viz, label, class: className } = Astro.props;
 ---
-
 <figure class:list={["obs-viz", className]} data-obs-viz={viz} aria-label={label} aria-busy="true">
   <div class="obs-viz-stage"></div>
   <p class="obs-viz-status" role="status">CHARGEMENT DE LA VISUALISATION…</p>
 </figure>
-
 <style>
-  .obs-viz {
-    position: relative;
-    margin: 0;
-    min-width: 0;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .obs-viz-stage {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    transform-origin: 0 0;
-  }
-
-  .obs-viz.is-overflowing {
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-
-  /* Les composants du notebook gardent leur fond clair ; seule leur largeur maximale est levée
-     pour qu'ils occupent toute la zone, quelle que soit l'échelle. */
-  .obs-viz-stage > :global(*) {
-    max-width: none !important;
-    margin: 0;
-  }
-
-  .obs-viz-status {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    margin: 0;
-    padding: 24px;
-    text-align: center;
-    font: 500 10px/1.6 "IBM Plex Mono", monospace;
-    letter-spacing: 0.12em;
-    color: #aab9d9;
-    pointer-events: none;
-  }
-
-  .obs-viz.is-ready .obs-viz-status {
-    display: none;
-  }
-
-  .obs-viz.is-error .obs-viz-status {
-    color: #ffb4a9;
-  }
+.obs-viz{position:relative;margin:0;min-width:0;min-height:0;overflow:hidden;background:#fff}
+.obs-viz-stage{position:absolute;top:0;left:0;width:100%;transform-origin:0 0}
+.obs-viz-stage > :global(*){max-width:none!important;margin:0}
+.obs-viz-status{position:absolute;inset:0;display:grid;place-items:center;margin:0;padding:20px;text-align:center;font:500 10px/1.6 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#aab9d9;pointer-events:none}
+.obs-viz.is-ready .obs-viz-status{display:none}
+.obs-viz.is-error .obs-viz-status{color:#e66b63}
 </style>
-
 <script>
-  // Chargé à part pour ne pas retarder l'introduction et la scène 3D.
-  import("../observable/notebook-client").then(({ mountObservableNotebook }) => mountObservableNotebook());
+import('../observable/notebook-client').then(({mountObservableNotebook})=>mountObservableNotebook());
 </script>
