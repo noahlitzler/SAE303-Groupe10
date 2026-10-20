@@ -1,13 +1,13 @@
----
+﻿---
 const chapters = [
 
- {n:'01',k:'LE DÉCLENCHEUR',title:'UN TEXTE.\nDES MACHINES.',desc:'Une requête traverse des infrastructures bien réelles.',note:'DU PROMPT AU CALCUL',x:-135,y:0,z:-500,kind:'input'},
+ {n:'01',k:'LE DÉCLENCHEUR',title:'UN TEXTE.\nDES MACHINES.',desc:'Une requête traverse des infrastructures bien réelles.',note:'DU PROMPT AU CALCUL',x:0,y:0,z:-500,kind:'input'},
 
- {n:'02',k:'MESURER L’ÉNERGIE',title:'TOUS LES MODÈLES\nNE SE VALENT PAS.',desc:'Comparer les estimations et les mesures selon les modèles et les tâches.',note:'ECOLOGITS / AI ENERGY SCORE',x:155,y:-25,z:-2050,kind:'energy'},
+ {n:'02',k:'MESURER L’ÉNERGIE',title:'TOUS LES MODÈLES\nNE SE VALENT PAS.',desc:'Comparer les estimations et les mesures selon les modèles et les tâches.',note:'ECOLOGITS / AI ENERGY SCORE',x:0,y:-25,z:-2050,kind:'energy'},
 
- {n:'03',k:'COMPRENDRE LES ORDRES DE GRANDEUR',title:'CHANGER\nD’ÉCHELLE.',desc:'Des comparaisons à construire à partir de sources documentées.',note:'COMPARAISONS À DOCUMENTER',x:-110,y:40,z:-3600,kind:'scale'},
+ {n:'03',k:'COMPRENDRE LES ORDRES DE GRANDEUR',title:'CHANGER\nD’ÉCHELLE.',desc:'Des comparaisons à construire à partir de sources documentées.',note:'COMPARAISONS À DOCUMENTER',x:0,y:40,z:-3600,kind:'scale'},
 
- {n:'04',k:'LES INFRASTRUCTURES',title:'LE NUMÉRIQUE\nA UNE ADRESSE.',desc:'Explorer des datacenters documentés en France, sans prétendre localiser le trajet d’un prompt.',note:'CARTE OSM / SITES VÉRIFIÉS',x:135,y:-20,z:-5150,kind:'earth'},
+ {n:'04',k:'LES INFRASTRUCTURES',title:'LE NUMÉRIQUE\nA UNE ADRESSE.',desc:'Explorer des datacenters documentés en France, sans prétendre localiser le trajet d’un prompt.',note:'CARTE OSM / SITES VÉRIFIÉS',x:0,y:-20,z:-5150,kind:'earth'},
 
 ];
 ---
@@ -113,7 +113,7 @@ const chapters = [
 
  .world{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform;pointer-events:none}.rail{position:absolute;left:50%;top:50%;width:2px;height:2px;border-radius:50%;box-shadow:0 0 0 100px #7d9eff08,0 0 0 260px #7d9eff06,0 0 0 500px #7d9eff04}.rail-b{transform:translate3d(260px,-120px,-2200px);box-shadow:0 0 0 130px #72dce609,0 0 0 400px #72dce605}
 
- .chapter{position:absolute;top:50%;left:50%;width:min(760px,73vw);height:420px;transform:translate(-50%,-50%) translate3d(var(--x),var(--y),var(--z)) rotateY(-5deg);transform-style:preserve-3d;pointer-events:auto;will-change:opacity;--accent:#a3b4ff}
+ .chapter{position:absolute;top:50%;left:50%;width:min(1250px,88vw);height:min(720px,82vh);transform:translate(-50%,-50%) translate3d(var(--x),var(--y),var(--z)) rotateY(-5deg);transform-style:preserve-3d;pointer-events:auto;will-change:opacity;--accent:#a3b4ff}
 
  .chapter-energy{--accent:#8be8e9;transform:translate(-50%,-50%) translate3d(var(--x),var(--y),var(--z)) rotateY(5deg)}.chapter-scale{--accent:#c4a9ff}.chapter-earth{--accent:#96dfcb;transform:translate(-50%,-50%) translate3d(var(--x),var(--y),var(--z)) rotateY(5deg)}
 
@@ -125,7 +125,7 @@ const chapters = [
 
  .chapter:before{content:'';position:absolute;z-index:3;left:0;top:0;width:32%;height:3px;background:var(--accent);box-shadow:0 0 24px var(--accent)}
 
- .chapter-head,.chapter-foot{position:relative;z-index:1;display:flex;align-items:center;gap:16px;font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#aebdd9}.chapter-head{padding-bottom:18px;border-bottom:1px solid #a9bce333}.index{font:800 42px 'Barlow Condensed',sans-serif;color:var(--accent);letter-spacing:0}.cross{margin-left:auto;color:var(--accent);font-size:23px}.chapter-body{position:relative;z-index:1;display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:center;flex:1}.eyebrow{font:500 10px 'IBM Plex Mono',monospace;color:var(--accent);letter-spacing:.15em}.chapter-copy h2{font:900 clamp(35px,4vw,59px)/.9 'Barlow Condensed',Impact,sans-serif;letter-spacing:-.01em;margin:18px 0;white-space:normal}.chapter-copy h2 span{display:block}.chapter-copy p{max-width:350px;color:#c3cbe0;font-size:14px;line-height:1.7}.artifact{position:relative;height:215px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:25px;overflow:hidden;border-left:1px solid #a7b7e433;background:radial-gradient(ellipse at center,color-mix(in srgb,var(--accent) 15%,transparent),transparent 60%);font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#aab9d9}.artifact:before,.artifact:after{content:'';position:absolute;inset:16px 32px;border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:50%;transform:rotateX(68deg) rotate(-30deg)}.artifact:after{inset:35px 62px;transform:rotateX(65deg) rotate(45deg)}.artifact-core{width:28px;height:28px;border:1px solid var(--accent);border-radius:50%;background:var(--accent);box-shadow:0 0 22px var(--accent),0 0 80px var(--accent);opacity:.85}.artifact span{position:relative;z-index:1}.artifact-energy:before{border-radius:0;transform:rotate(35deg)}.artifact-scale:before{transform:rotateX(65deg)}.artifact-earth:before{border-style:dashed}.chapter-foot{padding-top:17px;border-top:1px solid #a9bce333;justify-content:space-between}.chapter-foot span:last-child{font-size:21px;color:var(--accent)}
+ .chapter-head,.chapter-foot{position:relative;z-index:1;display:flex;align-items:center;gap:16px;font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#aebdd9}.chapter-head{padding-bottom:18px;border-bottom:1px solid #a9bce333}.index{font:800 42px 'Barlow Condensed',sans-serif;color:var(--accent);letter-spacing:0}.cross{margin-left:auto;color:var(--accent);font-size:23px}.chapter-body{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.5fr);gap:20px;align-items:center;flex:1}.eyebrow{font:500 10px 'IBM Plex Mono',monospace;color:var(--accent);letter-spacing:.15em}.chapter-copy h2{font:900 clamp(35px,4vw,59px)/.9 'Barlow Condensed',Impact,sans-serif;letter-spacing:-.01em;margin:18px 0;white-space:normal}.chapter-copy h2 span{display:block}.chapter-copy p{max-width:350px;color:#c3cbe0;font-size:14px;line-height:1.7}.artifact{position:relative;height:100%;min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:25px;overflow:hidden;border-left:1px solid #a7b7e433;background:radial-gradient(ellipse at center,color-mix(in srgb,var(--accent) 15%,transparent),transparent 60%);font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#aab9d9}.artifact:before,.artifact:after{content:'';position:absolute;inset:16px 32px;border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:50%;transform:rotateX(68deg) rotate(-30deg)}.artifact:after{inset:35px 62px;transform:rotateX(65deg) rotate(45deg)}.artifact-core{width:28px;height:28px;border:1px solid var(--accent);border-radius:50%;background:var(--accent);box-shadow:0 0 22px var(--accent),0 0 80px var(--accent);opacity:.85}.artifact span{position:relative;z-index:1}.artifact-energy:before{border-radius:0;transform:rotate(35deg)}.artifact-scale:before{transform:rotateX(65deg)}.artifact-earth:before{border-style:dashed}.chapter-foot{padding-top:17px;border-top:1px solid #a9bce333;justify-content:space-between}.chapter-foot span:last-child{font-size:21px;color:var(--accent)}
 
  .intro{position:absolute;inset:0;z-index:10;background:radial-gradient(ellipse at center,#0b1329ed,#060915fc 75%);display:grid;place-items:center;transition:opacity .2s;pointer-events:auto}.intro-center{width:min(1000px,92vw);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.intro-overline{font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.26em;color:#9be5e7;margin:0 0 25px}.hero-title{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;border:0;padding:0 10px;background:transparent;color:#f4f6ff;font:900 clamp(78px,11vw,184px)/.76 'Barlow Condensed',Impact,sans-serif;letter-spacing:-.028em;cursor:crosshair;text-align:center;transition:filter .2s,transform .5s}.hero-title span{white-space:nowrap}.hero-title em{font-style:normal;color:#a3b4ff}.hero-title b{color:#8ce5ec}.hero-title:hover,.hero-title:focus-visible{filter:drop-shadow(0 0 22px #7b9aff75)}.hero-title:focus-visible{outline:2px solid #8ce5ec;outline-offset:10px}.hero-title.processing{animation:hero-jolt .48s steps(3,end)}.title-scan{position:absolute;inset:0;background:linear-gradient(transparent 47%,#91efff66 50%,transparent 53%);opacity:0;pointer-events:none}.hero-title.processing .title-scan{animation:scan .65s ease-out}.intro-hint{font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.15em;color:#a4b3d2;margin:38px 0 0}.prompt-box{display:none;width:min(640px,90vw);margin-top:32px;padding:22px;background:#10192de8;border:1px solid #8da6df77;box-shadow:0 18px 80px #0006;text-align:left}.intro.revealed .prompt-box{display:block}.prompt-box label,.prompt-box small{display:block;font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#a7b9db}.prompt-line{display:flex;gap:12px;align-items:center;margin:13px 0;background:#060e1d;border:1px solid #4a5e83;padding:8px 10px}.prompt-line>span{color:#91e5e9;font-family:monospace}.prompt-line input{min-width:0;flex:1;color:#f0f4ff;font:15px 'IBM Plex Mono',monospace;background:transparent;border:0;outline:0}.prompt-line button,.enter{cursor:pointer;border:0;background:#99e6ed;color:#071122;font:600 11px 'IBM Plex Mono',monospace;padding:13px 15px}.prompt-line button:hover,.enter:hover{background:#c1f6f8}.prompt-box small{font-size:9px;color:#879abd}.intro.revealed .intro-hint{display:none}.token-display{display:none;max-width:680px;margin-top:18px;flex-wrap:wrap;justify-content:center;gap:6px}.intro.sent .token-display{display:flex}.token{padding:7px 10px;background:#9ae6ed15;border:1px solid #9ae6ed88;color:#baf2f5;font:11px 'IBM Plex Mono',monospace;animation:token-in .45s both}.credits{display:none;flex-direction:column;gap:8px;margin-top:22px;font:10px 'IBM Plex Mono',monospace;letter-spacing:.13em;color:#9eafd0}.credits strong{font-size:13px;color:#fff;min-height:1.5em}.intro.sent .credits{display:flex}.enter{display:none;margin-top:20px}.intro.sent .enter{display:block}.intro.sent .prompt-box{display:none}
 
@@ -174,6 +174,57 @@ const chapters = [
  @media(max-width:800px){.hero-title{font-size:clamp(58px,13vw,115px)}.chapter{width:80vw;height:440px;transform:translate(-50%,-50%) translate3d(calc(var(--x) * .18),var(--y),var(--z))}.chapter-body{grid-template-columns:1fr}.artifact{height:100px;gap:4px}.artifact:before,.artifact:after{display:none}.artifact-core{width:12px;height:12px}.chapter-copy h2{font-size:35px}.chapter-copy p{font-size:12px}.chapter-shell{padding:20px}.chapter-head{padding-bottom:8px}.chapter-foot{padding-top:8px}.prompt-line{flex-wrap:wrap}.prompt-line button{margin-left:auto}}
 
  @media(prefers-reduced-motion:reduce){.hero-title,.intro,.hud{transition:none}.hero-title.processing,.hero-title.processing .title-scan,.token{animation:none}}
+
+
+/* Ajustements des grandes cards */
+.chapter-body {
+  min-height: 0;
+}
+
+.chapter-copy,
+.artifact {
+  min-width: 0;
+}
+
+.chapter-shell {
+  box-sizing: border-box;
+}
+
+@media (min-width: 801px) and (max-width: 1100px) {
+  .chapter {
+    width: 88vw;
+    height: min(650px, 80vh);
+  }
+
+  .chapter-body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr);
+  }
+
+  .artifact {
+    min-height: 320px;
+  }
+}
+
+@media (max-width: 800px) {
+  .chapter {
+    width: 88vw;
+    height: min(720px, 84vh);
+  }
+
+  .chapter-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .artifact {
+    height: auto;
+    min-height: 180px;
+  }
+
+  .chapter-shell {
+    padding: 20px;
+  }
+}
 
 </style>
 
@@ -369,3 +420,4 @@ const chapters = [
  initExperience();
 
 </script>
+
