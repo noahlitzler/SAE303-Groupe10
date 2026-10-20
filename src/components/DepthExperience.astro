@@ -1,15 +1,17 @@
 ﻿---
+import ObservableViz from './ObservableViz.astro';
+
 const chapters = [
 
- {n:'01',k:'LE DÉCLENCHEUR',title:'UN TEXTE.\nDES MACHINES.',desc:'Une requête traverse des infrastructures bien réelles.',note:'DU PROMPT AU CALCUL',x:0,y:0,z:-500,kind:'input'},
+ {n:'01',k:'LE DÉCLENCHEUR',title:'UN TEXTE.\nDES MACHINES.',desc:'Une seule requête de 150 tokens n’est pas immatérielle. Choisissez un modèle : électricité, eau et CO₂e estimés par EcoLogits.',note:'ECOLOGITS / 150 TOKENS · MIX MONDIAL',x:0,y:0,z:-500,kind:'input',viz:'v4',label:'V4 — L’empreinte invisible d’une requête : compteurs interactifs d’électricité, d’eau et de CO₂e par modèle'},
 
- {n:'02',k:'MESURER L’ÉNERGIE',title:'TOUS LES MODÈLES\nNE SE VALENT PAS.',desc:'Comparer les estimations et les mesures selon les modèles et les tâches.',note:'ECOLOGITS / AI ENERGY SCORE',x:0,y:-25,z:-2050,kind:'energy'},
+ {n:'02',k:'MESURER L’ÉNERGIE',title:'TOUS LES MODÈLES\nNE SE VALENT PAS.',desc:'Huit configurations, huit sphères : leur surface suit l’électricité estimée pour une même réponse. Cliquez sur une sphère pour la comparer.',note:'ECOLOGITS / ESTIMATIONS DU 19/10/2026',x:0,y:-25,z:-2050,kind:'energy',viz:'v1',label:'V1 — Toutes les IA ne consomment pas autant : huit sphères EcoLogits proportionnelles à l’électricité estimée'},
 
- {n:'03',k:'COMPRENDRE LES ORDRES DE GRANDEUR',title:'CHANGER\nD’ÉCHELLE.',desc:'Des comparaisons à construire à partir de sources documentées.',note:'COMPARAISONS À DOCUMENTER',x:0,y:40,z:-3600,kind:'scale'},
+ {n:'03',k:'COMPRENDRE LES ORDRES DE GRANDEUR',title:'CHANGER\nD’ÉCHELLE.',desc:'Dix tâches mesurées sur GPU par AI Energy Score : de la similarité de phrases à la génération d’images, l’énergie varie de plusieurs ordres de grandeur.',note:'AI ENERGY SCORE / CAMPAGNE FÉVRIER 2025',x:0,y:40,z:-3600,kind:'scale',viz:'v3',label:'V3 — Une tâche, un impact : énergie GPU médiane par requête pour dix tâches, échelle linéaire ou logarithmique'},
 
- {n:'04',k:'LES INFRASTRUCTURES',title:'LE NUMÉRIQUE\nA UNE ADRESSE.',desc:'Explorer des datacenters documentés en France, sans prétendre localiser le trajet d’un prompt.',note:'CARTE OSM / SITES VÉRIFIÉS',x:0,y:-20,z:-5150,kind:'earth'},
+ {n:'04',k:'LES INFRASTRUCTURES',title:'LE NUMÉRIQUE\nA UNE ADRESSE.',desc:'23 installations dont la localisation a été vérifiée, en France et en Île-de-France, sans prétendre localiser le trajet d’un prompt.',note:'DATACENTERS FRANCE / © OPENSTREETMAP',x:0,y:-20,z:-5150,kind:'earth',viz:'v2',label:'V2 — Le numérique a une adresse : cartes des datacenters vérifiés en France et en Île-de-France'},
 
-];
+] as const;
 ---
 
 <section class="experience" id="experience" aria-label="Derrière le prompt : exploration immersive">
@@ -36,7 +38,7 @@ const chapters = [
 
       <div class="chapter-body"><div class="chapter-copy"><span class="eyebrow">DERRIÈRE LE PROMPT / {c.n}</span><h2>{c.title.split('\n').map((line)=><span>{line}</span>)}</h2><p>{c.desc}</p></div>
 
-       <div class={`artifact artifact-${c.kind}`} aria-label="Emplacement de visualisation à compléter avec des données documentées"><div class="artifact-core"></div><span>DONNÉES À INTÉGRER</span></div>
+       <ObservableViz viz={c.viz} label={c.label} class="viz-slot" />
 
       </div>
 
@@ -226,6 +228,39 @@ const chapters = [
   }
 }
 
+/* Visualisations Observable dans les cards */
+.chapter-body {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.chapter-body :global(.viz-slot) {
+  align-self: stretch;
+  height: 100%;
+  padding: 2px;
+  box-sizing: border-box;
+}
+
+/* Le fond clair d'origine est conservé ; un liseré et un halo à la couleur du chapitre l'intègrent à la card sombre. */
+.chapter-body :global(.viz-slot .obs-viz-stage > section) {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent), 0 0 42px color-mix(in srgb, var(--accent) 16%, transparent), 0 24px 60px #0009;
+}
+
+@media (max-width: 800px) {
+  .chapter-body {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .chapter-copy .eyebrow,
+  .chapter-copy p {
+    display: none;
+  }
+
+  .chapter-copy h2 {
+    font-size: 28px;
+    margin: 0;
+  }
+}
+
 </style>
 
 <script>
@@ -261,6 +296,14 @@ const chapters = [
   let lastScrollY=window.scrollY;
 
   let focusTimer=0;
+
+  // Prévient les visualisations qu'une card est visible ou centrée (échelle et cartes Leaflet à recalculer).
+  const shownCards=new Set<HTMLElement>();
+
+  function announceCard(card:HTMLElement){window.dispatchEvent(new CustomEvent('depth:card-shown',{detail:{card}}))}
+
+  // Les gestes faits dans un graphique (déplacer une carte, choisir un modèle au clavier) ne quittent pas le cadrage.
+  function insideViz(target:EventTarget|null){return target instanceof Element&&target.closest('.obs-viz')!==null}
 
   function setMenuState(active:number|null){
 
@@ -324,6 +367,8 @@ const chapters = [
 
     setMenuState(index);
 
+    focusTimer=window.setTimeout(()=>announceCard(card),900);
+
     counter!.textContent=`${String(index+1).padStart(2,'0')} / 04`;
 
     fill!.style.width=`${((index+1)/4)*100}%`;
@@ -377,6 +422,8 @@ const chapters = [
 
       card.style.pointerEvents=alpha<.18?'none':'auto';
 
+      if(alpha<.18)shownCards.delete(card);else if(!shownCards.has(card)){shownCards.add(card);announceCard(card)}
+
     });
 
     fill!.style.width=`${travel*100}%`;
@@ -407,9 +454,9 @@ const chapters = [
 
   addEventListener('wheel',(e)=>{if(focusedIndex!==null&&Math.abs(e.deltaY)>1)releaseFocus()},{passive:true});
 
-  addEventListener('touchmove',()=>{if(focusedIndex!==null)releaseFocus()},{passive:true});
+  addEventListener('touchmove',(e)=>{if(focusedIndex!==null&&!insideViz(e.target))releaseFocus()},{passive:true});
 
-  addEventListener('keydown',(e)=>{if(focusedIndex!==null&&['ArrowDown','ArrowUp','PageDown','PageUp',' ','Home','End'].includes(e.key))releaseFocus()});
+  addEventListener('keydown',(e)=>{if(focusedIndex!==null&&!insideViz(e.target)&&['ArrowDown','ArrowUp','PageDown','PageUp',' ','Home','End'].includes(e.key))releaseFocus()});
 
   addEventListener('resize',requestUpdate);
 

@@ -1,0 +1,19 @@
+model,total_gpu_energy,energy_score,class,test date
+Qwen/Qwen3-0.6B,0.54699,5,A,Dec 25
+tencent/Hunyuan-1.8B-Instruct,1.47896,5,A,Dec 25
+openai/gpt-oss-120b medium,6.5863,2,C,Dec 25
+openai/gpt-oss-120b low,5.31293,2,C,Dec 25
+openai/gpt-oss-120b high,8.50362,1,C,Dec 25
+microsoft/Phi-4-reasoning-plus,9.46161,2,A,Dec 25
+openai/gpt-oss-20b medium,4.12211,5,B,Dec 25
+openai/gpt-oss-20b low,1.13559,5,B,Dec 25
+openai/gpt-oss-20b high,5.51201,4,B,Dec 25
+Qwen/Qwen3-235B-A22B,0.30053,5,C,Dec 25
+Qwen/Qwen3-30B-A3B,11.13006,3,B,Dec 25
+LGAI-EXAONE/EXAONE-4.0-32B,18.99236,1,B,Dec 25
+deepseek-ai/DeepSeek-R1-Distill-Qwen-32B,4.78983,3,C,Dec 25
+HuggingFaceTB/SmolLM3-3B,12.79122,1,A,Dec 25
+google/gemma-3-4b-pt,11.81118,1,A,Dec 25
+deepseek-ai/DeepSeek-R1-Distill-Llama-70B,7.62653,1,C,Dec 25
+Qwen/Qwen3-Next-80B-A3B-Instruct,0.26673,5,C,Dec 25
+Qwen/Qwen3-Next-80B-A3B-Thinking,0.27667,5,C,Dec 25
