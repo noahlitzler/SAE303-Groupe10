@@ -1,21 +1,17 @@
+
 ---
-import PlotFigure from "../components/PlotFigure.astro";
-import Layout from "../layouts/Layout.astro";
-import * as Plot from "@observablehq/plot";
-import penguins from "../assets/penguins.json";
+import DepthExperience from "../components/DepthExperience.astro";
 ---
 
-<Layout>
-  <h1 class="text-2xl">Test Astro et Plot (Observablehq)</h1>
-  <PlotFigure
-    options={{
-      marks: [
-        Plot.dot(penguins, {
-          x: "culmen_length_mm",
-          y: "culmen_depth_mm",
-          stroke: "species",
-        }),
-      ],
-    }}
-  />
-</Layout>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Derrière le prompt — L'énergie invisible</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+  </head>
+
+  <body style="margin: 0; background: #080b16;">
+    <DepthExperience />
+  </body>
+</html>
