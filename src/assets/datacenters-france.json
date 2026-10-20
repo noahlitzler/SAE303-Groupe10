@@ -1,0 +1,1061 @@
+{
+  "titre": "Datacenters en France métropolitaine — données vérifiées pour la carte",
+  "version": 2,
+  "date_verification": "2026-10-20",
+  "perimetre": "France métropolitaine",
+  "note": "Seules les entrées « localisation_verifiee » ont des coordonnées et sont affichées sur la carte, via « points_carte ». Les autres apparaissent dans une liste séparée, sans point. Coordonnées = objets OpenStreetMap d'origine, jamais modifiés ; les points regroupés sont une convention d'affichage.",
+  "statuts": {
+    "localisation_verifiee": "Existence confirmée et emplacement vérifié : point sur la carte",
+    "localisation_non_verifiee": "Existence confirmée, emplacement non vérifié : liste uniquement",
+    "existence_non_confirmee": "Existence non confirmée par une source fiable : liste séparée"
+  },
+  "precisions": {
+    "coordonnees_officielles": "Coordonnées publiées par l'opérateur",
+    "adresse": "Adresse officielle concordante avec OpenStreetMap",
+    "site": "Site ou campus confirmé (point approximatif)",
+    "commune": "Commune seulement",
+    "adresse_sans_coordonnees": "Adresse officielle connue, coordonnées non vérifiées",
+    "aucune": "Aucune localisation établie"
+  },
+  "credits": "Coordonnées : © contributeurs OpenStreetMap (ODbL). Sources de vérification : voir le champ « sources » de chaque entrée.",
+  "resume": {
+    "points_carte": 18,
+    "datacenters_localises": 23,
+    "localisation_non_verifiee": 15,
+    "existence_non_confirmee": 1
+  },
+  "points_carte": [
+    {
+      "id": "advanced-mediomatrix",
+      "nom": "Advanced MedioMatrix",
+      "type": "site",
+      "ville": "Peltre",
+      "region": "Grand Est",
+      "precision": "adresse",
+      "latitude": 49.0856606,
+      "longitude": 6.2375093,
+      "datacenters": [
+        "advanced-mediomatrix"
+      ],
+      "nb_datacenters": 1
+    },
+    {
+      "id": "campus-equinix-saint-denis",
+      "nom": "Campus Equinix Saint-Denis",
+      "type": "regroupement",
+      "ville": "Saint-Denis",
+      "region": "Île-de-France",
+      "precision": "adresse",
+      "latitude": 48.92729,
+      "longitude": 2.34998,
+      "datacenters": [
+        "equinix-pa3",
+        "equinix-pa2",
+        "equinix-pa10",
+        "equinix-pa9x"
+      ],
+      "nb_datacenters": 4,
+      "convention": "Point agrégé : centroïde des 4 objets OSM. Les objets restent distincts dans le CSV."
+    },
+    {
+      "id": "equinix-pa6",
+      "nom": "Equinix PA6",
+      "type": "site",
+      "ville": "Aubervilliers",
+      "region": "Île-de-France",
+      "precision": "adresse",
+      "latitude": 48.9101878,
+      "longitude": 2.3682301,
+      "datacenters": [
+        "equinix-pa6"
+      ],
+      "nb_datacenters": 1
+    },
+    {
+      "id": "equinix-pa5",
+      "nom": "Equinix PA5",
+      "type": "site",
+      "ville": "Aubervilliers",
+      "region": "Île-de-France",
+      "precision": "coordonnees_officielles",
+      "latitude": 48.9052934,
+      "longitude": 2.3697913,
+      "datacenters": [
+        "equinix-pa5"
+      ],
+      "nb_datacenters": 1
+    },
+    {
+      "id": "equinix-pa7",
+      "nom": "Equinix PA7",
+      "type": "site",
+      "ville": "Courbevoie",
+      "region": "Île-de-France",
+      "precision": "adresse",
+      "latitude": 48.904988,
+      "longitude": 2.259461,
+      "datacenters": [
+        "equinix-pa7"
+      ],
+      "nb_datacenters": 1
+    },
+    {
+      "id": "campus-equinix-pantin",
+      "nom": "Campus Equinix Pantin",
+      "type": "regroupement",
+      "ville": "Pantin",
+      "region": "Île-de-France",
+      "precision": "coordonnees_officielles",
+      "latitude": 48.90051,
+      "longitude": 2.42201,
+      "datacenters": [
+        "equinix-pa4",
+        "equinix-pa8x"
+      ],
+      "nb_datacenters": 2,
+      "convention": "Point agrégé : centroïde des 2 objets OSM. Les objets restent distincts dans le CSV."
+    },
+    {
+      "id": "telehouse-th2",
+      "nom": "Telehouse TH2 Paris Voltaire",
+      "type": "site",
+      "ville": "Paris",
+      "region": "Île-de-France",
+      "precision": "adresse",
+      "latitude": 48.8561326,
+      "longitude": 2.3833044,
+      "datacenters": [
+        "telehouse-th2"
+      ],
+      "nb_datacenters": 1
+    },
+    {
+      "id": "digitalrealty-par12",
+      "nom": "Digital Realty PAR12",
+      "type": "site",
+      "ville": "Ferrières-en-Brie",
+      "region": "Île-de-France",
+      "precision": "adresse",
+      "latitude": 48.8243997,
+      "longitude": 2.725104,
+      "datacenters": [
+        "digitalrealty-par12"
+      ],
+      "nb_datacenters": 1
+    },
+    {
+      "id": "digitalrealty-par6",
+      "nom": "Digital Realty PAR6",
+      "type": "site",
+      "ville": "Ivry-sur-Seine",
+      "region": "Île-de-France",
+      "precision": "adresse",
+      "latitude": 48.817032,
+      "longitude": 2.4048225,
+      "datacenters": [
+        "digitalrealty-par6"
+      ],
+      "nb_datacenters": 1
+    },
+    {
+      "id": "equinix-pa13x",
+      "nom": "Equinix PA13x",
+      "type": "site",
+      "ville": "Meudon",
+      "region": "Île-de-France",
+      "precision": "adresse",
+      "latitude": 48.7891073,
+      "longitude": 2.2165885,
+      "datacenters": [
+        "equinix-pa13x"
+      ],
+      "nb_datacenters": 1
+    },
+    {
+      "id": "velizy-grange-dame-rose",
+      "nom": "16 rue Grange Dame Rose, Vélizy",
+      "type": "regroupement",
+      "ville": "Vélizy-Villacoublay",
+      "region": "Île-de-France",
+      "precision": "adresse",
+      "latitude": 48.7837888,
+      "longitude": 2.2080871,
+      "datacenters": [
+        "cogent-paris2",
+        "dc2scale-par2"
+      ],
+      "nb_datacenters": 2,
+      "convention": "Convention cartographique : Cogent Paris 2 est affiché sur le point de dc2scale PAR2 (coordonnées OSM à ~15 m de PeeringDB). Ne démontre pas que les installations sont identiques."
+    },
+    {
+      "id": "telehouse-th3",
+      "nom": "Telehouse TH3 Paris Magny",
+      "type": "site",
+      "ville": "Magny-les-Hameaux",
+      "region": "Île-de-France",
+      "precision": "adresse",
+      "latitude": 48.7260968,
+      "longitude": 2.0775948,
+      "datacenters": [
+        "telehouse-th3"
+      ],
+      "nb_datacenters": 1
+    },
+    {
+      "id": "data4-par02",
+      "nom": "DATA4 PAR02",
+      "type": "site",
+      "ville": "Marcoussis",
+      "region": "Île-de-France",
+      "precision": "adresse",
+      "latitude": 48.6642946,
+      "longitude": 2.2083235,
+      "datacenters": [
+        "data4-par02"
+      ],
+      "nb_datacenters": 1
+    },
+    {
+      "id": "data4-par01",
+      "nom": "DATA4 PAR01",
+      "type": "site",
+      "ville": "Nozay",
+      "region": "Île-de-France",
+      "precision": "site",
+      "latitude": 48.6502794,
+      "longitude": 2.228042,
+      "datacenters": [
+        "data4-par01"
+      ],
+      "nb_datacenters": 1
+    },
+    {
+      "id": "cogent-tours",
+      "nom": "Cogent Tours",
+      "type": "site",
+      "ville": "Tours",
+      "region": "Centre-Val de Loire",
+      "precision": "adresse",
+      "latitude": 47.4323259,
+      "longitude": 0.6864916,
+      "datacenters": [
+        "cogent-tours"
+      ],
+      "nb_datacenters": 1
+    },
+    {
+      "id": "cern-prevessin",
+      "nom": "Prévessin Data Centre (CERN)",
+      "type": "site",
+      "ville": "Prévessin-Moëns",
+      "region": "Auvergne-Rhône-Alpes",
+      "precision": "site",
+      "latitude": 46.2554114,
+      "longitude": 6.0564182,
+      "datacenters": [
+        "cern-prevessin"
+      ],
+      "nb_datacenters": 1
+    },
+    {
+      "id": "equinix-bx1",
+      "nom": "Equinix BX1",
+      "type": "site",
+      "ville": "Bruges",
+      "region": "Nouvelle-Aquitaine",
+      "precision": "adresse",
+      "latitude": 44.8962313,
+      "longitude": -0.6117206,
+      "datacenters": [
+        "equinix-bx1"
+      ],
+      "nb_datacenters": 1
+    },
+    {
+      "id": "digitalrealty-mrs1",
+      "nom": "Digital Realty MRS1",
+      "type": "site",
+      "ville": "Marseille",
+      "region": "Provence-Alpes-Côte d'Azur",
+      "precision": "adresse",
+      "latitude": 43.3110164,
+      "longitude": 5.3739134,
+      "datacenters": [
+        "digitalrealty-mrs1"
+      ],
+      "nb_datacenters": 1
+    }
+  ],
+  "datacenters": [
+    {
+      "id": "digitalrealty-par6",
+      "nom": "Digital Realty PAR6",
+      "exploitant": "Digital Realty",
+      "ville": "Ivry-sur-Seine",
+      "region": "Île-de-France",
+      "adresse": "11-15 rue Galilée, 94200 Ivry-sur-Seine",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 48.817032,
+      "longitude": 2.4048225,
+      "point_carte": "digitalrealty-par6",
+      "existence": "Confirmée (page officielle Digital Realty PAR6, 11-15 Rue Galilée, 94200 Ivry-sur-Seine, 2 400 m²).",
+      "localisation": "Adresse ; adresse absente dans OSM, point à ~150 m de la Rue Galilée, cohérent à l'échelle de l'îlot.",
+      "doublon": "Aucun repéré.",
+      "osm_id": "relation/1190245",
+      "sources": [
+        "https://www.digitalrealty.com/data-centers/emea/paris/par6"
+      ]
+    },
+    {
+      "id": "equinix-pa3",
+      "nom": "Equinix PA3",
+      "exploitant": "Equinix",
+      "ville": "Saint-Denis",
+      "region": "Île-de-France",
+      "adresse": "114 rue Ambroise Croizat, 93200 Saint-Denis",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 48.9271389,
+      "longitude": 2.3503458,
+      "point_carte": "campus-equinix-saint-denis",
+      "existence": "Confirmée (page officielle Equinix PA3).",
+      "localisation": "Adresse (114 rue Ambroise Croizat, identique à OSM) ; attribution du bâtiment issue d'OSM seul.",
+      "doublon": "Non, campus de 4 datacenters distincts.",
+      "osm_id": "way/42742505",
+      "sources": [
+        "https://www.equinix.com/data-centers/europe-colocation/france-colocation/paris-data-centers/pa3"
+      ]
+    },
+    {
+      "id": "digitalrealty-mrs1",
+      "nom": "Digital Realty MRS1",
+      "exploitant": "Digital Realty",
+      "ville": "Marseille",
+      "region": "Provence-Alpes-Côte d'Azur",
+      "adresse": "40 avenue Roger Salengro, 13003 Marseille",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 43.3110164,
+      "longitude": 5.3739134,
+      "point_carte": "digitalrealty-mrs1",
+      "existence": "Confirmée (page officielle Digital Realty MRS1, 40 Avenue Roger Salengro, 13003 Marseille, 13 500 m²).",
+      "localisation": "Adresse ; point OSM à ~75 m du nœud d'adresse.",
+      "doublon": "Aucun repéré.",
+      "osm_id": "way/68940404",
+      "sources": [
+        "https://www.digitalrealty.com/data-centers/emea/marseille/mrs1"
+      ]
+    },
+    {
+      "id": "equinix-pa5",
+      "nom": "Equinix PA5",
+      "exploitant": "Equinix",
+      "ville": "Aubervilliers",
+      "region": "Île-de-France",
+      "adresse": "45 avenue Victor Hugo, Bât. 254, 93300 Aubervilliers",
+      "statut": "localisation_verifiee",
+      "precision": "coordonnees_officielles",
+      "latitude": 48.9052934,
+      "longitude": 2.3697913,
+      "point_carte": "equinix-pa5",
+      "existence": "Confirmée (page officielle Equinix PA5).",
+      "localisation": "Coordonnées officielles Equinix (48.905732, 2.369762) à ~50 m de ce bâtiment ; adresse OSM (34 rue du Mimosa) différente de l'adresse postale officielle (45 av. Victor Hugo, Bât. 254).",
+      "doublon": "node/6174794770 (~390 m des coordonnées officielles) exclu au profit de cet objet.",
+      "osm_id": "way/73007043",
+      "sources": [
+        "https://www.equinix.com/data-centers/europe-colocation/france-colocation/paris-data-centers/pa5"
+      ]
+    },
+    {
+      "id": "equinix-pa6",
+      "nom": "Equinix PA6",
+      "exploitant": "Equinix",
+      "ville": "Aubervilliers",
+      "region": "Île-de-France",
+      "adresse": "10 rue Waldeck Rochet, Bât. 520, 93300 Aubervilliers",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 48.9101878,
+      "longitude": 2.3682301,
+      "point_carte": "equinix-pa6",
+      "existence": "Confirmée (page officielle Equinix PA6, 10 rue Waldeck Rochet, Bât. 520, 93300 Aubervilliers).",
+      "localisation": "Adresse concordante avec OSM ; point à ~60 m de la rue.",
+      "doublon": "Aucun repéré.",
+      "osm_id": "way/73008524",
+      "sources": [
+        "https://www.equinix.com/data-centers/europe-colocation/france-colocation/paris-data-centers/pa6"
+      ]
+    },
+    {
+      "id": "equinix-pa4",
+      "nom": "Equinix PA4",
+      "exploitant": "Equinix",
+      "ville": "Pantin",
+      "region": "Île-de-France",
+      "adresse": "110 bis avenue du Général Leclerc, 93500 Pantin",
+      "statut": "localisation_verifiee",
+      "precision": "coordonnees_officielles",
+      "latitude": 48.9003282,
+      "longitude": 2.4220276,
+      "point_carte": "campus-equinix-pantin",
+      "existence": "Confirmée (page officielle Equinix PA4).",
+      "localisation": "Coordonnées officielles Equinix (48.900717, 2.421130) à ~80 m du point OSM, ZI Les Vignes ; l'adresse postale (110 Bis av. du Général Leclerc) ne reflète pas l'emplacement réel ; PeeringDB indique une autre adresse, écartée.",
+      "doublon": "Non, 2 datacenters distincts (PA4, PA8x).",
+      "osm_id": "way/73120395",
+      "sources": [
+        "https://www.equinix.com/data-centers/europe-colocation/france-colocation/paris-data-centers/pa4",
+        "https://peeringdb.com/fac/1244"
+      ]
+    },
+    {
+      "id": "equinix-pa7",
+      "nom": "Equinix PA7",
+      "exploitant": "Equinix",
+      "ville": "Courbevoie",
+      "region": "Île-de-France",
+      "adresse": "130-136 boulevard de Verdun, Energy Park Bât. 9, 92400 Courbevoie",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 48.904988,
+      "longitude": 2.259461,
+      "point_carte": "equinix-pa7",
+      "existence": "Confirmée (page officielle Equinix PA7, 130-136 bd de Verdun, Energy Park Bât. 9, 92400 Courbevoie).",
+      "localisation": "Adresse concordante ; point à ~120 m du n°130.",
+      "doublon": "Aucun ; l'autre objet nommé « PA7 » (node/6174794770) relève du groupe PA5.",
+      "osm_id": "way/81750727",
+      "sources": [
+        "https://www.equinix.com/data-centers/europe-colocation/france-colocation/paris-data-centers/pa7"
+      ]
+    },
+    {
+      "id": "equinix-pa2",
+      "nom": "Equinix PA2",
+      "exploitant": "Equinix",
+      "ville": "Saint-Denis",
+      "region": "Île-de-France",
+      "adresse": "114 rue Ambroise Croizat, 93200 Saint-Denis",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 48.9275923,
+      "longitude": 2.35165,
+      "point_carte": "campus-equinix-saint-denis",
+      "existence": "Confirmée (page officielle Equinix PA2).",
+      "localisation": "Adresse (114 rue Ambroise Croizat, identique à OSM) ; attribution du bâtiment issue d'OSM seul.",
+      "doublon": "Non, campus de 4 datacenters distincts.",
+      "osm_id": "way/463443856",
+      "sources": [
+        "https://www.equinix.com/data-centers/europe-colocation/france-colocation/paris-data-centers/pa2"
+      ]
+    },
+    {
+      "id": "telehouse-th3",
+      "nom": "Telehouse TH3 Paris Magny",
+      "exploitant": "Telehouse",
+      "ville": "Magny-les-Hameaux",
+      "region": "Île-de-France",
+      "adresse": "1 rue Pablo Picasso, 78114 Magny-les-Hameaux",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 48.7260968,
+      "longitude": 2.0775948,
+      "point_carte": "telehouse-th3",
+      "existence": "Confirmée (fiche officielle Telehouse, 1 rue Pablo Picasso, 78114 Magny-les-Hameaux, 66 000 m²).",
+      "localisation": "Adresse ; point sur un bâtiment OSM « TH3 », rue Pablo Picasso.",
+      "doublon": "Aucun dans le fichier.",
+      "osm_id": "way/700526670",
+      "sources": [
+        "https://www.telehouse.com/wp-content/uploads/2017/03/telehouse_Paris_magny_les_hameaux.pdf"
+      ]
+    },
+    {
+      "id": "cogent-tours",
+      "nom": "Cogent Tours",
+      "exploitant": "Cogent",
+      "ville": "Tours",
+      "region": "Centre-Val de Loire",
+      "adresse": "171 rue des Douets, 37100 Tours",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 47.4323259,
+      "longitude": 0.6864916,
+      "point_carte": "cogent-tours",
+      "existence": "Confirmée (liste officielle Cogent : « Cogent Data Center - Tours », 171 rue des Douets, 37100 Tours).",
+      "localisation": "Adresse identique à OSM ; data center hébergé dans un immeuble de bureaux.",
+      "doublon": "Objet OSM voisin au même numéro, à vérifier.",
+      "osm_id": "way/843118512",
+      "sources": [
+        "https://cogentco.com/en/network/service-locations?continent=&country=France&state=&metro=&city=&site_type=CDC&action=search"
+      ]
+    },
+    {
+      "id": "equinix-pa13x",
+      "nom": "Equinix PA13x",
+      "exploitant": "Equinix",
+      "ville": "Meudon",
+      "region": "Île-de-France",
+      "adresse": "9 avenue du Maréchal Juin, 92360 Meudon",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 48.7891073,
+      "longitude": 2.2165885,
+      "point_carte": "equinix-pa13x",
+      "existence": "Confirmée (page officielle Equinix PA13x, 9 av. du Maréchal Juin, 92360 Meudon).",
+      "localisation": "Adresse ; point à ~120 m du n°9.",
+      "doublon": "Aucun repéré.",
+      "osm_id": "way/846772885",
+      "sources": [
+        "https://www.equinix.com/data-centers/europe-colocation/france-colocation/paris-data-centers/pa13x"
+      ]
+    },
+    {
+      "id": "digitalrealty-par12",
+      "nom": "Digital Realty PAR12",
+      "exploitant": "Digital Realty",
+      "ville": "Ferrières-en-Brie",
+      "region": "Île-de-France",
+      "adresse": "16 avenue Joseph Froelicher, 77164 Ferrières-en-Brie",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 48.8243997,
+      "longitude": 2.725104,
+      "point_carte": "digitalrealty-par12",
+      "existence": "Confirmée (page officielle Digital Realty PAR12, 16 av. Joseph Froelicher, 77164 Ferrières-en-Brie, 8 800 m²).",
+      "localisation": "Adresse identique à OSM.",
+      "doublon": "Aucun repéré.",
+      "osm_id": "way/846779443",
+      "sources": [
+        "https://www.digitalrealty.com/data-centers/emea/paris/par12"
+      ]
+    },
+    {
+      "id": "equinix-pa8x",
+      "nom": "Equinix PA8x",
+      "exploitant": "Equinix",
+      "ville": "Pantin",
+      "region": "Île-de-France",
+      "adresse": "110 bis avenue du Général Leclerc, Building 19, Pantin",
+      "statut": "localisation_verifiee",
+      "precision": "coordonnees_officielles",
+      "latitude": 48.9007018,
+      "longitude": 2.4219855,
+      "point_carte": "campus-equinix-pantin",
+      "existence": "Confirmée (page officielle Equinix PA8x, consultée le 19/10/2026 ; bâtiment cédé en 2023 à la coentreprise Equinix-GIC).",
+      "localisation": "Coordonnées officielles Equinix (48.900952, 2.421266) à ~60 m du point OSM, ZI Les Vignes.",
+      "doublon": "Non, 2 datacenters distincts (PA4, PA8x).",
+      "osm_id": "way/847461128",
+      "sources": [
+        "https://www.equinix.com/data-centers/europe-colocation/france-colocation/paris-data-centers/pa8x",
+        "https://www.addleshawgoddard.com/fr/informations/2023/ag-conseille-equinix-dans-le-cadre-vente-du-datacentre-pa8x-a-pantin-93/"
+      ]
+    },
+    {
+      "id": "advanced-mediomatrix",
+      "nom": "Advanced MedioMatrix",
+      "exploitant": "Advanced MedioMatrix",
+      "ville": "Peltre",
+      "region": "Grand Est",
+      "adresse": "1 rue du Jardin d’Écosse, 57245 Peltre",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 49.0856606,
+      "longitude": 6.2375093,
+      "point_carte": "advanced-mediomatrix",
+      "existence": "Confirmée (site officiel : « Votre datacenter à Metz », certifié Tier III).",
+      "localisation": "Adresse (1 rue du Jardin d'Écosse, 57245 Peltre) ; point à ~105 m de la rue, ZAC de Mercy.",
+      "doublon": "Aucun repéré.",
+      "osm_id": "way/969469076",
+      "sources": [
+        "https://advanced-mediomatrix.com/contact"
+      ]
+    },
+    {
+      "id": "equinix-pa10",
+      "nom": "Equinix PA10",
+      "exploitant": "Equinix",
+      "ville": "Saint-Denis",
+      "region": "Île-de-France",
+      "adresse": "114 rue Ambroise Croizat, 93200 Saint-Denis",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 48.9275575,
+      "longitude": 2.3489505,
+      "point_carte": "campus-equinix-saint-denis",
+      "existence": "Confirmée (page officielle Equinix PA10).",
+      "localisation": "Adresse du campus (114 rue Ambroise Croizat) ; attribution du bâtiment issue d'OSM seul.",
+      "doublon": "Non, campus de 4 datacenters distincts.",
+      "osm_id": "way/1121454054",
+      "sources": [
+        "https://www.equinix.com/data-centers/europe-colocation/france-colocation/paris-data-centers/pa10"
+      ]
+    },
+    {
+      "id": "equinix-pa9x",
+      "nom": "Equinix PA9x",
+      "exploitant": "Equinix",
+      "ville": "Saint-Denis",
+      "region": "Île-de-France",
+      "adresse": "114 rue Ambroise Croizat, 93200 Saint-Denis",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 48.926852,
+      "longitude": 2.3489753,
+      "point_carte": "campus-equinix-saint-denis",
+      "existence": "Confirmée (page officielle Equinix PA9x).",
+      "localisation": "Adresse du campus (114 rue Ambroise Croizat) ; attribution du bâtiment issue d'OSM seul.",
+      "doublon": "Non, campus de 4 datacenters distincts.",
+      "osm_id": "way/1121454055",
+      "sources": [
+        "https://www.equinix.com/data-centers/europe-colocation/france-colocation/paris-data-centers/pa9x"
+      ]
+    },
+    {
+      "id": "cern-prevessin",
+      "nom": "Prévessin Data Centre (CERN)",
+      "exploitant": "CERN",
+      "ville": "Prévessin-Moëns",
+      "region": "Auvergne-Rhône-Alpes",
+      "adresse": "Site CERN de Prévessin, Route Dirac, 01630 Prévessin-Moëns",
+      "statut": "localisation_verifiee",
+      "precision": "site",
+      "latitude": 46.2554114,
+      "longitude": 6.0564182,
+      "point_carte": "cern-prevessin",
+      "existence": "Confirmée (CERN : inauguré le 23/02/2024 sur le site de Prévessin, France ; >6 000 m², 6 salles de 2 MW).",
+      "localisation": "Site ; point OSM sur le bâtiment « Prévessin Data Centre », 775 Route Dirac.",
+      "doublon": "Aucun ; distinct du data centre de Meyrin (Suisse, exclu).",
+      "osm_id": "way/1562060312",
+      "sources": [
+        "https://home.cern/news/news/computing/new-data-centre-cern"
+      ]
+    },
+    {
+      "id": "cogent-paris2",
+      "nom": "Cogent Paris 2",
+      "exploitant": "Cogent",
+      "ville": "Vélizy-Villacoublay",
+      "region": "Île-de-France",
+      "adresse": "16 rue Grange Dame Rose, 78140 Vélizy-Villacoublay",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 48.7842025,
+      "longitude": 2.2069451,
+      "point_carte": "velizy-grange-dame-rose",
+      "existence": "Confirmée (liste officielle Cogent : « Cogent Data Center - Paris 2 », 16 rue Grange Dame Rose).",
+      "localisation": "Adresse ; PeeringDB donne la même adresse et des coordonnées quasi identiques pour Cogent et dc2scale (géocodage probable).",
+      "doublon": "Même adresse que dc2scale PAR2 ; même bâtiment non prouvé. Rattaché au point dc2scale.",
+      "osm_id": "node/6289632564",
+      "sources": [
+        "https://cogentco.com/en/network/service-locations?continent=&country=France&state=&metro=&city=&site_type=CDC&action=search",
+        "https://peeringdb.com/fac/731"
+      ]
+    },
+    {
+      "id": "dc2scale-par2",
+      "nom": "dc2scale PAR2",
+      "exploitant": "dc2scale",
+      "ville": "Vélizy-Villacoublay",
+      "region": "Île-de-France",
+      "adresse": "16 rue Grange Dame Rose, 78140 Vélizy-Villacoublay",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 48.7837888,
+      "longitude": 2.2080871,
+      "point_carte": "velizy-grange-dame-rose",
+      "existence": "Confirmée (page officielle dc2scale PAR2 : campus Paris-Vélizy, 250 m², 56 baies).",
+      "localisation": "Adresse (PeeringDB : 16 rue Grange Dame Rose, coordonnées à ~15 m du point OSM).",
+      "doublon": "Cogent Paris 2 à la même adresse, rattaché à ce point.",
+      "osm_id": "node/8074063731",
+      "sources": [
+        "https://dc2scale.fr/en/our-datacenters/hub/paris-velizy/par2",
+        "https://beta.peeringdb.com/fac/8406"
+      ]
+    },
+    {
+      "id": "data4-par02",
+      "nom": "DATA4 PAR02",
+      "exploitant": "DATA4",
+      "ville": "Marcoussis",
+      "region": "Île-de-France",
+      "adresse": "15 rue Angiboust, 91460 Marcoussis",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 48.6642946,
+      "longitude": 2.2083235,
+      "point_carte": "data4-par02",
+      "existence": "Confirmée (PAR02, 15 rue Angiboust, Marcoussis, selon Data4).",
+      "localisation": "Adresse ; point sur la rue Marin Angiboust.",
+      "doublon": "Aucun.",
+      "osm_id": "way/146090469",
+      "sources": [
+        "https://www.data4group.com/en/data-center-in-paris-france/"
+      ]
+    },
+    {
+      "id": "data4-par01",
+      "nom": "DATA4 PAR01",
+      "exploitant": "DATA4",
+      "ville": "Nozay",
+      "region": "Île-de-France",
+      "adresse": "3 route de Marcoussis, 91620 Nozay",
+      "statut": "localisation_verifiee",
+      "precision": "site",
+      "latitude": 48.6502794,
+      "longitude": 2.228042,
+      "point_carte": "data4-par01",
+      "existence": "Confirmée (Data4 PAR01, 3 Route de Marcoussis, Nozay).",
+      "localisation": "Site (approximatif) ; adresse OSM identique à l'officielle mais point à ~600 m de la Route de Marcoussis, périmètre du campus non confirmé.",
+      "doublon": "way/42016630 exclu au profit de cet objet.",
+      "osm_id": "way/320306631",
+      "sources": [
+        "https://www.data4group.com/en/data-center-in-paris-france/"
+      ]
+    },
+    {
+      "id": "equinix-bx1",
+      "nom": "Equinix BX1",
+      "exploitant": "Equinix",
+      "ville": "Bruges",
+      "region": "Nouvelle-Aquitaine",
+      "adresse": "39 rue de Strasbourg, 33520 Bruges",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 44.8962313,
+      "longitude": -0.6117206,
+      "point_carte": "equinix-bx1",
+      "existence": "Confirmée (page officielle Equinix BX1, 39 rue de Strasbourg, 33520 Bruges ; seul site Equinix à Bordeaux).",
+      "localisation": "Adresse identique à OSM.",
+      "doublon": "way/920174789 (~40 m) exclu au profit de cet objet.",
+      "osm_id": "way/1060567996",
+      "sources": [
+        "https://www.equinix.com/fr/fr/data-centers/europe-colocation/france-colocation/bordeaux-data-centers/bx1"
+      ]
+    },
+    {
+      "id": "telehouse-th2",
+      "nom": "Telehouse TH2 Paris Voltaire",
+      "exploitant": "Telehouse",
+      "ville": "Paris",
+      "region": "Île-de-France",
+      "adresse": "137 boulevard Voltaire, 75011 Paris",
+      "statut": "localisation_verifiee",
+      "precision": "adresse",
+      "latitude": 48.8561326,
+      "longitude": 2.3833044,
+      "point_carte": "telehouse-th2",
+      "existence": "Confirmée (page officielle Telehouse : « Le datacenter emblématique TH2 Paris Voltaire », 137 boulevard Voltaire, 75011 Paris).",
+      "localisation": "Adresse officielle identique à celle de l'objet OSM node/6015635281.",
+      "doublon": "Aucun repéré.",
+      "osm_id": "node/6015635281",
+      "sources": [
+        "https://www.telehouse.fr/connectivite-data-center-telehouse/france/paris/telehouse-paris-voltaire/"
+      ]
+    },
+    {
+      "id": "uca-crri",
+      "nom": "CRRI / datacenter UCA",
+      "exploitant": "Université Clermont Auvergne",
+      "ville": null,
+      "region": "Auvergne-Rhône-Alpes",
+      "adresse": null,
+      "statut": "localisation_non_verifiee",
+      "precision": "aucune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Datacenter universitaire UCA attesté (in2p3 2016 : CRRI « opérateur du datacenter universitaire (200 m²) » ; in2p3 2024 : « datacenter de l'UCA »).",
+      "localisation": "Non établie ; point OSM sur le bâtiment IUT Informatique/R&T, rue de Rochefeuille, Aubière, sans source le reliant au datacenter ; site web OSM hors service.",
+      "doublon": "Non vérifié. Action : demander l'emplacement à la DSI UCA.",
+      "osm_id": "relation/3358244",
+      "sources": [
+        "https://indico.in2p3.fr/event/13365/contributions/13966/attachments/11657/14375/20161007_journees_plateformes.pdf",
+        "https://indico.in2p3.fr/event/33086/contributions/140497/attachments/85130/127350/jtfg-site-uca.pdf"
+      ]
+    },
+    {
+      "id": "orange-eolas",
+      "nom": "Green DataCenter Eolas",
+      "exploitant": "Orange Business",
+      "ville": "Grenoble",
+      "region": "Auvergne-Rhône-Alpes",
+      "adresse": null,
+      "statut": "localisation_non_verifiee",
+      "precision": "commune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Confirmée (page officielle Orange Business : Green Data Center « au cœur de Grenoble »).",
+      "localisation": "Commune seulement ; adresse OSM « Rue Général Mangin » non recoupée.",
+      "doublon": "Non vérifié.",
+      "osm_id": "way/50210667",
+      "sources": [
+        "https://lafabrique.orange-business.com/12-cloud-hebergement-web.htm"
+      ]
+    },
+    {
+      "id": "sartel-sartera",
+      "nom": "Sartera",
+      "exploitant": "Sartel",
+      "ville": "Le Mans",
+      "region": "Pays de la Loire",
+      "adresse": null,
+      "statut": "localisation_non_verifiee",
+      "precision": "commune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Confirmée (datacenter public exploité par Sartel ; communiqué Axione 2026, Banque des Territoires 2024).",
+      "localisation": "Commune seulement (Le Mans), aucune rue ni zone dans les sources.",
+      "doublon": "Non vérifié.",
+      "osm_id": "way/65551099",
+      "sources": [
+        "https://www.axione.com/wp-content/uploads/2026/06/cp-conference-de-presse-dri-sartel-04062026-vdef-004.pdf",
+        "https://www.banquedesterritoires.fr/souverainete-des-donnees-numeriques-un-nouveau-datacenter-public-de-proximite-au-mans"
+      ]
+    },
+    {
+      "id": "ovh-gravelines",
+      "nom": "OVHcloud — Gravelines",
+      "exploitant": "OVHcloud",
+      "ville": "Gravelines",
+      "region": "Hauts-de-France",
+      "adresse": null,
+      "statut": "localisation_non_verifiee",
+      "precision": "commune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Confirmée (région OVHcloud Gravelines, page officielle ; ouverte en 2013).",
+      "localisation": "Commune seulement, aucune adresse ni bâtiment officiel.",
+      "doublon": "Aucun (seul objet Gravelines du fichier).",
+      "osm_id": "way/551480895",
+      "sources": [
+        "https://www.ovhcloud.com/en/about-us/global-infrastructure/regions/"
+      ]
+    },
+    {
+      "id": "alienor-net",
+      "nom": "Aliénor.net",
+      "exploitant": "Aliénor.net",
+      "ville": "Le Bouscat",
+      "region": "Nouvelle-Aquitaine",
+      "adresse": null,
+      "statut": "localisation_non_verifiee",
+      "precision": "commune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Confirmée (alienor.net : datacenters « notamment au Bouscat »).",
+      "localisation": "Commune seulement ; point OSM à ~40 m du siège (375 av. de Tivoli) sans confirmation que la salle s'y trouve.",
+      "doublon": "Non vérifié.",
+      "osm_id": "way/813676827",
+      "sources": [
+        "https://alienor.net/nos-datacenters-bordeaux/"
+      ]
+    },
+    {
+      "id": "webaxys-dc5-data17",
+      "nom": "Data17 / Webaxys DC5",
+      "exploitant": "Webaxys",
+      "ville": "Saint-Jean-d'Angély",
+      "region": "Nouvelle-Aquitaine",
+      "adresse": null,
+      "statut": "localisation_non_verifiee",
+      "precision": "commune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Confirmée (Webaxys DC5 à Saint-Jean-d'Angély ; data17.fr redirige vers webaxys.fr, lien établi par cette seule redirection).",
+      "localisation": "Commune seulement ; page officielle incohérente (titre « DC5 - SAINTES »).",
+      "doublon": "Non vérifié.",
+      "osm_id": "way/937369189",
+      "sources": [
+        "https://www.webaxys.fr/nos-4-datacenters-sur-le-territoire"
+      ]
+    },
+    {
+      "id": "sostradata-dc01",
+      "nom": "SostraData",
+      "exploitant": "SostraData",
+      "ville": "Saint-Maurice-la-Souterraine",
+      "region": "Nouvelle-Aquitaine",
+      "adresse": null,
+      "statut": "localisation_non_verifiee",
+      "precision": "commune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Confirmée (Uptime Institute : « SostraData DC01 », Saint-Maurice-la-Souterraine).",
+      "localisation": "Commune seulement ; site officiel inaccessible (erreur de certificat).",
+      "doublon": "Relation éventuelle avec Webaxys DC4 « La Souterraine » non établie.",
+      "osm_id": "way/1118414289",
+      "sources": [
+        "https://uptimeinstitute.com/uptime-institute-awards/client/sostradata/741"
+      ]
+    },
+    {
+      "id": "ndc-roazhon",
+      "nom": "Nation Data Center Rennes",
+      "exploitant": "Nation Data Center",
+      "ville": "Noyal-sur-Vilaine",
+      "region": "Bretagne",
+      "adresse": null,
+      "statut": "localisation_non_verifiee",
+      "precision": "commune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Confirmée (DatacenterDynamics, oct. 2025 : NDC Roazhon, Noyal-sur-Vilaine, 3 MW).",
+      "localisation": "Commune seulement ; site web OSM en 404, site officiel en 403.",
+      "doublon": "Site NDC Rennes 2 (Mordelles) distinct, présence dans le fichier non vérifiée.",
+      "osm_id": "way/1361721862",
+      "sources": [
+        "https://www.datacenterdynamics.com/en/news/frances-nation-dc-launches-3mw-data-center-outside-rennes/"
+      ]
+    },
+    {
+      "id": "contabo-hub-europe",
+      "nom": "Hub Europe",
+      "exploitant": "Contabo",
+      "ville": "Lauterbourg (déduite de la source)",
+      "region": "Grand Est",
+      "adresse": null,
+      "statut": "localisation_non_verifiee",
+      "precision": "commune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Confirmée (blog officiel Contabo, fév. 2023 : 7 bâtiments / 12 MW « à la frontière franco-allemande »).",
+      "localisation": "Commune par déduction (Lauterbourg citée uniquement dans l'URL de la source).",
+      "doublon": "Non vérifié.",
+      "osm_id": "way/1482249092",
+      "sources": [
+        "https://contabo.com/blog/de/neues-rechenzentrum-lauterbourg/"
+      ]
+    },
+    {
+      "id": "aquaray-aurora",
+      "nom": "Aqua Ray « Aurora »",
+      "exploitant": "Aqua Ray",
+      "ville": "Ivry-sur-Seine",
+      "region": "Île-de-France",
+      "adresse": null,
+      "statut": "localisation_non_verifiee",
+      "precision": "commune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Confirmée (Aqua Ray : data center « Aurora », « situé sur la commune d'Ivry-sur-Seine »).",
+      "localisation": "Commune seulement ; adresse OSM (14 rue Jules Vanzuppe) non confirmée par l'opérateur.",
+      "doublon": "Aucun ; distinct de Digital Realty PAR6 (~900 m).",
+      "osm_id": "node/7900883632",
+      "sources": [
+        "https://www.aquaray.com/colocation-data-center/data-centers"
+      ]
+    },
+    {
+      "id": "crypteo",
+      "nom": "Crypteo",
+      "exploitant": "Crypteo",
+      "ville": "Marssac-sur-Tarn",
+      "region": "Occitanie",
+      "adresse": null,
+      "statut": "localisation_non_verifiee",
+      "precision": "commune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Confirmée (site officiel : opérateur de datacenter « basé à Marssac-sur-Tarn », datacenter « installé dans le Tarn »).",
+      "localisation": "Commune seulement ; point OSM sur l'avenue du siège, sans confirmation que la salle s'y trouve.",
+      "doublon": "Aucun repéré.",
+      "osm_id": "node/11691867437",
+      "sources": [
+        "https://www.crypteo.com/"
+      ]
+    },
+    {
+      "id": "ovh-roubaix",
+      "nom": "OVHcloud — Roubaix",
+      "exploitant": "OVHcloud",
+      "ville": "Roubaix",
+      "region": "Hauts-de-France",
+      "adresse": null,
+      "statut": "localisation_non_verifiee",
+      "precision": "commune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Confirmée au niveau de la ville (page officielle OVHcloud : « Roubaix, France »).",
+      "localisation": "Commune seulement ; aucune adresse publiée. Objets OSM correspondants non encore vérifiés.",
+      "doublon": "Non vérifié.",
+      "osm_id": null,
+      "sources": [
+        "https://www.ovhcloud.com/fr/datacenter/"
+      ]
+    },
+    {
+      "id": "ovh-strasbourg",
+      "nom": "OVHcloud — Strasbourg",
+      "exploitant": "OVHcloud",
+      "ville": "Strasbourg",
+      "region": "Grand Est",
+      "adresse": null,
+      "statut": "localisation_non_verifiee",
+      "precision": "commune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Confirmée au niveau de la ville (page officielle OVHcloud : « Strasbourg, France »).",
+      "localisation": "Commune seulement ; aucune adresse publiée. Objets OSM correspondants non encore vérifiés.",
+      "doublon": "Non vérifié.",
+      "osm_id": null,
+      "sources": [
+        "https://www.ovhcloud.com/fr/datacenter/"
+      ]
+    },
+    {
+      "id": "ovh-paris",
+      "nom": "OVHcloud — Paris",
+      "exploitant": "OVHcloud",
+      "ville": "Paris",
+      "region": "Île-de-France",
+      "adresse": null,
+      "statut": "localisation_non_verifiee",
+      "precision": "commune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Confirmée au niveau de la ville (page officielle OVHcloud : « Paris, France »).",
+      "localisation": "Commune seulement ; aucune adresse publiée. Objets OSM correspondants non encore vérifiés.",
+      "doublon": "Non vérifié.",
+      "osm_id": null,
+      "sources": [
+        "https://www.ovhcloud.com/fr/datacenter/"
+      ]
+    },
+    {
+      "id": "data4-par03",
+      "nom": "DATA4 PAR03",
+      "exploitant": "DATA4",
+      "ville": "Nozay",
+      "region": "Île-de-France",
+      "adresse": "7 route de Villejust, 91620 Nozay",
+      "statut": "localisation_non_verifiee",
+      "precision": "adresse_sans_coordonnees",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Confirmée (page officielle Data4 : « PAR03 : 7 Route Villejust - 91620 Nozay »).",
+      "localisation": "Adresse officielle connue, mais aucun objet OSM correspondant dans l'export : coordonnées non vérifiées.",
+      "doublon": "Distinct de PAR01 et PAR02.",
+      "osm_id": null,
+      "sources": [
+        "https://www.data4group.com/en/data-center-in-paris-france/"
+      ]
+    },
+    {
+      "id": "equinix-pa1",
+      "nom": "Equinix PA1",
+      "exploitant": "Equinix",
+      "ville": "Roissy-en-France",
+      "region": "Île-de-France",
+      "adresse": null,
+      "statut": "existence_non_confirmee",
+      "precision": "aucune",
+      "latitude": null,
+      "longitude": null,
+      "existence": "Non confirmée : absent de la liste officielle des datacenters Equinix à Paris (PA2 à PA10, PA13x) ; la page /pa1 renvoie une erreur 404 ; la source d'origine (docs.equinix.com/fr/colocation/availability/) ne mentionne aucun site parisien.",
+      "localisation": "Aucune.",
+      "doublon": "Non applicable.",
+      "osm_id": null,
+      "sources": [
+        "https://www.equinix.com/data-centers/europe-colocation/france-colocation/paris-data-centers"
+      ]
+    }
+  ]
+}
