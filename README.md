@@ -1,9 +1,9 @@
-- URL site WEB :
-- URL Notebook Observable :
-- Nom :
-- Prénom :
-- Nom binome :
-- Prénom binome :
+- URL site WEB : https://derriere-le-prompt-sae303.netlify.app/
+- URL Notebook Observable : https://old.observablehq.com/d/227527a47a175959
+- Nom : LITZLER
+- Prénom : Noah
+- Nom binome : BERTRAND
+- Prénom binome : Clément
 
 # Remarques :
 
