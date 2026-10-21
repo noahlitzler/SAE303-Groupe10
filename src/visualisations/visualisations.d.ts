@@ -1,7 +1,7 @@
 // Types des fonctions de visualisation (visualisations.js, recopiées du notebook).
 type Vue = HTMLElement;
 
-export function dessinerConstellation(donnees: object[], options?: { largeur?: number; rayonMax?: number; rayonMin?: number }): Vue & { choisir(modele: string): void };
+export function dessinerConstellation(donnees: object[], options?: { largeur?: number; zone?: { largeur: number; hauteur: number }; rayonMax?: number; rayonMin?: number }): Vue & { choisir(modele: string): void };
 
 export function dessinerCarte(
   installations: object[],

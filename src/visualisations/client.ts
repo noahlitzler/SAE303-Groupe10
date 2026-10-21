@@ -1,7 +1,11 @@
-// Montage des quatre visualisations dans les faces du cube.
+// Montage des quatre visualisations, dans les faces du cube comme dans les pages Explorer.
 // Route B (rendu chez le lecteur) pour les quatre : chacune réagit au lecteur
 // (sélecteur de modèle, fiche au clic, bascule d'échelle, cartes déplaçables).
 // Les données sont les JSON préfiltrés de public/data, exportés depuis donneesV1..V4 du notebook.
+//
+// Deux modes, choisis par data-obs-mode sur l'emplacement :
+// - « carte » (défaut) : le graphique doit tenir dans le rectangle de la face ;
+// - « page » : page Explorer, le graphique suit le flux de la page avec de grandes dimensions.
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { dessinerCarte, dessinerConstellation, dessinerImpact, dessinerTaches } from "./visualisations.js";
@@ -9,6 +13,8 @@ import { dessinerCarte, dessinerConstellation, dessinerImpact, dessinerTaches } 
 type Cle = "v1" | "v2" | "v3" | "v4";
 type Fichier = { donnees: any[]; entrees_total?: number };
 type Cadrage = { bounds: L.LatLngBounds; maxZoom: number; taille?: string };
+type Zone = { largeur: number; hauteur: number };
+type Etat = { cle: Cle; hote: HTMLElement; scene: HTMLElement; page: boolean; zone?: Zone; afficher?: () => void };
 
 const FICHIERS: Record<Cle, string> = {
   v1: "v1-ecologits-electricite.json",
@@ -19,17 +25,18 @@ const FICHIERS: Record<Cle, string> = {
 
 const DOSSIER = `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}data/`;
 
-const HAUTEUR_MIN_SPHERES = 200;
+const HAUTEUR_MIN_SPHERES = 220;
 const HAUTEUR_MIN_CARTE = 200;
+const HAUTEUR_FICHE_EMPILEE = 190;
 
 const ajusteurs = new Map<HTMLElement, () => void>();
 let cartes: L.Map[] = [];
 let cadrages: Cadrage[] = [];
 let demarre = false;
 
-const dessiner: Record<Cle, (fichier: Fichier, hote: HTMLElement) => HTMLElement> = {
-  // V1 calcule sa disposition pour la largeur réelle du rectangle.
-  v1: (f, hote) => dessinerConstellation(f.donnees, { largeur: Math.max(320, hote.clientWidth) }),
+const dessiner: Record<Cle, (fichier: Fichier, etat: Etat) => HTMLElement> = {
+  // V1 : disposition calculée pour la zone réelle des sphères, dès qu'elle est connue.
+  v1: (f, etat) => dessinerConstellation(f.donnees, { largeur: Math.max(320, etat.hote.clientWidth), zone: etat.zone }),
   v2: (f) => {
     // Mêmes cadrages que dans dessinerCarte, réappliqués quand la taille des cartes change.
     const idf = f.donnees.filter((d) => d.region === "Île-de-France");
@@ -62,44 +69,50 @@ export function monterVisualisations() {
     }
     requestAnimationFrame(rafraichirCartes);
   });
+
+  // Les polices de la charte modifient la hauteur des textes une fois chargées.
+  document.fonts?.ready.then(() => ajusteurs.forEach((ajuster) => ajuster()));
 }
 
 async function monter(cle: Cle, hote: HTMLElement) {
-  const scene = hote.querySelector<HTMLElement>(".obs-viz-stage")!;
+  const etat: Etat = {
+    cle,
+    hote,
+    scene: hote.querySelector<HTMLElement>(".obs-viz-stage")!,
+    page: hote.dataset.obsMode === "page",
+  };
   const statut = hote.querySelector<HTMLElement>(".obs-viz-status");
-  const ajuster = ajusteur(hote, scene, cle);
+  const ajuster = ajusteur(etat);
   ajusteurs.set(hote, ajuster);
-  corrigerBulles(scene);
+  corrigerBulles(etat.scene);
 
   try {
     const reponse = await fetch(DOSSIER + FICHIERS[cle]);
     if (!reponse.ok) throw new Error(`données introuvables (${FICHIERS[cle]})`);
     const fichier: Fichier = await reponse.json();
 
-    const afficher = () => {
-      const vue = dessiner[cle](fichier, hote);
-      scene.replaceChildren(vue);
-      new ResizeObserver(ajuster).observe(vue);
+    etat.afficher = () => {
+      const vue = dessiner[cle](fichier, etat);
+      etat.scene.replaceChildren(vue);
+      if (cle === "v1") stabiliserSpheres(vue);
       ajuster();
     };
 
-    afficher();
+    etat.afficher();
     hote.setAttribute("aria-busy", "false");
     hote.classList.add("is-ready");
     statut?.replaceChildren();
 
-    // V1 recalcule sa disposition quand la largeur change ; les autres sont seulement remis à l'échelle.
-    let largeur = hote.clientWidth;
-    let attente = 0;
+    // Seul un changement de taille du rectangle relance l'ajustement : un changement de contenu
+    // (fiche de V1, texte d'échelle de V3) ne doit jamais modifier le cadrage du graphique.
+    let taille = `${hote.clientWidth}x${hote.clientHeight}`;
     new ResizeObserver(() => {
+      const nouvelle = `${hote.clientWidth}x${hote.clientHeight}`;
+      if (nouvelle === taille) return;
+      taille = nouvelle;
       ajuster();
-      if (cle !== "v1" || Math.abs(hote.clientWidth - largeur) < 2) return;
-      clearTimeout(attente);
-      attente = window.setTimeout(() => {
-        largeur = hote.clientWidth;
-        afficher();
-      }, 150);
     }).observe(hote);
+    if (etat.page) addEventListener("resize", ajuster);
   } catch (erreur) {
     hote.setAttribute("aria-busy", "false");
     hote.classList.add("is-error");
@@ -107,6 +120,15 @@ async function monter(cle: Cle, hote: HTMLElement) {
     if (statut) statut.textContent = `VISUALISATION INDISPONIBLE — ${message}`;
     console.error(`[${cle}]`, erreur);
   }
+}
+
+// Un clic sur une sphère ne doit que la sélectionner. Le focus donné par la souris pouvait faire
+// défiler la page pour « montrer » la sphère, et le défilement fait pivoter le cube : on l'évite.
+// Le clavier (Tab, Entrée, Espace) garde le focus et la sélection.
+function stabiliserSpheres(vue: HTMLElement) {
+  vue.addEventListener("mousedown", (e) => {
+    if ((e.target as Element).closest(".sphere")) e.preventDefault();
+  });
 }
 
 // invalidateSize ne recadre pas : une carte créée avant que sa face ait sa taille finale
@@ -125,34 +147,51 @@ function rafraichirCartes() {
 }
 
 /**
- * Ajustement des visualisations dans leur rectangle.
+ * Ajustement d'une visualisation.
  *
- * - V1 : la constellation occupe toute la largeur ; la zone des sphères prend la hauteur restante.
- * - V2 : les deux cartes prennent toute la hauteur laissée par les textes.
- * - V4 : les compteurs se répartissent dans la hauteur disponible.
- * - Si le contenu dépasse encore (petits écrans), réduction uniforme, compensée par une largeur interne.
+ * Mode « carte » (faces du cube) :
+ * - V1 : la constellation occupe toute la largeur ; la zone des sphères prend la hauteur restante ;
+ * - V2 : les deux cartes prennent toute la hauteur laissée par les textes ;
+ * - V4 : les compteurs se répartissent dans la hauteur disponible ;
+ * - si le contenu dépasse encore (petits écrans), réduction uniforme, compensée par une largeur interne.
+ *
+ * Mode « page » (pages Explorer) : aucune réduction ; le graphique prend toute la largeur
+ * et des hauteurs proportionnées à l'écran (zone des sphères, cartes).
  *
  * Les tailles sont lues avec offsetHeight / clientHeight, qui ignorent la rotation du cube.
  */
-function ajusteur(hote: HTMLElement, scene: HTMLElement, cle: Cle) {
+function ajusteur(etat: Etat) {
+  const { cle, hote, scene, page } = etat;
   let attente = 0;
 
   const calculer = () => {
     attente = 0;
     const vue = scene.firstElementChild as HTMLElement | null;
     const largeur = hote.clientWidth;
-    const hauteur = hote.clientHeight;
-    if (!vue || largeur <= 0 || hauteur <= 0) return;
+    if (!vue || largeur <= 0) return;
 
-    scene.style.transform = "none";
-    scene.style.height = "auto";
-    scene.style.width = `${largeur}px`;
     vue.style.setProperty("width", "100%", "important");
     vue.style.setProperty("max-width", "none", "important");
     vue.style.setProperty("margin", "0", "important");
 
-    if (cle === "v1") ajusterConstellation(vue, hauteur);
-    if (cle === "v2") ajusterCartes(vue, hauteur);
+    if (page) {
+      scene.style.transform = "none";
+      scene.style.width = "100%";
+      if (cle === "v1") dimensionnerSpheres(etat, vue, Math.min(760, Math.max(380, innerHeight * 0.62)), true);
+      if (cle === "v2") dimensionnerCartes(vue, Math.min(720, Math.max(320, innerHeight * 0.62)), true);
+      if (cle === "v2") requestAnimationFrame(rafraichirCartes);
+      return;
+    }
+
+    const hauteur = hote.clientHeight;
+    if (hauteur <= 0) return;
+
+    scene.style.transform = "none";
+    scene.style.height = "auto";
+    scene.style.width = `${largeur}px`;
+
+    if (cle === "v1" && dimensionnerSpheres(etat, vue, hauteur, false)) return;
+    if (cle === "v2") dimensionnerCartes(vue, hauteur, false);
 
     // Réduction uniforme : on élargit la scène avant de la réduire
     // pour que la largeur visible reste celle du rectangle.
@@ -198,18 +237,56 @@ function ajusteur(hote: HTMLElement, scene: HTMLElement, cle: Cle) {
   };
 }
 
-// La zone SVG prend la hauteur laissée par le titre, la légende et les notes.
-function ajusterConstellation(vue: HTMLElement, hauteur: number) {
-  const svg = vue.querySelector<SVGSVGElement>(".scene svg");
-  if (!svg) return;
+/**
+ * V1 : fixe la hauteur de la rangée « sphères + fiche » pour que la fiche, dont le texte change
+ * à chaque clic, ne modifie plus la mise en page ; puis redessine la constellation pour la taille
+ * réelle de sa zone (une seule fois par taille). Renvoie true si un nouveau dessin est lancé.
+ *
+ * En mode carte, `hauteur` est celle du rectangle ; en mode page, celle voulue pour la zone des sphères.
+ */
+function dimensionnerSpheres(etat: Etat, vue: HTMLElement, hauteur: number, page: boolean) {
+  const rangee = vue.querySelector<HTMLElement>(".scene");
+  const svg = rangee?.querySelector<SVGSVGElement>("svg");
+  const fiche = rangee?.querySelector<HTMLElement>(".fiche");
+  if (!rangee || !svg || !fiche) return false;
 
+  rangee.style.height = "";
   svg.style.height = "";
-  const autres = vue.offsetHeight - svg.clientHeight;
-  svg.style.height = `${Math.max(HAUTEUR_MIN_SPHERES, hauteur - autres)}px`;
+  fiche.style.maxHeight = "";
+  fiche.style.minHeight = "";
 
-  // Le viewBox d'origine réserve toute la largeur de calcul, alors que les sphères sont
-  // regroupées au centre : on le resserre sur les sphères et leurs étiquettes, au format
-  // de la zone. Le zoom est uniforme, les surfaces restent proportionnelles.
+  // Sur écran étroit, la fiche passe sous les sphères : on lui réserve une hauteur fixe.
+  const empilee = getComputedStyle(rangee).gridTemplateColumns.trim().split(/\s+/).length < 2;
+  const reserveFiche = empilee ? HAUTEUR_FICHE_EMPILEE + 12 : 0;
+  const zoneH = page
+    ? hauteur
+    : Math.max(HAUTEUR_MIN_SPHERES, hauteur - (vue.offsetHeight - rangee.offsetHeight) - reserveFiche);
+
+  svg.style.height = `${Math.round(zoneH)}px`;
+  if (empilee) {
+    fiche.style.minHeight = `${HAUTEUR_FICHE_EMPILEE}px`;
+    fiche.style.maxHeight = `${HAUTEUR_FICHE_EMPILEE}px`;
+  } else {
+    rangee.style.height = `${Math.round(zoneH)}px`;
+    fiche.style.maxHeight = `${Math.round(zoneH)}px`;
+  }
+  fiche.style.overflowY = "auto";
+
+  const zone = { largeur: Math.round(svg.clientWidth), hauteur: Math.round(zoneH) };
+  const ecart = !etat.zone || Math.abs(etat.zone.largeur - zone.largeur) > 8 || Math.abs(etat.zone.hauteur - zone.hauteur) > 8;
+  if (ecart && etat.afficher) {
+    etat.zone = zone;
+    etat.afficher();
+    return true;
+  }
+
+  recadrerSpheres(svg);
+  return false;
+}
+
+// Resserre le viewBox sur les sphères et leurs étiquettes, au format de la zone.
+// Le zoom est uniforme : les surfaces restent proportionnelles aux valeurs.
+function recadrerSpheres(svg: SVGSVGElement) {
   const boites = [...svg.querySelectorAll<SVGGElement>(".sphere")].map((g) => {
     const b = g.getBBox();
     const m = g.transform.baseVal.consolidate()?.matrix;
@@ -235,15 +312,17 @@ function ajusterConstellation(vue: HTMLElement, hauteur: number) {
   svg.style.overflow = "hidden";
 }
 
-// Les cartes prennent la hauteur laissée par les textes (côte à côte, ou empilées sur mobile).
-function ajusterCartes(vue: HTMLElement, hauteur: number) {
+// V2 : en mode carte, les cartes prennent la hauteur laissée par les textes ; en mode page,
+// elles reçoivent directement la hauteur voulue (divisée en deux si elles s'empilent).
+function dimensionnerCartes(vue: HTMLElement, hauteur: number, page: boolean) {
   const fonds = [...vue.querySelectorAll<HTMLElement>(".fond")];
   if (!fonds.length) return;
 
   const empilees = fonds.length > 1 && fonds[1].offsetTop > fonds[0].offsetTop + 10;
   const nbRangees = empilees ? fonds.length : 1;
-  const autres = vue.offsetHeight - fonds[0].offsetHeight * nbRangees;
-  const cible = Math.max(HAUTEUR_MIN_CARTE, Math.floor((hauteur - autres) / nbRangees));
+  const cible = page
+    ? Math.round(empilees ? Math.max(280, hauteur * 0.75) : hauteur)
+    : Math.max(HAUTEUR_MIN_CARTE, Math.floor((hauteur - (vue.offsetHeight - fonds[0].offsetHeight * nbRangees)) / nbRangees));
   for (const fond of fonds) fond.style.height = `${cible}px`;
 }
 

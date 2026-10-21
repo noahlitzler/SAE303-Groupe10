@@ -1,12 +1,8 @@
 ---
 import ObservableViz from './ObservableViz.astro';
+import { chapitres } from '../data/chapitres';
 
-const chapters = [
-  { n: '01', temps: 'CONTEXTE', k: 'LE DÉCLENCHEUR', title: 'UN TEXTE.\nDES MACHINES.', desc: 'Une seule requête de 150 tokens n’est pas immatérielle. Choisissez un modèle : électricité, eau et CO₂e estimés par EcoLogits.', note: 'ECOLOGITS / 150 TOKENS · MIX MONDIAL', viz: 'v4', kind: 'input', label: 'V4 — L’empreinte invisible d’une requête : compteurs interactifs d’électricité, d’eau et de CO₂e par modèle' },
-  { n: '02', temps: 'EXPLORATION', k: 'MESURER L’ÉNERGIE', title: 'TOUS LES MODÈLES\nNE SE VALENT PAS.', desc: 'Huit configurations, huit sphères : leur surface suit l’électricité estimée pour une même réponse. Cliquez sur une sphère pour la comparer.', note: 'ECOLOGITS / ESTIMATIONS DU 19/10/2026', viz: 'v1', kind: 'energy', label: 'V1 — Toutes les IA ne consomment pas autant : huit sphères EcoLogits proportionnelles à l’électricité estimée' },
-  { n: '03', temps: 'EXPLORATION', k: 'COMPRENDRE LES ORDRES DE GRANDEUR', title: 'CHANGER\nD’ÉCHELLE.', desc: 'Dix tâches mesurées sur GPU par AI Energy Score : de la similarité de phrases à la génération d’images, l’énergie varie de plusieurs ordres de grandeur.', note: 'AI ENERGY SCORE / CAMPAGNE FÉVRIER 2025', viz: 'v3', kind: 'scale', label: 'V3 — Une tâche, un impact : énergie GPU médiane par requête pour dix tâches, échelle linéaire ou logarithmique' },
-  { n: '04', temps: 'RÉVÉLATION', k: 'LES INFRASTRUCTURES', title: 'LE NUMÉRIQUE\nA UNE ADRESSE.', desc: '23 installations dont la localisation a été vérifiée, en France et en Île-de-France, sans prétendre localiser le trajet d’un prompt.', note: 'DATACENTERS FRANCE / © OPENSTREETMAP', viz: 'v2', kind: 'earth', label: 'V2 — Le numérique a une adresse : cartes des datacenters vérifiés en France et en Île-de-France' },
-] as const;
+const chapters = chapitres;
 ---
 
 <section class="experience" id="experience" aria-label="Derrière le prompt : exploration immersive">
@@ -23,7 +19,6 @@ const chapters = [
       <div class="credits" id="credits"><span>UNE EXPÉRIENCE DE</span><strong id="authors">NOAH LITZLER · CLÉMENT BERTRAND</strong></div>
       <button class="enter" id="enter" type="button">ENTRER DANS LES DONNÉES ↓</button>
     </div>
-    <span class="intro-coordinate" aria-hidden="true">00 / LE VISIBLE</span>
   </section>
 
   <main class="exploration" id="exploration" aria-label="Exploration des quatre visualisations">
@@ -39,10 +34,10 @@ const chapters = [
                 <p>{c.desc}</p>
               </header>
               <div class="viz-frame">
-                <div class="viz-topline"><span>OBSERVABLE / {c.viz.toUpperCase()}</span><span class="viz-live">● DONNÉES INTERACTIVES</span></div>
+                <div class="viz-actions"><a class="explore-link" href={`/explorer/${c.viz}`} data-face-index={i} aria-label={`Explorer en grand : ${c.label}`}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.5 1.5h5v5M14.5 1.5 9 7M6.5 14.5h-5v-5M1.5 14.5 7 9"/></svg>Explorer</a></div>
                 <ObservableViz viz={c.viz} label={c.label} class="viz-slot" />
               </div>
-              <div class="face-foot"><span>{c.note}</span><span>INTERAGISSEZ AVEC LES DONNÉES ↗</span></div>
+              <div class="face-foot"><span>{c.note}</span></div>
             </div>
           </section>
         ))}
@@ -51,7 +46,6 @@ const chapters = [
     <nav class="chapter-nav" id="chapter-nav" aria-label="Accès aux quatre visualisations">
       {chapters.map((c,i)=><button type="button" class="nav-entry" data-nav-index={i} aria-label={`Aller au chapitre ${c.n} : ${c.k}`} aria-current="false"><span class="nav-tick"></span><span class="nav-tooltip">{c.temps} · {c.n} — {c.k}</span></button>)}
     </nav>
-    <div class="scene-instruction" aria-hidden="true">DÉFILER POUR FAIRE PIVOTER ↕</div>
   </div>
 </main>
 <section class="outro" id="conclusion"><p class="outro-kicker">CONCLUSION · FIN DE L'EXPLORATION</p><h2>L'INVISIBLE <em>EXISTE.</em></h2><p>Une requête semble instantanée. Derrière elle, il y a de l'énergie, des ressources et des infrastructures physiques. Ces données donnent des ordres de grandeur, pas l'empreinte exacte de chaque prompt.</p><a href="/methode">DÉCOUVRIR NOTRE MÉTHODE ↗</a></section>
@@ -75,7 +69,7 @@ const chapters = [
 .intro{min-height:100svh;position:relative;display:grid;place-items:center;overflow:hidden;padding:100px 24px 70px;background:radial-gradient(ellipse at 50% 45%,#172541,#080e20 58%,#070b19 95%)}
 .intro-center{position:relative;z-index:2;width:min(1000px,94vw);display:flex;flex-direction:column;align-items:center;text-align:center}
 .intro-orbit{position:absolute;width:85vmin;aspect-ratio:1;border:1px solid #9baefb23;border-radius:50%;pointer-events:none;animation:orbit-spin 42s linear infinite}.orbit-two{width:115vmin;border-color:#85e7ef14;animation-duration:55s;animation-direction:reverse}
-.intro-overline,.intro-hint,.intro-coordinate{font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.2em;color:#9be5e7}.intro-overline{margin:0 0 28px}.intro-hint{margin:35px 0 0;color:#a4b3d2}.intro-coordinate{position:absolute;bottom:30px;left:5%;color:#7584a8}
+.intro-overline,.intro-hint{font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.2em;color:#9be5e7}.intro-overline{margin:0 0 28px}.intro-hint{margin:35px 0 0;color:#a4b3d2}
 .hero-heading{margin:0;font:inherit}
 .hero-title{position:relative;display:flex;flex-direction:column;align-items:center;border:0;padding:0 10px;background:transparent;color:#f4f6ff;font:900 clamp(58px,11vw,172px)/.78 'Barlow Condensed',Impact,sans-serif;letter-spacing:-.028em;cursor:crosshair;text-align:center}.hero-title span{white-space:nowrap}.hero-title em{font-style:normal;color:#a3b4ff}.hero-title b{color:#8ce5ec}.hero-title:hover,.hero-title:focus-visible{filter:drop-shadow(0 0 22px #7b9aff75)}.hero-title.processing{animation:hero-jolt .48s steps(3,end)}.title-scan{position:absolute;inset:0;background:linear-gradient(transparent 47%,#91efff66 50%,transparent 53%);opacity:0;pointer-events:none}.hero-title.processing .title-scan{animation:scan .65s ease-out}
 .prompt-box{display:none;width:min(640px,90vw);margin-top:32px;padding:22px;background:#10192de8;border:1px solid #8da6df77;text-align:left}.intro.revealed .prompt-box{display:block}.prompt-box label,.prompt-box small{display:block;font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#a7b9db}.prompt-line{display:flex;gap:12px;align-items:center;margin:13px 0;background:#060e1d;border:1px solid #4a5e83;padding:8px 10px}.prompt-line>span{color:#91e5e9;font-family:monospace}.prompt-line input{min-width:0;flex:1;color:#f0f4ff;font:15px 'IBM Plex Mono',monospace;background:transparent;border:0;outline:0}.prompt-line button,.enter{cursor:pointer;border:0;background:#99e6ed;color:#071122;font:600 11px 'IBM Plex Mono',monospace;padding:13px 15px}.prompt-line button:hover,.enter:hover{background:#c1f6f8}.prompt-box small{font-size:9px;color:#879abd}.intro.revealed .intro-hint{display:none}.token-display{display:none;max-width:680px;margin-top:18px;flex-wrap:wrap;justify-content:center;gap:6px}.intro.sent .token-display{display:flex}.token{padding:7px 10px;background:#9ae6ed15;border:1px solid #9ae6ed88;color:#baf2f5;font:11px 'IBM Plex Mono',monospace;animation:token-in .45s both}.credits{display:none;flex-direction:column;gap:8px;margin-top:22px;font:10px 'IBM Plex Mono',monospace;letter-spacing:.13em;color:#9eafd0}.credits strong{font-size:13px;color:#fff;min-height:1.5em}.intro.sent .credits{display:flex}.enter{display:none;margin-top:20px}.intro.sent .enter{display:block}.intro.sent .prompt-box{display:none}
@@ -101,20 +95,22 @@ const chapters = [
 .face-header h2{font:900 clamp(29px,3.1vw,49px)/.95 'Barlow Condensed',Impact,sans-serif;margin:0;letter-spacing:.01em;text-wrap:balance}
 .face-header p{font:14px/1.45 Arial,sans-serif;color:#c3d1e7;margin:0 0 3px;max-width:550px}
 .viz-frame{min-height:0;flex:1;display:flex;flex-direction:column;padding:5px;border:1px solid color-mix(in srgb,var(--accent) 50%,#263b59);background:#0b1224;box-shadow:0 20px 55px #0005}
-.viz-topline{display:flex;justify-content:space-between;gap:10px;margin-bottom:5px;color:#a8badb;font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.08em}
-.viz-live{color:var(--accent)}
+/* Bouton « Explorer » : ouvre la visualisation dans sa page dédiée */
+.viz-actions{display:flex;justify-content:flex-end;margin-bottom:5px}
+.explore-link{display:inline-flex;align-items:center;gap:7px;padding:4px 9px;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent);font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;transition:background .25s,border-color .25s,color .25s}
+.explore-link svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.explore-link:hover,.explore-link:focus-visible{background:color-mix(in srgb,var(--accent) 16%,transparent);border-color:var(--accent);color:#e9fbff}
+.explore-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .viz-frame :global(.viz-slot){display:block;flex:1;min-height:0;width:100%;height:100%;background:#fbfaf7;overflow:hidden}
 /* Le cadre sombre sert de bordure : le fond crème des graphiques va jusqu'aux bords, sans coins arrondis ni liseré. */
-.viz-frame :global(.obs-viz-stage > section){border:0!important;border-radius:0!important}
+.viz-frame :global(.obs-viz-stage > *){border:0!important;border-radius:0!important}
 .face-foot{flex:none;display:flex;justify-content:space-between;gap:10px;color:#a5b7d7;font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.07em}
-.face-foot span:last-child{color:var(--accent)}
 .chapter-nav{position:absolute;right:29px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:17px;z-index:20}
 .nav-entry{position:relative;width:22px;height:22px;display:grid;place-items:center;background:none;border:0;cursor:pointer;padding:0}
 .nav-tick{width:6px;height:6px;background:#9caecb;border-radius:50%;transition:.25s}
 .nav-entry[aria-current="true"] .nav-tick,.nav-entry:hover .nav-tick{width:13px;height:13px;background:#8deaf0;box-shadow:0 0 18px #8deaf0}
 .nav-tooltip{position:absolute;right:32px;top:50%;transform:translateY(-50%);background:#0c152bea;color:#e4efff;padding:8px 12px;border:1px solid #637ba1;font:10px 'IBM Plex Mono',monospace;white-space:nowrap;opacity:0;pointer-events:none}
 .nav-entry:hover .nav-tooltip,.nav-entry:focus-visible .nav-tooltip{opacity:1}
-.scene-instruction{position:absolute;bottom:13px;left:72px;font:9px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#91a9cb;pointer-events:none}
 .hud{position:fixed;z-index:30;inset:0;pointer-events:none}
 .hud-top{position:absolute;top:20px;left:25px;right:25px;display:flex;justify-content:space-between;align-items:center}
 .brand-logo{pointer-events:auto;width:43px;height:43px;padding:2px;border:0;background:none;color:#fff;cursor:pointer}.brand-logo svg{width:100%;height:100%}
@@ -124,8 +120,8 @@ const chapters = [
 .outro{min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:110px 30px;background:#090f20}
 .outro-kicker{font:11px 'IBM Plex Mono',monospace;color:#8deaf0}.outro h2{font:900 clamp(55px,8vw,110px)/.9 'Barlow Condensed',Impact,sans-serif;margin:24px 0}.outro h2 em{font-style:normal;color:#aab8ff}.outro p:not(.outro-kicker){max-width:640px;color:#c3d1e7;line-height:1.6}.outro a{margin-top:24px;color:#8deaf0;text-decoration:none;border:1px solid #8deaf0;padding:13px 20px;font:11px 'IBM Plex Mono',monospace}
 @keyframes orbit-spin{to{rotate:360deg}}@keyframes hero-jolt{20%{transform:translateX(2px)}50%{transform:translateX(-3px)}100%{transform:none}}@keyframes scan{0%{opacity:0;transform:translateY(-30%)}35%{opacity:1}100%{opacity:0;transform:translateY(35%)}}@keyframes token-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@media(max-width:800px){.cube-face{padding:76px 42px 42px 20px}.face-header{grid-template-columns:1fr;gap:5px}.face-header h2{font-size:clamp(27px,5vw,42px)}.face-header p{font-size:12px}.scene-instruction{left:20px}.face-foot{font-size:8px}.nav-tooltip{display:none}}
-@media(max-width:550px){.face-header h2{font-size:28px}.face-header p{font-size:11px}.viz-topline{font-size:8px}.face-foot span:last-child{display:none}.cube-face{padding:72px 35px 37px 10px}.viz-frame{padding:5px}.hud-top{left:10px;right:10px}.hud-bottom{left:10px;right:10px}.hud-bottom>span:first-child{display:none}.chapter-nav{right:35px}}
+@media(max-width:800px){.cube-face{padding:76px 42px 42px 20px}.face-header{grid-template-columns:1fr;gap:5px}.face-header h2{font-size:clamp(27px,5vw,42px)}.face-header p{font-size:12px}.face-foot{font-size:8px}.nav-tooltip{display:none}}
+@media(max-width:550px){.face-header h2{font-size:28px}.face-header p{font-size:11px}.cube-face{padding:72px 35px 37px 10px}.viz-frame{padding:5px}.hud-top{left:10px;right:10px}.hud-bottom{left:10px;right:10px}.hud-bottom>span:first-child{display:none}.chapter-nav{right:35px}}
 @media(prefers-reduced-motion:reduce){.background-curves i,.intro-orbit,.token{animation:none!important}:global(html){scroll-behavior:auto}}
 </style>
 <script>
@@ -157,6 +153,23 @@ function initExperience(){
  root.querySelector<HTMLButtonElement>('#brand-logo')?.addEventListener('click',()=>scrollTo(intro));
  function goTo(i:number){const travel=Math.max(1,exploration.offsetHeight-innerHeight);window.scrollTo({top:exploration.getBoundingClientRect().top+scrollY+travel*i/3,behavior:reduced?'instant':'smooth'})}
  buttons.forEach((b,i)=>b.addEventListener('click',()=>goTo(i)));
+ // Pages Explorer : on mémorise la position avant de partir, et on la retrouve au retour
+ // (ou la face demandée par ?face=, pour un lien direct depuis une page Explorer).
+ root.querySelectorAll<HTMLAnchorElement>('.explore-link').forEach(a=>a.addEventListener('click',()=>{try{sessionStorage.setItem('dlp-retour',JSON.stringify({y:scrollY,face:Number(a.dataset.faceIndex)}))}catch{}}));
+ function restaurerPosition(){
+  let retour:{y?:number,face?:number}|null=null;
+  try{retour=JSON.parse(sessionStorage.getItem('dlp-retour')||'null');sessionStorage.removeItem('dlp-retour')}catch{}
+  const face=Number(new URLSearchParams(location.search).get('face'));
+  if(retour?.y!=null){sent=true;intro.classList.add('sent');window.scrollTo({top:retour.y,behavior:'instant'})}
+  else if(face>=1&&face<=4){sent=true;intro.classList.add('sent');const travel=Math.max(1,exploration.offsetHeight-innerHeight);window.scrollTo({top:exploration.getBoundingClientRect().top+scrollY+travel*(face-1)/3,behavior:'instant'})}
+  // ?face= ne sert qu'une fois : un rechargement ultérieur repart de l'introduction.
+  if(location.search)history.replaceState(null,'',location.pathname);
+ }
+ // Le défilement pilote le cube : on restaure nous-mêmes la position, y compris au retour
+ // par le bouton Précédent quand le navigateur ressert la page depuis son cache.
+ if('scrollRestoration' in history)history.scrollRestoration='manual';
+ restaurerPosition();
+ addEventListener('pageshow',e=>{if(e.persisted)restaurerPosition()});
  let rotationRaf=0,last=-1;
  function update(){
   rotationRaf=0;

@@ -4,7 +4,9 @@
 // Adaptations pour le site : dimensions resserrées pour les faces du cube, textes condensés,
 // élément racine <figure> (au lieu de <section role="figure">) pour que la <figcaption> soit valide.
 
-export function dessinerConstellation(donnees, {largeur = 900, rayonMax, rayonMin = 12} = {}) {
+export function dessinerConstellation(donnees, {largeur = 900, zone, rayonMax, rayonMin = 12} = {}) {
+  // zone (site) : {largeur, hauteur} réelles de la zone des sphères. La disposition et le rayon maximal
+  // sont alors calculés pour cet espace ; la règle surface ∝ électricité est inchangée.
   // Composant autonome : reçoit ses données en paramètre (une ligne par configuration EcoLogits), sans bibliothèque.
   const lignes = donnees
     .filter(d => Number.isFinite(d.energie_milieu_Wh))
@@ -15,10 +17,10 @@ export function dessinerConstellation(donnees, {largeur = 900, rayonMax, rayonMi
   const fmt = v => new Intl.NumberFormat("fr-FR", {maximumSignificantDigits: 3}).format(v);
   const fmtRapport = r => r >= 10 ? new Intl.NumberFormat("fr-FR", {maximumSignificantDigits: 2}).format(r) : new Intl.NumberFormat("fr-FR", {maximumFractionDigits: 1}).format(r);
   const largeurSvg = largeur > 720 ? largeur - 64 - 276 : largeur - 30;
-  const etroit = largeurSvg < 520;
-  const W = Math.max(300, Math.round(largeurSvg));
-  const H = etroit ? 700 : 430;
-  const rMax = rayonMax ?? (etroit ? 78 : 112);
+  const etroit = (zone?.largeur ?? largeurSvg) < 520;
+  const W = Math.max(300, Math.round(zone?.largeur ?? largeurSvg));
+  const H = zone ? Math.max(220, Math.round(zone.hauteur)) : (etroit ? 700 : 430);
+  const rMax = rayonMax ?? (zone ? Math.round(Math.min((H - 40) * 0.42, W * 0.2)) : (etroit ? 78 : 112));
   const vMax = lignes[0].energie_milieu_Wh;
   const valeurs = lignes.map(d => d.energie_milieu_Wh).sort((a, b) => a - b);
   const mediane = n % 2 ? valeurs[(n - 1) / 2] : (valeurs[n / 2 - 1] + valeurs[n / 2]) / 2;
@@ -46,8 +48,9 @@ export function dessinerConstellation(donnees, {largeur = 900, rayonMax, rayonMi
   lignes.forEach((d, k) => {
     const a = k * 2.399963; // angle d'or : point de départ organique
     const rr = 30 + 50 * Math.sqrt(k);
-    d.x = W / 2 + rr * Math.cos(a) * (etroit ? 0.7 : 1.5);
-    d.y = H / 2 + rr * Math.sin(a) * (etroit ? 1.4 : 0.85);
+    // Avec une zone, le point de départ s'étale sur toute la largeur et la hauteur disponibles.
+    d.x = W / 2 + rr * Math.cos(a) * (zone ? W / 380 : (etroit ? 0.7 : 1.5));
+    d.y = H / 2 + rr * Math.sin(a) * (zone ? H / 330 : (etroit ? 1.4 : 0.85));
   });
   const borner = d => {
     const dl = demiLargeur(d) + 6;
@@ -55,7 +58,8 @@ export function dessinerConstellation(donnees, {largeur = 900, rayonMax, rayonMi
     d.y = Math.min(H - d.r - ETIQ - 6, Math.max(d.r + 6, d.y));
   };
   for (let it = 0; it < 1200; it++) {
-    for (const d of lignes) { d.x += (W / 2 - d.x) * 0.002; d.y += (H / 2 - d.y) * 0.002; }
+    const attraction = zone ? 0.0008 : 0.002;
+    for (const d of lignes) { d.x += (W / 2 - d.x) * attraction; d.y += (H / 2 - d.y) * attraction; }
     for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
       const a = lignes[i], b = lignes[j], A = boite(a), B = boite(b);
       const ix = Math.min(A.dr, B.dr) - Math.max(A.g, B.g) + MARGE, iy = Math.min(A.b, B.b) - Math.max(A.h, B.h) + MARGE;
@@ -147,16 +151,16 @@ export function dessinerConstellation(donnees, {largeur = 900, rayonMax, rayonMi
     el("stop", {offset: "0%", "stop-color": "#ffffff", "stop-opacity": "0.95"}, grad);
     el("stop", {offset: "55%", "stop-color": d.couleur, "stop-opacity": "0.28"}, grad);
     el("stop", {offset: "100%", "stop-color": d.couleur, "stop-opacity": "0.55"}, grad);
-    const g = el("g", {class: "sphere", tabindex: "0", role: "button", "aria-label": `${d.modele} (${noms[d.fournisseur] ?? d.fournisseur}) : ${fmt(d.energie_milieu_Wh)} Wh par requête`, transform: `translate(${d.x.toFixed(1)},${d.y.toFixed(1)})`}, svg);
+    const g = el("g", {class: "sphere", tabindex: "0", role: "button", "aria-label": `${d.modele} ${fmt(d.energie_milieu_Wh)} Wh par requête (${noms[d.fournisseur] ?? d.fournisseur})`, transform: `translate(${d.x.toFixed(1)},${d.y.toFixed(1)})`}, svg);
     g.dataset.modele = d.modele;
     const corps = el("g", {class: "corps"}, g);
     corps.style.setProperty("--delai", `${(k * 0.12).toFixed(2)}s`);
     el("circle", {class: "halo", r: (d.r * 1.08).toFixed(1), fill: d.couleur, filter: "url(#dlp-flou)"}, corps);
     el("circle", {class: "contour", r: d.r.toFixed(1), fill: `url(#dlp-g-${d.id})`, stroke: d.couleur, "stroke-width": "2", "stroke-opacity": "0.9"}, corps);
     el("circle", {r: Math.max(8, d.r).toFixed(1), fill: "transparent"}, corps);
-    const t1 = el("text", {class: "etiq", "text-anchor": "middle", y: (d.r + 17).toFixed(1)}, corps);
+    const t1 = el("text", {class: "etiq", "aria-hidden": "true", "text-anchor": "middle", y: (d.r + 17).toFixed(1)}, corps);
     t1.textContent = d.modele;
-    const t2 = el("text", {class: "etiq2", "text-anchor": "middle", y: (d.r + 32).toFixed(1)}, corps);
+    const t2 = el("text", {class: "etiq2", "aria-hidden": "true", "text-anchor": "middle", y: (d.r + 32).toFixed(1)}, corps);
     t2.textContent = `${fmt(d.energie_milieu_Wh)} Wh`;
     return {d, g};
   });
@@ -167,7 +171,7 @@ export function dessinerConstellation(donnees, {largeur = 900, rayonMax, rayonMi
 
   const bulle = document.createElement("div");
   bulle.className = "bulle";
-  bulle.setAttribute("role", "tooltip");
+  bulle.setAttribute("aria-hidden", "true");
 
   const rapportExtremes = lignes[0].energie_milieu_Wh / plusSobre.energie_milieu_Wh;
   const conclusion = document.createElement("p");
@@ -313,7 +317,7 @@ export function dessinerCarte(installations, {L, consommationsZones = null, entr
 
   const creerCarte = (fond, liste, vue) => {
     const carte = L.map(fond, {scrollWheelZoom: false, zoomControl: true, attributionControl: true, zoomSnap: 0.25, zoomDelta: 0.5});
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 19, attribution: "© contributeurs OpenStreetMap"}).addTo(carte);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 19, detectRetina: true, attribution: "© contributeurs OpenStreetMap"}).addTo(carte);
     const calque = L.layerGroup().addTo(carte);
     const eventail = L.layerGroup().addTo(carte);
     const marqueurs = liste.map(i => {
@@ -434,14 +438,14 @@ export function dessinerTaches(donnees, {campagne = "Février 2025", echelle = "
   grille.className = "grille";
   const bulle = document.createElement("div");
   bulle.className = "bulle";
-  bulle.setAttribute("role", "tooltip");
+  bulle.setAttribute("aria-hidden", "true");
   const elements = lignes.map((d, k) => {
     const ligne = document.createElement("div");
     ligne.className = "ligne";
     ligne.dataset.tache = d.tache;
     const etiquette = ( `${d.tache} : ${fmt(d.mediane_Wh_req)} Wh par requête (médiane de ${d.n_evaluations} évaluations)`);
     const nom = document.createElement("div"); nom.className = "nom"; nom.textContent = d.tache;
-    const piste = document.createElement("div"); piste.className = "piste"; piste.tabIndex = 0; piste.setAttribute("aria-label", etiquette);
+    const piste = document.createElement("div"); piste.className = "piste"; piste.tabIndex = 0; piste.setAttribute("role", "img"); piste.setAttribute("aria-label", etiquette);
     const barre = document.createElement("div"); barre.className = "barre"; barre.style.background = couleurs[k % couleurs.length]; barre.style.width = "0%";
     piste.append(barre);
     const val = document.createElement("div"); val.className = "val"; val.textContent = `${fmt(d.mediane_Wh_req)} Wh`;
