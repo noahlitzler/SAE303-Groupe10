@@ -30,46 +30,94 @@ export function dessinerConstellation(donnees, {largeur = 900, zone, rayonMax, r
   const reserve = ["#9461CC", "#1A9BB0", "#A8861A", "#E8705A"];
   const fournisseurs = [...new Set(lignes.map(d => d.fournisseur))];
   const couleurDe = f => couleursFournisseurs[f] ?? reserve[fournisseurs.filter(x => !couleursFournisseurs[x]).indexOf(f) % reserve.length];
-  // Surface proportionnelle à la consommation : r = rMax × √(v / vMax), avec un rayon minimal d'affichage.
   lignes.forEach((d, k) => {
-    d.rReel = rMax * Math.sqrt(d.energie_milieu_Wh / vMax);
-    d.r = Math.max(rayonMin, d.rReel);
     d.couleur = couleurDe(d.fournisseur);
     d.rang = k + 1;
     d.id = `s${k}`;
   });
-  const agrandies = lignes.filter(d => d.r > d.rReel + 0.01);
 
-  // Disposition organique sans chevauchement : relaxation déterministe (aucune variable n'est encodée par la position).
-  // Disposition sans chevauchement : chaque sphère et son étiquette (placée dessous) forment une boîte ; aucune variable n'est encodée par la position.
-  const ETIQ = 40, MARGE = 14;
-  const demiLargeur = d => Math.max(d.r, d.modele.length * 3.9 + 4);
+  // Disposition sans chevauchement : chaque sphère et son étiquette (placée dessous) forment une boîte,
+  // séparée des autres par MARGE ; aucune variable n'est encodée par la position (relaxation déterministe).
+  // Si les huit boîtes ne tiennent pas dans la zone, l'échelle commune rMax est réduite, pour toutes les
+  // sphères à la fois : la règle surface ∝ électricité reste exacte, seul le rayon minimal d'affichage s'en écarte.
+  // Étiquettes compactes (police réduite, marges serrées) seulement si rien ne tient autrement (zones très petites).
+  let ETIQ, MARGE, CAR, compact;
+  ({compact, ETIQ, MARGE, CAR} = {compact: false, ETIQ: 40, MARGE: 18, CAR: 3.4});
+  // Demi-largeur de l'étiquette : ~6,1 px par caractère mesurés à 12,5 px, arrondis largement.
+  const demiLargeur = d => Math.max(d.r, d.modele.length * CAR + 6);
   const boite = d => ({g: d.x - demiLargeur(d), dr: d.x + demiLargeur(d), h: d.y - d.r, b: d.y + d.r + ETIQ});
-  lignes.forEach((d, k) => {
-    const a = k * 2.399963; // angle d'or : point de départ organique
-    const rr = 30 + 50 * Math.sqrt(k);
-    // Avec une zone, le point de départ s'étale sur toute la largeur et la hauteur disponibles.
-    d.x = W / 2 + rr * Math.cos(a) * (zone ? W / 380 : (etroit ? 0.7 : 1.5));
-    d.y = H / 2 + rr * Math.sin(a) * (zone ? H / 330 : (etroit ? 1.4 : 0.85));
-  });
+  const recouvrement = (a, b) => {
+    const A = boite(a), B = boite(b);
+    return [Math.min(A.dr, B.dr) - Math.max(A.g, B.g) + MARGE, Math.min(A.b, B.b) - Math.max(A.h, B.h) + MARGE];
+  };
   const borner = d => {
     const dl = demiLargeur(d) + 6;
     d.x = Math.min(W - dl, Math.max(dl, d.x));
     d.y = Math.min(H - d.r - ETIQ - 6, Math.max(d.r + 6, d.y));
   };
-  for (let it = 0; it < 1200; it++) {
+  const disposer = (echelleR, depart = 0) => {
+    lignes.forEach((d, k) => {
+      // Surface proportionnelle à la consommation : r = rMax × √(v / vMax), avec un rayon minimal d'affichage.
+      d.rReel = echelleR * Math.sqrt(d.energie_milieu_Wh / vMax);
+      d.r = Math.max(rayonMin, d.rReel);
+      const a = k * 2.399963 + depart; // angle d'or : point de départ organique
+      const rr = 30 + 50 * Math.sqrt(k);
+      // Avec une zone, le point de départ s'étale sur toute la largeur et la hauteur disponibles.
+      d.x = W / 2 + rr * Math.cos(a) * (zone ? W / 380 : (etroit ? 0.7 : 1.5));
+      d.y = H / 2 + rr * Math.sin(a) * (zone ? H / 330 : (etroit ? 1.4 : 0.85));
+    });
     const attraction = zone ? 0.0008 : 0.002;
-    for (const d of lignes) { d.x += (W / 2 - d.x) * attraction; d.y += (H / 2 - d.y) * attraction; }
+    for (let it = 0; it < 1200; it++) {
+      for (const d of lignes) { d.x += (W / 2 - d.x) * attraction; d.y += (H / 2 - d.y) * attraction; }
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+        const a = lignes[i], b = lignes[j], [ix, iy] = recouvrement(a, b);
+        if (ix > 0 && iy > 0) {
+          // On pousse un peu plus que le recouvrement pour converger sans osciller.
+          if (ix < iy) { const s = (a.x < b.x ? -1 : 1) * (ix / 2 + 0.5); a.x += s; b.x -= s; }
+          else { const s = (a.y < b.y ? -1 : 1) * (iy / 2 + 0.5); a.y += s; b.y -= s; }
+        }
+      }
+      lignes.forEach(borner);
+    }
+    // Vrai s'il ne reste aucun recouvrement une fois les sphères ramenées dans la zone.
     for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
-      const a = lignes[i], b = lignes[j], A = boite(a), B = boite(b);
-      const ix = Math.min(A.dr, B.dr) - Math.max(A.g, B.g) + MARGE, iy = Math.min(A.b, B.b) - Math.max(A.h, B.h) + MARGE;
-      if (ix > 0 && iy > 0) {
-        if (ix < iy) { const s = (a.x < b.x ? -1 : 1) * ix / 2; a.x += s; b.x -= s; }
-        else { const s = (a.y < b.y ? -1 : 1) * iy / 2; a.y += s; b.y -= s; }
+      const [ix, iy] = recouvrement(lignes[i], lignes[j]);
+      if (ix > 0.5 && iy > 0.5) return false;
+    }
+    return true;
+  };
+  // Plusieurs points de départ (rotations de la spirale) : une relaxation bloquée n'entraîne pas de réduction inutile.
+  const DEPARTS = [0, 1.1, 2.3, 3.6, 4.8];
+  const essayer = echelleR => DEPARTS.find(depart => disposer(echelleR, depart));
+  // Recherche dichotomique de la plus grande échelle commune pour laquelle tout tient sans chevauchement.
+  // Renvoie l'échelle retenue et le départ qui l'a permise (départ undefined : rien ne tient).
+  const chercher = () => {
+    const depart0 = essayer(rMax);
+    if (depart0 !== undefined) return {echelle: rMax, depart: depart0};
+    let bas = rMax * 0.12, haut = rMax;
+    let departRetenu = essayer(bas);
+    if (departRetenu !== undefined) {
+      for (let k = 0; k < 9; k++) {
+        const milieu = (bas + haut) / 2, depart = essayer(milieu);
+        if (depart === undefined) haut = milieu;
+        else { bas = milieu; departRetenu = depart; }
       }
     }
-    lignes.forEach(borner);
+    return {echelle: bas, depart: departRetenu};
+  };
+  const NORMAL = {compact: false, ETIQ: 40, MARGE: 18, CAR: 3.4}, COMPACT = {compact: true, ETIQ: 30, MARGE: 10, CAR: 2.75};
+  const regler = p => ({compact, ETIQ, MARGE, CAR} = p);
+  let choix = chercher(), reglage = NORMAL;
+  // Étiquettes normales : rien ne tient, ou seulement avec de très petites sphères → on essaie les compactes.
+  if (choix.depart === undefined || choix.echelle < rMax * 0.5) {
+    regler(COMPACT);
+    const autre = chercher();
+    if (autre.depart !== undefined && (choix.depart === undefined || autre.echelle > choix.echelle * 1.25)) { choix = autre; reglage = COMPACT; }
   }
+  regler(reglage);
+  // Même à petite échelle rien ne tient (zone minuscule) : on garde le meilleur effort à cette échelle.
+  disposer(choix.echelle, choix.depart ?? 0);
+  const agrandies = lignes.filter(d => d.r > d.rReel + 0.01);
 
   const ns = "http://www.w3.org/2000/svg";
   const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(ns, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (parent) parent.append(e); return e; };
@@ -135,7 +183,8 @@ export function dessinerConstellation(donnees, {largeur = 900, zone, rayonMax, r
 
   const scene = document.createElement("div");
   scene.className = "scene";
-  const haut = Math.min(...lignes.map(d => d.y - d.r * 1.15)) - 24, bas = Math.max(...lignes.map(d => d.y + d.r + ETIQ)) + 24;
+  // Avec une zone, le repère SVG est exactement celui de la zone (1 unité = 1 px) : aucun recadrage ultérieur.
+  const haut = zone ? 0 : Math.min(...lignes.map(d => d.y - d.r * 1.15)) - 24, bas = zone ? H : Math.max(...lignes.map(d => d.y + d.r + ETIQ)) + 24;
   const svg = el("svg", {viewBox: `0 ${haut.toFixed(0)} ${W} ${(bas - haut).toFixed(0)}`, role: "group", "aria-label": `Constellation de ${n} configurations d'IA, taille proportionnelle à l'électricité estimée par requête`});
   const defs = el("defs", {}, svg);
   const filtre = el("filter", {id: "dlp-flou", x: "-50%", y: "-50%", width: "200%", height: "200%"}, defs);
@@ -158,9 +207,11 @@ export function dessinerConstellation(donnees, {largeur = 900, zone, rayonMax, r
     el("circle", {class: "halo", r: (d.r * 1.08).toFixed(1), fill: d.couleur, filter: "url(#dlp-flou)"}, corps);
     el("circle", {class: "contour", r: d.r.toFixed(1), fill: `url(#dlp-g-${d.id})`, stroke: d.couleur, "stroke-width": "2", "stroke-opacity": "0.9"}, corps);
     el("circle", {r: Math.max(8, d.r).toFixed(1), fill: "transparent"}, corps);
-    const t1 = el("text", {class: "etiq", "aria-hidden": "true", "text-anchor": "middle", y: (d.r + 17).toFixed(1)}, corps);
+    const t1 = el("text", {class: "etiq", "aria-hidden": "true", "text-anchor": "middle", y: (d.r + (compact ? 13 : 17)).toFixed(1)}, corps);
+    if (compact) t1.style.fontSize = "10px";
     t1.textContent = d.modele;
-    const t2 = el("text", {class: "etiq2", "aria-hidden": "true", "text-anchor": "middle", y: (d.r + 32).toFixed(1)}, corps);
+    const t2 = el("text", {class: "etiq2", "aria-hidden": "true", "text-anchor": "middle", y: (d.r + (compact ? 25 : 32)).toFixed(1)}, corps);
+    if (compact) t2.style.fontSize = "9.5px";
     t2.textContent = `${fmt(d.energie_milieu_Wh)} Wh`;
     return {d, g};
   });

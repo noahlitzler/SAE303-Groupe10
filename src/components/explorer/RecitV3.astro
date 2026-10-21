@@ -1,0 +1,416 @@
+---
+// Page « Voir plus » de V3 : l'énergie selon les tâches (AI Energy Score, énergie GPU mesurée).
+// Mise en scène : une galerie des dix tâches à retourner (« laquelle consomme le plus ? »),
+// une puce GPU qui s'allume (CPU / GPU / mesure / périmètre), puis un atelier échelle linéaire / logarithmique.
+import ExplorerGraphique from "./ExplorerGraphique.astro";
+import { lireDonnees, fmt, fmtRapport } from "../../data/lecture";
+import type { Chapitre } from "../../data/chapitres";
+
+interface Props { chapitre: Chapitre }
+const { chapitre: c } = Astro.props;
+
+type Ligne = { tache: string; campagne: string; n_evaluations: number; mediane_Wh_req: number; moyenne_Wh_req: number; min_Wh_req: number; max_Wh_req: number };
+const { donnees } = lireDonnees<{ donnees: Ligne[] }>("v3-ai-energy-score-taches.json");
+const lignes = donnees.filter((d) => d.campagne === "Février 2025").sort((a, b) => b.mediane_Wh_req - a.mediane_Wh_req);
+const haut = lignes[0];
+const bas = lignes[lignes.length - 1];
+const rapport = haut.mediane_Wh_req / bas.mediane_Wh_req;
+const evaluations = lignes.reduce((s, d) => s + d.n_evaluations, 0);
+const texte = lignes.find((d) => d.tache === "Génération de texte")!;
+
+// Ce que fait chaque tâche (entrée → sortie), et le petit motif animé qui l'illustre.
+const descriptions: Record<string, [string, string]> = {
+  "Génération d'images": ["À partir d’une phrase, créer une image.", "creer-image"],
+  "Description d'images": ["Regarder une image et la décrire en mots.", "lire-image"],
+  "Génération de texte": ["Écrire la suite d’un texte : ce que font les assistants conversationnels.", "ecrire"],
+  "Reconnaissance vocale": ["Transformer une voix enregistrée en texte écrit.", "son"],
+  "Résumé de texte": ["Raccourcir un long texte en gardant l’essentiel.", "resumer"],
+  "Détection d'objets": ["Repérer et encadrer les objets présents dans une image.", "lire-image"],
+  "Réponse à des questions": ["Retrouver, dans un texte donné, le passage qui répond à une question.", "ecrire"],
+  "Classification d'images": ["Ranger une image dans une catégorie : chat, voiture, paysage…", "trier"],
+  "Classification de texte": ["Ranger un texte dans une catégorie : avis positif ou négatif…", "trier"],
+  "Similarité de phrases": ["Dire si deux phrases veulent dire à peu près la même chose.", "comparer"],
+};
+// Ordre de départ de la galerie : mélangé de façon fixe, pour que le classement reste à découvrir.
+const ordreGalerie = [3, 7, 0, 9, 4, 2, 8, 5, 1, 6].map((i) => lignes[i]).filter(Boolean);
+const lo = Math.log10(bas.mediane_Wh_req) - 0.3, hi = Math.log10(haut.mediane_Wh_req) + 0.1;
+const partLog = (v: number) => Math.max(4, (100 * (Math.log10(v) - lo)) / (hi - lo));
+
+// Atelier d'échelle : trois tâches repères.
+const reperes = [haut, texte, bas];
+const maxLin = haut.mediane_Wh_req;
+const loLog = Math.floor(Math.log10(bas.mediane_Wh_req)), hiLog = Math.ceil(Math.log10(haut.mediane_Wh_req));
+const graduationsLog = Array.from({ length: hiLog - loLog + 1 }, (_, i) => 10 ** (loLog + i));
+const enLog = (v: number) => (100 * (Math.log10(v) - loLog)) / (hiLog - loLog);
+---
+
+<div class="ex-recit recit-v3">
+  <!-- 1. Ouverture -->
+  <section class="ex-hero ex-largeur" aria-labelledby="v3-titre">
+    <div class="ex-hero-texte">
+      <p class="ex-kicker">VOIR PLUS · CHAPITRE {c.n} — {c.k}</p>
+      <h1 id="v3-titre">Changer <em>d’échelle.</em></h1>
+      <p class="ex-question"><small>LA QUESTION</small>Créer une image, résumer un texte, trier des avis : est-ce la même dépense d’énergie&nbsp;?</p>
+      <p class="ex-hero-lead">Jusqu’ici, nous avons lu des <strong>estimations</strong>. Ce chapitre change de source : des <strong>mesures</strong>, prises en laboratoire sur les puces qui font les calculs.</p>
+      <span class="ex-defiler"><i></i>DÉFILEZ POUR COMMENCER</span>
+    </div>
+    <div class="v3-puce" aria-hidden="true">
+      <div class="v3-puce-corps">
+        {Array.from({ length: 96 }, (_, i) => <i style={`--d:${((i * 37) % 23) / 10}s`}></i>)}
+      </div>
+      <span class="v3-puce-nom">GPU</span>
+    </div>
+  </section>
+
+  <!-- 2a. Les tâches : galerie à retourner -->
+  <section class="ex-section ex-largeur" aria-labelledby="v3-taches">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">L’IA NE FAIT PAS QUE DU TEXTE</p>
+      <h2 class="ex-h2" id="v3-taches">Dix tâches. <em>Devinez laquelle consomme le plus.</em></h2>
+      <p class="ex-lead">Les assistants qui écrivent ne sont qu’une partie de l’IA. Voici les {lignes.length} tâches mesurées par AI Energy Score. Retournez les cartes une par une, ou révélez le classement.</p>
+    </div>
+    <div class="v3-galerie" id="v3-galerie" data-reveal-groupe>
+      {ordreGalerie.map((d) => {
+        const [phrase, motif] = descriptions[d.tache] ?? ["", "ecrire"];
+        return (
+          <button type="button" class="v3-tuile" data-valeur={d.mediane_Wh_req} aria-expanded="false" style={`--part:${partLog(d.mediane_Wh_req).toFixed(1)}%`}>
+            <span class={`v3-motif v3-motif--${motif}`} aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            <span class="v3-tuile-nom">{d.tache}</span>
+            <span class="v3-tuile-desc">{phrase}</span>
+            <span class="v3-tuile-verso">
+              <span class="v3-tuile-v">{fmt(d.mediane_Wh_req)} <small>Wh</small></span>
+              <span class="v3-tuile-barre"><i></i></span>
+              <span class="v3-tuile-n">médiane de {d.n_evaluations} modèles</span>
+            </span>
+            <span class="v3-tuile-rang" aria-hidden="true"></span>
+          </button>
+        );
+      })}
+    </div>
+    <div class="v3-galerie-actions" data-reveal>
+      <button type="button" class="ex-bouton" id="v3-classer">RÉVÉLER ET CLASSER ↓</button>
+      <p class="v3-galerie-note">Barres en échelle logarithmique : chaque cran compte dix fois plus.</p>
+    </div>
+  </section>
+
+  <!-- 2b. Séquence : qu'est-ce qu'un GPU, et que mesure-t-on ? -->
+  <section class="ex-section ex-largeur" aria-labelledby="v3-gpu">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">SOUS LE CAPOT</p>
+      <h2 class="ex-h2" id="v3-gpu">Qu’est-ce qu’un GPU, <em>et que mesure-t-on ?</em></h2>
+    </div>
+    <div class="ex-scrolly" data-scrolly id="v3-scrolly">
+      <div class="ex-etapes">
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">01 / 04</span>
+          <h3>Un processeur classique.</h3>
+          <p>Le <span class="ex-terme">CPU</span>, cœur de tout ordinateur, enchaîne les calculs très vite, mais quelques-uns à la fois.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">02 / 04</span>
+          <h3>Un GPU calcule en parallèle.</h3>
+          <p>Le <span class="ex-terme">GPU</span> (processeur graphique), conçu au départ pour les jeux vidéo, réunit des milliers de petites unités qui calculent en même temps.</p>
+          <p>C’est ce dont l’IA a besoin : d’immenses quantités d’opérations simples, réalisées simultanément.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">03 / 04</span>
+          <h3>On mesure son énergie.</h3>
+          <p>AI Energy Score fait traiter <strong>1 000 requêtes de test</strong> à chaque modèle, sur une même carte (une NVIDIA H100), et relève l’énergie consommée par le GPU.</p>
+          <p>Divisée par 1 000, elle donne des <strong>Wh par requête</strong>.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">04 / 04</span>
+          <h3>Seule la carte est mesurée.</h3>
+          <p>Ni le refroidissement, ni le réseau, ni le bâtiment : un datacenter consomme davantage que ses GPU.</p>
+          <p>Ces mesures ne se comparent donc pas directement aux estimations EcoLogits des chapitres précédents.</p>
+        </div></article>
+      </div>
+
+      <div class="ex-scene v3-scene" aria-hidden="true">
+        <div class="v3-perimetre">
+          <span class="v3-hors v3-hors--1">REFROIDISSEMENT</span>
+          <span class="v3-hors v3-hors--2">RÉSEAU</span>
+          <span class="v3-hors v3-hors--3">BÂTIMENT</span>
+          <div class="v3-cpu">
+            <p>CPU</p>
+            <div class="v3-cpu-grille"><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="v3-gpu">
+            <p>GPU</p>
+            <div class="v3-gpu-grille">{Array.from({ length: 128 }, (_, i) => <i style={`--c:${i % 16};--r:${Math.floor(i / 16)}`}></i>)}</div>
+          </div>
+          <div class="v3-mesure">
+            <span class="v3-mesure-k">WATTMÈTRE · GPU</span>
+            <span class="v3-mesure-l">1 000 requêtes → <b>{fmt(haut.mediane_Wh_req)} kWh</b></span>
+            <span class="v3-mesure-l">÷ 1 000 = <b>{fmt(haut.mediane_Wh_req)} Wh</b> / requête</span>
+            <span class="v3-mesure-ex">ex. : {haut.tache.toLowerCase()}, médiane</span>
+          </div>
+        </div>
+        <p class="ex-scene-legende">SCHÉMA SIMPLIFIÉ · NOMBRE D’UNITÉS NON REPRÉSENTATIF</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2c. Atelier : lire des écarts immenses -->
+  <section class="ex-section ex-largeur" aria-labelledby="v3-echelle">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">AVANT D’EXPLORER</p>
+      <h2 class="ex-h2" id="v3-echelle">Des écarts si grands <em>qu’il faut changer de règle.</em></h2>
+      <p class="ex-lead">Entre la tâche la plus gourmande et la plus sobre, le rapport atteint environ <strong>{fmtRapport(rapport)}</strong>. Sur une règle ordinaire, les petites valeurs disparaissent. Basculez d’une échelle à l’autre.</p>
+    </div>
+    <div class="v3-atelier" id="v3-atelier" data-echelle="lin" data-reveal>
+      <div class="v3-bascule" role="group" aria-label="Échelle">
+        <button type="button" data-e="lin" aria-pressed="true">Linéaire</button>
+        <button type="button" data-e="log" aria-pressed="false">Logarithmique</button>
+      </div>
+      <div class="v3-barres">
+        <div class="v3-grad v3-grad--log" aria-hidden="true">{graduationsLog.map((g) => <span style={`left:${enLog(g)}%`}>{fmt(g)}</span>)}</div>
+        {reperes.map((d) => (
+          <div class="v3-barre" style={`--lin:${(100 * d.mediane_Wh_req / maxLin).toFixed(3)}%;--log:${enLog(d.mediane_Wh_req).toFixed(2)}%`}>
+            <span class="v3-barre-nom">{d.tache}</span>
+            <span class="v3-barre-piste"><i></i></span>
+            <span class="v3-barre-v">{fmt(d.mediane_Wh_req)} Wh</span>
+          </div>
+        ))}
+      </div>
+      <p class="v3-atelier-txt v3-txt-lin"><strong>Échelle linéaire :</strong> la longueur est proportionnelle à la valeur. La similarité de phrases devient une barre invisible.</p>
+      <p class="v3-atelier-txt v3-txt-log"><strong>Échelle logarithmique :</strong> chaque graduation vaut dix fois la précédente. Tout est visible, mais les écarts paraissent bien plus petits qu’ils ne sont.</p>
+    </div>
+  </section>
+
+  <!-- 3. Méthode et données -->
+  <section class="ex-section ex-largeur" aria-labelledby="v3-methode">
+    <div class="ex-entete" data-reveal>
+      <span class="ex-nature">MESURES EN LABORATOIRE</span>
+      <h2 class="ex-h2" id="v3-methode">Une campagne <em>de mesures.</em></h2>
+      <p class="ex-lead">Ici, rien n’est extrapolé : l’énergie a été relevée pendant l’exécution. Mais seulement pour les GPU, sur des modèles <strong>ouverts</strong> que l’on peut faire tourner soi-même.</p>
+    </div>
+    <div class="ex-cartes" data-reveal-groupe>
+      <article class="ex-carte"><span class="ex-carte-k">Source</span><h3>AI Energy Score</h3><p>Classement public hébergé par Hugging Face, qui compare l’énergie des modèles d’IA ouverts.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">Campagne</span><h3>Février 2025</h3><p>{lignes.length} tâches, {evaluations} évaluations de modèles, sur carte NVIDIA H100.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">Valeur affichée</span><h3>La médiane</h3><p>Pour chaque tâche, la valeur du milieu parmi les modèles testés : moins sensible aux extrêmes que la moyenne.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">Unité</span><h3>Wh GPU par requête</h3><p>Fichiers d’origine en kWh pour 1 000 requêtes, ce qui revient au même nombre en Wh par requête.</p></article>
+    </div>
+  </section>
+
+  <!-- 4. Transition -->
+  <div class="ex-passage ex-largeur" data-reveal>
+    <p class="ex-kicker">À VOUS</p>
+    <h2 class="ex-h2">Les dix tâches, <em>côte à côte.</em></h2>
+    <p>Le graphique classe les tâches de la plus à la moins gourmande. Commencez en échelle logarithmique pour tout voir, puis passez en linéaire pour ressentir les écarts.</p>
+    <span class="ex-passage-fleche" aria-hidden="true"></span>
+  </div>
+
+  <!-- 5 et 6. Graphique et mode d'emploi -->
+  <ExplorerGraphique viz={c.viz} label={c.label} note={c.note}>
+    <li><strong>Basculez</strong> entre échelle logarithmique et linéaire avec les deux boutons.</li>
+    <li><strong>Survolez</strong> une barre (ou donnez-lui le focus) pour lire sa médiane, sa fourchette et le nombre de modèles mesurés.</li>
+    <li>Les tâches sont <strong>classées</strong> de la plus à la moins énergivore.</li>
+    <li>Une valeur est une <strong>médiane</strong> : certains modèles consomment bien plus, d’autres bien moins.</li>
+  </ExplorerGraphique>
+
+  <!-- 7. Enseignements -->
+  <section class="ex-section ex-largeur" aria-labelledby="v3-lecons">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">CE QUE L’ON EN RETIENT</p>
+      <h2 class="ex-h2" id="v3-lecons">Trois enseignements.</h2>
+    </div>
+    <div class="ex-chiffres" data-reveal-groupe>
+      <article class="ex-chiffre"><p class="ex-chiffre-v"><small>×</small><span data-count={Math.round(rapport)} data-format="entier">{Math.round(rapport)}</span></p><p>Entre la médiane de la {haut.tache.toLowerCase()} et celle de la {bas.tache.toLowerCase()}.</p></article>
+      <article class="ex-chiffre"><p class="ex-chiffre-v"><span data-count="2" data-format="entier">2</span><small>SUR {lignes.length}</small></p><p>Les deux tâches les plus gourmandes travaillent sur des images : {lignes[0].tache.toLowerCase()} et {lignes[1].tache.toLowerCase()}.</p></article>
+      <article class="ex-chiffre"><p class="ex-chiffre-v"><small>×</small><span data-count={Math.round(texte.max_Wh_req / texte.min_Wh_req)} data-format="entier">{Math.round(texte.max_Wh_req / texte.min_Wh_req)}</span></p><p>Pour la génération de texte, entre le modèle le plus sobre et le plus gourmand des {texte.n_evaluations} mesurés : le choix du modèle compte autant que la tâche.</p></article>
+    </div>
+  </section>
+
+  <!-- 8. Limites -->
+  <section class="ex-section ex-largeur" aria-labelledby="v3-limites">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">À GARDER EN TÊTE</p>
+      <h2 class="ex-h2" id="v3-limites">Les limites <em>de ces mesures.</em></h2>
+    </div>
+    <ul class="ex-limites" data-reveal-groupe>
+      <li><span><strong>Le GPU seulement.</strong> Le reste du serveur, le refroidissement et le réseau ne sont pas comptés : ce n’est pas la consommation d’un datacenter.</span></li>
+      <li><span><strong>Des requêtes de test.</strong> Elles sont standardisées pour comparer les modèles ; vos propres requêtes peuvent être plus longues ou plus courtes.</span></li>
+      <li><span><strong>Des modèles ouverts.</strong> Les grands assistants commerciaux ne sont pas mesurés ici.</span></li>
+      <li><span><strong>Une campagne, un matériel.</strong> Février 2025, carte H100 : d’autres cartes ou réglages donneraient d’autres chiffres.</span></li>
+    </ul>
+  </section>
+
+  <!-- 9. Conclusion -->
+  <section class="ex-section ex-largeur">
+    <div class="ex-fin" data-reveal>
+      <p class="ex-kicker">EN RÉSUMÉ</p>
+      <h2 class="ex-h2">Ce que l’on demande <em>change l’énergie nécessaire.</em></h2>
+      <p>Créer une image mobilise bien plus les GPU que trier des phrases. L’énergie d’une requête dépend du modèle, mais aussi de la tâche.</p>
+      <p class="ex-fin-probleme">Derrière une requête d’IA, il y a donc des puces qui calculent. Mais ces puces ne flottent pas dans un « nuage » : elles sont rangées quelque part.</p>
+      <div class="ex-actions">
+        <a class="ex-bouton" href="/explorer/v2">CHAPITRE 04 : LES INFRASTRUCTURES →</a>
+        <a class="ex-bouton ex-bouton--ligne" href="/?face=3">RETOUR À L’EXPÉRIENCE</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  import { mouvementReduit } from "../../scripts/explorer";
+
+  // Galerie : chaque carte se retourne au clic ; « Révéler et classer » les range par énergie (animation FLIP).
+  const galerie = document.querySelector<HTMLElement>("#v3-galerie");
+  const classer = document.querySelector<HTMLButtonElement>("#v3-classer");
+  if (galerie && classer) {
+    const tuiles = [...galerie.querySelectorAll<HTMLButtonElement>(".v3-tuile")];
+    const retourner = (t: HTMLButtonElement, ouvert = true) => t.setAttribute("aria-expanded", String(ouvert));
+    tuiles.forEach((t) => t.addEventListener("click", () => retourner(t, t.getAttribute("aria-expanded") !== "true")));
+    classer.addEventListener("click", () => {
+      const avant = new Map(tuiles.map((t) => [t, t.getBoundingClientRect()]));
+      const triees = [...tuiles].sort((a, b) => Number(b.dataset.valeur) - Number(a.dataset.valeur));
+      triees.forEach((t, i) => {
+        retourner(t);
+        t.querySelector(".v3-tuile-rang")!.textContent = String(i + 1).padStart(2, "0");
+        galerie.append(t);
+      });
+      galerie.classList.add("is-classee");
+      classer.textContent = "CLASSÉES DE LA PLUS À LA MOINS GOURMANDE";
+      classer.disabled = true;
+      if (mouvementReduit()) return;
+      triees.forEach((t, i) => {
+        const a = avant.get(t)!, b = t.getBoundingClientRect();
+        t.animate([{ transform: `translate(${a.left - b.left}px, ${a.top - b.top}px)` }, { transform: "none" }], { duration: 700 + i * 40, easing: "cubic-bezier(.2,.8,.2,1)" });
+      });
+    });
+  }
+
+  // Atelier d'échelle : bascule linéaire / logarithmique.
+  const atelier = document.querySelector<HTMLElement>("#v3-atelier");
+  atelier?.querySelectorAll<HTMLButtonElement>("[data-e]").forEach((b) => b.addEventListener("click", () => {
+    atelier.dataset.echelle = b.dataset.e!;
+    atelier.querySelectorAll("[data-e]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  }));
+</script>
+
+<style>
+  /* Ouverture : une puce dont les unités s'allument en vagues */
+  .v3-puce { position: relative; justify-self: center; width: min(440px, 100%); aspect-ratio: 1; display: grid; place-items: center; }
+  .v3-puce::before { content: ""; position: absolute; inset: 6%; border: 1px dashed #c4a9ff55; background: repeating-linear-gradient(90deg, transparent 0 18px, #c4a9ff22 18px 20px) top / 100% 8% no-repeat, repeating-linear-gradient(90deg, transparent 0 18px, #c4a9ff22 18px 20px) bottom / 100% 8% no-repeat; }
+  .v3-puce-corps { position: relative; display: grid; grid-template-columns: repeat(12, 1fr); gap: 5px; width: 70%; padding: 16px; border: 1px solid #c4a9ff; background: #120f2c; box-shadow: 0 0 80px #c4a9ff33; }
+  .v3-puce-corps i { aspect-ratio: 1; background: #c4a9ff; opacity: .12; animation: v3-calcul 2.3s ease-in-out infinite; animation-delay: calc(var(--d) * -1); }
+  .v3-puce-nom { position: absolute; bottom: 10%; font: 500 11px var(--mono); letter-spacing: .3em; color: var(--accent); }
+  @keyframes v3-calcul { 0%, 100% { opacity: .12; } 50% { opacity: .95; box-shadow: 0 0 8px #c4a9ff; } }
+
+  /* Galerie des tâches */
+  .v3-galerie { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+  .v3-tuile { position: relative; display: grid; gap: 8px; align-content: start; min-height: 230px; padding: 16px; border: 1px solid #ffffff1f; background: #0c1530; color: #fff; text-align: left; font: inherit; cursor: pointer; transition: border-color .3s, background .3s; }
+  .v3-tuile:hover { border-color: var(--accent); background: #111a3a; }
+  .v3-tuile:focus-visible { outline: 2px solid #e9fbff; outline-offset: 3px; }
+  .v3-tuile-nom { font: 800 21px/1.05 var(--titre); letter-spacing: .01em; }
+  .v3-tuile-desc { color: #c3d1e7; font-size: 13.5px; line-height: 1.45; }
+  .v3-tuile-verso { display: grid; gap: 6px; margin-top: auto; padding-top: 10px; border-top: 1px dashed #ffffff26; opacity: 0; transform: translateY(8px); transition: opacity .4s, transform .4s; }
+  .v3-tuile[aria-expanded="true"] { border-color: color-mix(in srgb, var(--accent) 60%, transparent); background: #13173a; }
+  .v3-tuile[aria-expanded="true"] .v3-tuile-verso { opacity: 1; transform: none; }
+  .v3-tuile-v { font: 900 30px/1 var(--titre); color: var(--accent); font-variant-numeric: tabular-nums; }
+  .v3-tuile-v small { font: 500 11px var(--mono); color: #c3d1e7; }
+  .v3-tuile-barre { height: 6px; background: #ffffff14; }
+  .v3-tuile-barre i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #8ce8f1, var(--accent)); transition: width .9s cubic-bezier(.2,.8,.2,1) .15s; }
+  .v3-tuile[aria-expanded="true"] .v3-tuile-barre i { width: var(--part); }
+  .v3-tuile-n { font: 500 10px var(--mono); color: #8fa2c5; }
+  .v3-tuile-rang { position: absolute; right: 12px; top: 12px; font: 500 11px var(--mono); color: var(--accent); }
+  .v3-galerie-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 22px; }
+  .v3-galerie-actions .ex-bouton { border: 0; cursor: pointer; }
+  .v3-galerie-actions .ex-bouton:disabled { cursor: default; opacity: .75; transform: none; }
+  .v3-galerie-note { margin: 0; color: #8fa2c5; font-size: 13px; }
+
+  /* Motifs : ce que fait chaque tâche, en quatre petits éléments */
+  .v3-motif { position: relative; display: block; width: 64px; height: 44px; margin-bottom: 4px; }
+  .v3-motif i { position: absolute; display: block; background: var(--accent); }
+  .v3-motif--creer-image i { width: 13px; height: 13px; opacity: 0; animation: v3-pixel 2.4s infinite; }
+  .v3-motif--creer-image i:nth-child(1) { left: 0; top: 0; } .v3-motif--creer-image i:nth-child(2) { left: 15px; top: 0; animation-delay: .3s; } .v3-motif--creer-image i:nth-child(3) { left: 0; top: 15px; animation-delay: .6s; } .v3-motif--creer-image i:nth-child(4) { left: 15px; top: 15px; animation-delay: .9s; background: #8ce8f1; }
+  @keyframes v3-pixel { 0% { opacity: 0; } 30%, 80% { opacity: 1; } 100% { opacity: 0; } }
+  .v3-motif--lire-image i:nth-child(1) { left: 0; top: 0; width: 40px; height: 40px; background: none; border: 1px solid var(--accent); }
+  .v3-motif--lire-image i:nth-child(2) { left: 1px; top: 2px; width: 38px; height: 2px; background: #8ce8f1; animation: v3-scan 2s ease-in-out infinite; }
+  .v3-motif--lire-image i:nth-child(3) { left: 10px; top: 14px; width: 16px; height: 16px; background: none; border: 2px dashed #8ce8f1; opacity: 0; animation: v3-cadre 2s infinite; }
+  .v3-motif--lire-image i:nth-child(4) { display: none; }
+  @keyframes v3-scan { 50% { transform: translateY(34px); } }
+  @keyframes v3-cadre { 0%, 45% { opacity: 0; } 60%, 100% { opacity: 1; } }
+  .v3-motif--ecrire i, .v3-motif--resumer i { left: 0; height: 4px; width: 0; animation: v3-ligne 2.6s infinite; }
+  .v3-motif--ecrire i:nth-child(1), .v3-motif--resumer i:nth-child(1) { top: 4px; --w: 60px; } .v3-motif--ecrire i:nth-child(2), .v3-motif--resumer i:nth-child(2) { top: 14px; --w: 48px; animation-delay: .4s; } .v3-motif--ecrire i:nth-child(3), .v3-motif--resumer i:nth-child(3) { top: 24px; --w: 56px; animation-delay: .8s; } .v3-motif--ecrire i:nth-child(4), .v3-motif--resumer i:nth-child(4) { top: 34px; --w: 30px; animation-delay: 1.2s; }
+  .v3-motif--resumer i { animation-name: v3-resume; width: var(--w); }
+  @keyframes v3-ligne { 0% { width: 0; } 40%, 85% { width: var(--w); } 100% { width: 0; } }
+  @keyframes v3-resume { 0%, 30% { width: var(--w); opacity: 1; } 70%, 100% { width: 18px; opacity: .5; } }
+  .v3-motif--son i { bottom: 8px; width: 6px; height: 28px; transform-origin: bottom; animation: v3-onde .9s ease-in-out infinite alternate; }
+  .v3-motif--son i:nth-child(1) { left: 0; } .v3-motif--son i:nth-child(2) { left: 10px; animation-delay: .2s; } .v3-motif--son i:nth-child(3) { left: 20px; animation-delay: .4s; } .v3-motif--son i:nth-child(4) { left: 30px; animation-delay: .1s; }
+  @keyframes v3-onde { from { transform: scaleY(.2); } to { transform: scaleY(1); } }
+  .v3-motif--trier i:nth-child(1) { left: 22px; top: 0; width: 10px; height: 10px; border-radius: 50%; animation: v3-tombe 2.2s ease-in infinite; }
+  .v3-motif--trier i:nth-child(2), .v3-motif--trier i:nth-child(3) { top: 26px; width: 24px; height: 14px; background: none; border: 1px solid var(--accent); border-top: 0; }
+  .v3-motif--trier i:nth-child(2) { left: 0; } .v3-motif--trier i:nth-child(3) { left: 32px; }
+  .v3-motif--trier i:nth-child(4) { display: none; }
+  @keyframes v3-tombe { 0% { transform: none; opacity: 1; } 60% { transform: translate(14px, 26px); opacity: 1; } 100% { transform: translate(14px, 26px); opacity: 0; } }
+  .v3-motif--comparer i { left: 0; height: 4px; }
+  .v3-motif--comparer i:nth-child(1) { top: 10px; width: 44px; animation: v3-rapproche 2.2s ease-in-out infinite; } .v3-motif--comparer i:nth-child(2) { top: 26px; width: 44px; background: #8ce8f1; animation: v3-rapproche 2.2s ease-in-out infinite reverse; } .v3-motif--comparer i:nth-child(n+3) { display: none; }
+  @keyframes v3-rapproche { 50% { transform: translateY(8px); } }
+
+  /* Séquence GPU */
+  .v3-perimetre { position: relative; display: grid; grid-template-columns: .55fr 1fr; gap: 18px; align-items: center; width: 88%; padding: 46px 24px 24px; border: 1px dashed transparent; transition: border-color .6s; }
+  .v3-perimetre > div p { margin: 0 0 8px; font: 500 11px var(--mono); letter-spacing: .2em; color: #c3d1e7; }
+  .v3-cpu-grille { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px; border: 1px solid #ffffff44; }
+  .v3-cpu-grille i { aspect-ratio: 1; background: #8ce8f1; opacity: .15; }
+  [data-active="0"] .v3-cpu-grille i { animation: v3-sequence 2s steps(1) infinite; }
+  .v3-cpu-grille i:nth-child(2) { animation-delay: .5s !important; } .v3-cpu-grille i:nth-child(3) { animation-delay: 1s !important; } .v3-cpu-grille i:nth-child(4) { animation-delay: 1.5s !important; }
+  @keyframes v3-sequence { 0% { opacity: 1; box-shadow: 0 0 12px #8ce8f1; } 25% { opacity: .15; box-shadow: none; } }
+  .v3-gpu-grille { display: grid; grid-template-columns: repeat(16, 1fr); gap: 3px; padding: 8px; border: 1px solid #c4a9ff88; }
+  .v3-gpu-grille i { aspect-ratio: 1; background: #c4a9ff; opacity: .12; }
+  :is([data-active="1"], [data-active="2"]) .v3-gpu-grille i { animation: v3-vague 1.6s ease-in-out infinite; animation-delay: calc((var(--c) + var(--r)) * 60ms); }
+  @keyframes v3-vague { 0%, 100% { opacity: .15; } 40% { opacity: 1; } }
+  .v3-cpu, .v3-gpu { transition: opacity .6s; }
+  [data-active="0"] .v3-gpu { opacity: .35; }
+  :is([data-active="1"], [data-active="2"], [data-active="3"]) .v3-cpu { opacity: .25; }
+  .v3-mesure { grid-column: 1 / -1; display: grid; gap: 6px; padding: 14px 16px; border: 1px solid #c4a9ff; background: #120f2ccc; opacity: 0; transform: translateY(10px); transition: opacity .6s, transform .6s; }
+  .v3-mesure-k { font: 500 10px var(--mono); letter-spacing: .18em; color: var(--accent); }
+  .v3-mesure-l { color: #fff; font: 500 15px var(--mono); }
+  .v3-mesure-l b { color: var(--accent); }
+  .v3-mesure-ex { color: #8fa2c5; font-size: 12px; }
+  :is([data-active="2"], [data-active="3"]) .v3-mesure { opacity: 1; transform: none; }
+  [data-active="3"] .v3-perimetre { border-color: #c4a9ff; }
+  .v3-hors { position: absolute; font: 500 10px var(--mono); letter-spacing: .14em; color: #8fa2c5; opacity: 0; transition: opacity .6s; text-decoration: line-through; }
+  .v3-hors--1 { left: 10px; top: 12px; } .v3-hors--2 { right: 10px; top: 12px; } .v3-hors--3 { left: 50%; translate: -50%; bottom: -28px; }
+  [data-active="3"] .v3-hors { opacity: 1; }
+
+  /* Atelier d'échelle */
+  .v3-atelier { display: grid; gap: 18px; padding: clamp(18px, 3vw, 32px); border: 1px solid #ffffff1c; background: #0b1328; }
+  .v3-bascule { display: inline-flex; width: fit-content; padding: 4px; border: 1px solid #ffffff2e; border-radius: 999px; }
+  .v3-bascule button { padding: 9px 18px; border: 0; border-radius: 999px; background: transparent; color: #dfe9fb; font: 500 13px var(--mono); cursor: pointer; }
+  .v3-bascule button[aria-pressed="true"] { background: linear-gradient(115deg, #8ce8f1, #5d8dff); color: #04101f; font-weight: 600; }
+  .v3-bascule button:focus-visible { outline: 2px solid #e9fbff; outline-offset: 2px; }
+  .v3-barres { position: relative; display: grid; gap: 14px; padding-top: 26px; }
+  .v3-grad { position: absolute; left: 190px; right: 110px; top: 0; height: 100%; pointer-events: none; opacity: 0; transition: opacity .5s; }
+  .v3-grad span { position: absolute; top: 0; translate: -50%; font: 500 10px var(--mono); color: #8fa2c5; }
+  .v3-grad span::after { content: ""; position: absolute; left: 50%; top: 16px; height: 120px; border-left: 1px dashed #ffffff1f; }
+  [data-echelle="log"] .v3-grad--log { opacity: 1; }
+  .v3-barre { display: grid; grid-template-columns: 180px 1fr 100px; gap: 10px; align-items: center; }
+  .v3-barre-nom { color: #fff; font-size: 14px; }
+  .v3-barre-piste { height: 22px; background: #ffffff0d; }
+  .v3-barre-piste i { display: block; height: 100%; width: var(--lin); min-width: 0; background: linear-gradient(90deg, #8ce8f1, var(--accent)); transition: width 1s cubic-bezier(.2,.8,.2,1); }
+  [data-echelle="log"] .v3-barre-piste i { width: var(--log); }
+  .v3-barre-v { font: 500 12px var(--mono); color: #c3d1e7; }
+  .v3-atelier-txt { margin: 0; color: #c3d1e7; font-size: 15px; line-height: 1.55; }
+  .v3-atelier-txt strong { color: #fff; }
+  [data-echelle="lin"] .v3-txt-log, [data-echelle="log"] .v3-txt-lin { display: none; }
+
+  @media (max-width: 900px) {
+    .v3-puce { width: min(320px, 80%); }
+    .v3-perimetre { width: 96%; padding: 36px 12px 14px; gap: 10px; }
+    .v3-mesure-l { font-size: 12px; }
+  }
+  @media (max-width: 600px) {
+    .v3-barre { grid-template-columns: 1fr auto; }
+    .v3-barre-nom { grid-column: 1 / -1; font-size: 13px; }
+    .v3-grad { left: 0; right: 70px; }
+    .v3-galerie { grid-template-columns: 1fr 1fr; }
+    .v3-tuile { min-height: 210px; padding: 12px; }
+    .v3-tuile-nom { font-size: 18px; }
+    .v3-tuile-desc { font-size: 12.5px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .v3-puce-corps i, .v3-motif i, .v3-cpu-grille i, .v3-gpu-grille i { animation: none !important; opacity: .7; }
+    .v3-tuile, .v3-tuile-verso, .v3-tuile-barre i, .v3-barre-piste i, .v3-mesure, .v3-hors, .v3-cpu, .v3-gpu { transition: none; }
+  }
+</style>

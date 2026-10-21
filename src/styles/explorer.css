@@ -1,0 +1,197 @@
+/* Pages « Voir plus » : grammaire commune (sections, séquences pas à pas, cartes, encadrés).
+   Chaque récit (src/components/explorer/RecitV*.astro) y ajoute sa propre mise en scène.
+   --accent est fourni par la page (couleur du chapitre). */
+
+.ex-recit {
+  --texte: #f3f5ff;
+  --texte2: #c3d1e7;
+  --texte3: #8fa2c5;
+  --ligne: #ffffff1c;
+  --bleu: #5d8dff;
+  --cyan: #8ce8f1;
+  position: relative;
+  z-index: 1;
+  color: var(--texte);
+  font-family: Arial, sans-serif;
+}
+
+.ex-recit *,
+.ex-recit *::before,
+.ex-recit *::after { box-sizing: border-box; }
+
+.ex-largeur { width: min(1240px, 100%); margin-inline: auto; padding-inline: clamp(16px, 4vw, 48px); }
+
+/* ---------- Ouverture ---------- */
+.ex-hero {
+  min-height: calc(100svh - 70px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  align-items: center;
+  gap: clamp(24px, 4vw, 64px);
+  padding-block: clamp(32px, 6vh, 72px);
+}
+.ex-hero-texte { display: grid; gap: 22px; }
+.ex-kicker { margin: 0; font: 500 11px var(--mono); letter-spacing: .16em; color: var(--accent); text-transform: uppercase; }
+.ex-hero h1 { margin: 0; font: 900 clamp(46px, 7vw, 108px)/.88 var(--titre); letter-spacing: -.01em; text-transform: uppercase; text-wrap: balance; }
+.ex-hero h1 em { font-style: normal; color: var(--accent); }
+.ex-question {
+  margin: 0;
+  padding: 16px 18px;
+  border-left: 3px solid var(--accent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 12%, transparent), transparent);
+  font: 700 clamp(20px, 2.3vw, 28px)/1.25 var(--titre);
+  letter-spacing: .01em;
+}
+.ex-question small { display: block; margin-bottom: 6px; font: 500 10px var(--mono); letter-spacing: .18em; color: var(--accent); }
+.ex-hero-lead { margin: 0; max-width: 560px; color: var(--texte2); font-size: 17px; line-height: 1.6; }
+.ex-defiler { display: inline-flex; align-items: center; gap: 12px; font: 500 10px var(--mono); letter-spacing: .16em; color: var(--texte3); }
+.ex-defiler i { width: 1px; height: 34px; background: linear-gradient(var(--accent), transparent); animation: ex-goutte 1.8s ease-in-out infinite; transform-origin: top; }
+@keyframes ex-goutte { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+
+/* ---------- Sections ---------- */
+.ex-section { padding-block: clamp(64px, 14vh, 140px); }
+.ex-section + .ex-section { border-top: 1px solid var(--ligne); }
+.ex-entete { display: grid; gap: 14px; max-width: 760px; margin-bottom: clamp(28px, 5vh, 52px); }
+.ex-h2 { margin: 0; font: 900 clamp(34px, 4.6vw, 66px)/.92 var(--titre); letter-spacing: .005em; text-transform: uppercase; text-wrap: balance; }
+.ex-h2 em { font-style: normal; color: var(--accent); }
+.ex-lead { margin: 0; color: var(--texte2); font-size: 17px; line-height: 1.65; max-width: 680px; }
+.ex-lead strong, .ex-texte strong { color: #fff; }
+.ex-texte { color: var(--texte2); font-size: 16px; line-height: 1.65; }
+.ex-terme { color: #fff; border-bottom: 1px dashed var(--accent); }
+
+/* ---------- Séquence pas à pas : étapes à gauche, visuel collant à droite ---------- */
+.ex-scrolly { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(24px, 4vw, 64px); align-items: start; }
+.ex-scene {
+  position: sticky;
+  top: 90px;
+  height: min(78svh, 680px);
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, #263b59);
+  background: radial-gradient(ellipse at 50% 35%, #15223f, #0a1124 70%);
+  overflow: hidden;
+}
+.ex-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(#ffffff08 1px, transparent 1px), linear-gradient(90deg, #ffffff08 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+.ex-scene > * { position: relative; }
+.ex-scene-legende { position: absolute; left: 14px; bottom: 12px; margin: 0; font: 500 9.5px var(--mono); letter-spacing: .12em; color: var(--texte3); }
+.ex-etapes { display: grid; padding-block: 18svh 30svh; }
+.ex-etape { min-height: 62svh; display: flex; align-items: center; }
+.ex-etape-carte {
+  padding: 22px 22px 24px;
+  border: 1px solid var(--ligne);
+  border-left: 3px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  background: #0b1328e6;
+  opacity: .35;
+  transform: translateX(-6px);
+  transition: opacity .5s ease, transform .5s ease, border-color .5s ease;
+}
+.ex-etape.is-active .ex-etape-carte { opacity: 1; transform: none; border-left-color: var(--accent); }
+.ex-etape-n { display: block; margin-bottom: 10px; font: 500 10px var(--mono); letter-spacing: .16em; color: var(--accent); }
+.ex-etape h3 { margin: 0 0 10px; font: 800 clamp(24px, 2.4vw, 32px)/1 var(--titre); letter-spacing: .01em; }
+.ex-etape p { margin: 0; color: var(--texte2); font-size: 15.5px; line-height: 1.6; }
+.ex-etape p + p { margin-top: 10px; }
+
+/* ---------- Cartes (méthode, enseignements, limites) ---------- */
+.ex-cartes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.ex-carte { position: relative; padding: 20px 20px 22px; border: 1px solid var(--ligne); background: #0c1530cc; }
+.ex-carte::before { content: ""; position: absolute; left: 0; top: 0; width: 34px; height: 2px; background: var(--accent); }
+.ex-carte-k { display: block; margin-bottom: 10px; font: 500 10px var(--mono); letter-spacing: .14em; color: var(--accent); text-transform: uppercase; }
+.ex-carte h3 { margin: 0 0 8px; font: 800 22px/1.05 var(--titre); letter-spacing: .01em; }
+.ex-carte p { margin: 0; color: var(--texte2); font-size: 14.5px; line-height: 1.55; }
+
+/* Repère « estimation / mesure / géographie » : distingue la nature des données */
+.ex-nature { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent); font: 600 10px var(--mono); letter-spacing: .14em; color: var(--accent); text-transform: uppercase; width: fit-content; }
+.ex-nature::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+
+.ex-chiffres { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.ex-chiffre { padding: 22px; border: 1px solid var(--ligne); background: linear-gradient(160deg, #101b38, #0a1124); }
+.ex-chiffre-v { display: flex; align-items: baseline; gap: 6px; margin: 0 0 10px; font: 900 clamp(46px, 5vw, 72px)/.9 var(--titre); color: #fff; font-variant-numeric: tabular-nums; }
+.ex-chiffre-v small { font: 600 13px var(--mono); letter-spacing: .08em; color: var(--accent); }
+.ex-chiffre p { margin: 0; color: var(--texte2); font-size: 14.5px; line-height: 1.55; }
+
+.ex-limites { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.ex-limites li { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; padding: 16px 18px; border: 1px solid #ffd27a26; background: #ffd27a08; color: var(--texte2); font-size: 15px; line-height: 1.55; }
+.ex-limites li::before { content: "!"; display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid #ffd27a99; border-radius: 50%; color: #ffd27a; font: 700 12px var(--mono); }
+.ex-limites strong { color: #fff; }
+
+/* ---------- Passage au graphique ---------- */
+.ex-passage { display: grid; justify-items: center; gap: 18px; padding-block: clamp(60px, 12vh, 120px) clamp(24px, 4vh, 40px); text-align: center; }
+.ex-passage p { margin: 0; max-width: 620px; color: var(--texte2); font-size: 17px; line-height: 1.6; }
+.ex-passage .ex-h2 { font-size: clamp(40px, 6vw, 88px); }
+.ex-passage-fleche { width: 1px; height: 70px; background: linear-gradient(transparent, var(--accent)); position: relative; }
+.ex-passage-fleche::after { content: ""; position: absolute; left: -5px; bottom: -2px; width: 9px; height: 9px; border-right: 1px solid var(--accent); border-bottom: 1px solid var(--accent); transform: rotate(45deg); }
+
+.ex-graphique { display: grid; gap: 18px; padding-bottom: clamp(48px, 10vh, 100px); }
+.ex-cadre {
+  position: relative;
+  padding: 6px;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, #263b59);
+  background: #0b1224;
+  box-shadow: 0 0 60px color-mix(in srgb, var(--accent) 10%, transparent), 0 30px 70px #0007;
+}
+.ex-cadre .obs-viz { background: #fbfaf7; }
+.ex-cadre .obs-viz-stage > * { border: 0 !important; border-radius: 0 !important; }
+/* Coins lumineux qui se tracent à l'arrivée du graphique */
+.ex-cadre::before, .ex-cadre::after { content: ""; position: absolute; width: 46px; height: 46px; border: 2px solid var(--accent); pointer-events: none; z-index: 2; transition: transform .9s cubic-bezier(.2,.8,.2,1), opacity .9s; }
+.ex-cadre::before { left: -8px; top: -8px; border-right: 0; border-bottom: 0; }
+.ex-cadre::after { right: -8px; bottom: -8px; border-left: 0; border-top: 0; }
+.ex-js .ex-cadre:not(.is-in)::before { transform: translate(-30px, -30px); opacity: 0; }
+.ex-js .ex-cadre:not(.is-in)::after { transform: translate(30px, 30px); opacity: 0; }
+.ex-source { margin: 12px 0 0; font: 500 10px var(--mono); letter-spacing: .1em; color: #a5b7d7; }
+
+.ex-mode { display: grid; gap: 10px; }
+.ex-mode h3 { margin: 0; font: 500 11px var(--mono); letter-spacing: .16em; color: var(--accent); }
+.ex-mode ol { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; counter-reset: mode; }
+.ex-mode li { counter-increment: mode; position: relative; padding: 12px 12px 12px 40px; border: 1px solid var(--ligne); background: #0c1530; color: var(--texte2); font-size: 13.5px; line-height: 1.5; }
+.ex-mode li::before { content: counter(mode); position: absolute; left: 12px; top: 12px; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: #071122; font: 700 10px var(--mono); }
+.ex-mode li strong { color: #fff; }
+
+/* ---------- Conclusion ---------- */
+.ex-fin { display: grid; gap: 22px; justify-items: start; padding: clamp(32px, 5vw, 56px); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); background: radial-gradient(ellipse at 0% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%), #0b1328; }
+.ex-fin .ex-h2 { max-width: 900px; }
+.ex-fin p { margin: 0; max-width: 760px; color: var(--texte2); font-size: 17px; line-height: 1.65; }
+.ex-fin-probleme { padding-left: 16px; border-left: 2px solid var(--accent); color: #fff !important; font-style: italic; }
+.ex-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.ex-bouton {
+  display: inline-flex; align-items: center; gap: 12px; padding: 15px 22px; border-radius: 3px;
+  background: linear-gradient(115deg, #8ce8f1, #5d8dff); color: #04101f; text-decoration: none;
+  font: 600 12px var(--mono); letter-spacing: .14em; box-shadow: 0 8px 28px -10px #5fc8ffaa;
+  transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s;
+}
+.ex-bouton:hover, .ex-bouton:focus-visible { transform: translateY(-2px); box-shadow: 0 12px 34px -8px #6fd8ffcc; }
+.ex-bouton--ligne { background: transparent; color: var(--cyan); border: 1px solid #8ce8f188; box-shadow: none; }
+.ex-bouton:focus-visible { outline: 2px solid #e9fbff; outline-offset: 3px; }
+
+/* ---------- Apparitions ---------- */
+.ex-js [data-reveal] { opacity: 0; transform: translateY(26px); transition: opacity .8s ease, transform .9s cubic-bezier(.2,.8,.2,1); transition-delay: calc(var(--i, 0) * 110ms); }
+.ex-js [data-reveal].is-in { opacity: 1; transform: none; }
+
+.ex-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ---------- Écrans moyens et petits : le visuel collant passe au-dessus des étapes ---------- */
+@media (max-width: 900px) {
+  .ex-hero { grid-template-columns: 1fr; min-height: auto; padding-top: 40px; }
+  .ex-scrolly { grid-template-columns: 1fr; gap: 0; }
+  .ex-scene { order: -1; top: 64px; height: 46svh; z-index: 0; }
+  .ex-etapes { position: relative; z-index: 1; padding-block: 8svh 20svh; }
+  .ex-etape { min-height: 70svh; align-items: flex-end; }
+  .ex-etape-carte { opacity: .9; transform: none; background: #0b1328f2; }
+}
+@media (max-width: 550px) {
+  .ex-hero-lead, .ex-lead, .ex-fin p, .ex-passage p { font-size: 15px; }
+  .ex-etape p { font-size: 14.5px; }
+  .ex-scene { height: 42svh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ex-js [data-reveal] { opacity: 1; transform: none; transition: none; }
+  .ex-etape-carte, .ex-cadre::before, .ex-cadre::after, .ex-bouton { transition: none; }
+  .ex-defiler i { animation: none; }
+}

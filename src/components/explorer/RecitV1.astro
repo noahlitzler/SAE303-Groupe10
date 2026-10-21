@@ -1,0 +1,383 @@
+﻿---
+// Page « Voir plus » de V1 : comparer les modèles d'IA (EcoLogits, électricité estimée par requête).
+// Mise en scène : une même question part vers huit modèles (quatre fournisseurs × deux gammes),
+// chacun écrit 150 tokens, puis les sphères prennent leur taille réelle (surface ∝ Wh estimés).
+import ExplorerGraphique from "./ExplorerGraphique.astro";
+import { lireDonnees, fmt, fmtRapport, nomsFournisseurs, couleursFournisseurs } from "../../data/lecture";
+import type { Chapitre } from "../../data/chapitres";
+
+interface Props { chapitre: Chapitre }
+const { chapitre: c } = Astro.props;
+
+type Ligne = { fournisseur: string; modele: string; energie_min_Wh: number; energie_milieu_Wh: number; energie_max_Wh: number };
+const { donnees } = lireDonnees<{ donnees: Ligne[] }>("v1-ecologits-electricite.json");
+const tries = [...donnees].sort((a, b) => a.energie_milieu_Wh - b.energie_milieu_Wh);
+const sobre = tries[0];
+const vorace = tries[tries.length - 1];
+const vMax = vorace.energie_milieu_Wh;
+const rapport = vorace.energie_milieu_Wh / sobre.energie_milieu_Wh;
+const valeurs = tries.map((d) => d.energie_milieu_Wh);
+const mediane = (valeurs[3] + valeurs[4]) / 2;
+const sousCentieme = tries.filter((d) => d.energie_milieu_Wh < 0.02).length;
+
+// Colonnes : un fournisseur chacune ; lignes : sa version la plus sobre, puis la plus énergivore.
+const ordre = ["google_genai", "mistralai", "openai", "anthropic"].filter((f) => donnees.some((d) => d.fournisseur === f));
+const familles = ordre.map((f) => {
+  const [leger, avance] = donnees.filter((d) => d.fournisseur === f).sort((a, b) => a.energie_milieu_Wh - b.energie_milieu_Wh);
+  return { f, nom: nomsFournisseurs[f] ?? f, couleur: couleursFournisseurs[f] ?? "#888", leger, avance, rapport: avance.energie_milieu_Wh / leger.energie_milieu_Wh };
+});
+const rapports = familles.map((x) => x.rapport).sort((a, b) => a - b);
+
+// Scène en SVG (600 × 540) : rayon maximal 72 ; surface proportionnelle aux Wh.
+const R_MAX = 72, R_EGAL = 15;
+const xCol = (i: number) => 75 + i * 150;
+const noeuds = familles.flatMap((fam, i) =>
+  [fam.leger, fam.avance].map((d, rangee) => {
+    const rData = R_MAX * Math.sqrt(d.energie_milieu_Wh / vMax);
+    return { d, x: xCol(i), y: rangee === 0 ? 236 : 418, rData, couleur: fam.couleur, extreme: d === sobre || d === vorace, delai: i * 0.08 + rangee * 0.16 };
+  }),
+);
+
+// Ouverture : huit sphères en orbite, déjà à leur taille réelle.
+const orbite = tries.map((d, i) => {
+  const a = (i / tries.length) * Math.PI * 2 - Math.PI / 2;
+  return { d, x: 50 + 38 * Math.cos(a), y: 50 + 38 * Math.sin(a), r: Math.max(1.2, 13 * Math.sqrt(d.energie_milieu_Wh / vMax)), couleur: couleursFournisseurs[d.fournisseur] ?? "#888" };
+});
+---
+
+<div class="ex-recit recit-v1">
+  <!-- 1. Ouverture : une question simple -->
+  <section class="ex-hero ex-largeur" aria-labelledby="v1-titre">
+    <div class="ex-hero-texte">
+      <p class="ex-kicker">VOIR PLUS · CHAPITRE {c.n} — {c.k}</p>
+      <h1 id="v1-titre">Tous les modèles <em>ne se valent pas.</em></h1>
+      <p class="ex-question"><small>LA QUESTION</small>Si l’on pose exactement la même question à huit IA, dépensent-elles la même énergie pour répondre&nbsp;?</p>
+      <p class="ex-hero-lead">Derrière le mot « IA » se cachent des modèles très différents. Avant de les comparer, voyons ce que l’on compare vraiment.</p>
+      <span class="ex-defiler"><i></i>DÉFILEZ POUR COMMENCER</span>
+    </div>
+    <div class="v1-orbite" aria-hidden="true">
+      <svg viewBox="0 0 100 100">
+        <circle class="v1-orbite-anneau" cx="50" cy="50" r="38" />
+        <g class="v1-orbite-tour">
+          {orbite.map((o, i) => (
+            <g style={`--i:${i}`}>
+              <circle class="v1-orbite-halo" cx={o.x.toFixed(2)} cy={o.y.toFixed(2)} r={(o.r * 1.6).toFixed(2)} fill={o.couleur} />
+              <circle cx={o.x.toFixed(2)} cy={o.y.toFixed(2)} r={o.r.toFixed(2)} fill={o.couleur} fill-opacity=".55" stroke={o.couleur} stroke-width=".4" />
+            </g>
+          ))}
+        </g>
+        <text x="50" y="49" class="v1-orbite-centre">1 question</text>
+        <text x="50" y="55" class="v1-orbite-centre2">8 modèles</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 2. Séquence pédagogique : de la question aux sphères -->
+  <section class="ex-section ex-largeur" aria-labelledby="v1-seq">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">ÉTAPE PAR ÉTAPE</p>
+      <h2 class="ex-h2" id="v1-seq">Une question, <em>huit chemins.</em></h2>
+    </div>
+    <div class="ex-scrolly" data-scrolly id="v1-scrolly">
+      <div class="ex-etapes">
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">01 / 06</span>
+          <h3>Une même question.</h3>
+          <p>Imaginons une question posée mot pour mot à huit intelligences artificielles différentes. Même demande, même consigne.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">02 / 06</span>
+          <h3>Huit modèles, quatre fournisseurs.</h3>
+          <p>{familles.map((x) => x.nom).join(", ").replace(/, ([^,]*)$/, " et $1")} proposent chacun plusieurs <span class="ex-terme">modèles</span>, c’est-à-dire plusieurs versions de leur IA.</p>
+          <p>Nous en avons retenu deux par fournisseur : une version légère, en haut, et une version plus avancée, en bas.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">03 / 06</span>
+          <h3>Chacun écrit 150 tokens.</h3>
+          <p>Une IA n’écrit pas mot par mot mais <span class="ex-terme">token</span> par token : un token est un petit morceau de texte, un mot court ou un bout de mot long.</p>
+          <p class="v1-tokens" aria-label="Exemple de découpage : Pour|quoi| le| ciel| est|-il| bleu| ?"><span>Pour</span><span>quoi</span><span>&nbsp;le</span><span>&nbsp;ciel</span><span>&nbsp;est</span><span>-il</span><span>&nbsp;bleu</span><span>&nbsp;?</span></p>
+          <p>150 tokens, c’est une réponse courte : un paragraphe de quelques phrases. Fixer cette longueur permet de comparer à texte égal.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">04 / 06</span>
+          <h3>Mais pas avec la même énergie.</h3>
+          <p>L’outil <strong>EcoLogits</strong> estime l’électricité nécessaire à chaque réponse. La surface de chaque sphère devient proportionnelle à cette estimation, en <span class="ex-terme">wattheures</span> (Wh).</p>
+          <p>Les quatre versions légères restent de minuscules points.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">05 / 06</span>
+          <h3>Un écart d’environ <span class="v1-x">×{Math.round(rapport)}</span>.</h3>
+          <p>De <strong>{fmt(sobre.energie_milieu_Wh)} Wh</strong> pour {sobre.modele} à <strong>{fmt(vorace.energie_milieu_Wh)} Wh</strong> pour {vorace.modele} : environ {fmtRapport(rapport)} fois plus d’électricité estimée, pour la même quantité de texte.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">06 / 06</span>
+          <h3>La gamme pèse plus que la marque.</h3>
+          <p>Chez chaque fournisseur, la version avancée demande de {fmtRapport(rapports[0])} à {fmtRapport(rapports[rapports.length - 1])} fois plus d’électricité que la version légère.</p>
+          <p>Dans notre sélection, les versions légères des quatre fournisseurs se ressemblent bien plus entre elles qu’elles ne ressemblent aux versions avancées de leur propre marque.</p>
+        </div></article>
+      </div>
+
+      <div class="ex-scene v1-scene" aria-hidden="true">
+        <svg viewBox="0 0 600 540" class="v1-svg">
+          <g class="v1-prompt">
+            <rect x="140" y="26" width="320" height="58" rx="4" />
+            <text x="156" y="50" class="v1-prompt-k">&gt;_ VOTRE QUESTION</text>
+            <text x="156" y="71" class="v1-prompt-t">Pourquoi le ciel est-il bleu ?</text>
+          </g>
+          <g class="v1-fils">
+            {noeuds.map((n) => <line x1="300" y1="84" x2={n.x} y2={n.y} pathLength="1" style={`--d:${n.delai}s`} />)}
+          </g>
+          <g class="v1-flux">
+            {noeuds.map((n) => <line x1="300" y1="84" x2={n.x} y2={n.y} />)}
+          </g>
+          <g class="v1-entetes">
+            {familles.map((fam, i) => <text x={xCol(i)} y="150" fill={fam.couleur}>{fam.nom.toUpperCase()}</text>)}
+          </g>
+          {familles.map((fam, i) => (
+            <g class="v1-rapport" style={`--d:${i * 0.12}s`}>
+              <rect x={xCol(i) - 30} y="309" width="60" height="22" rx="11" />
+              <text x={xCol(i)} y="324">×{fmtRapport(fam.rapport)}</text>
+            </g>
+          ))}
+          {noeuds.map((n) => (
+            <g class:list={["v1-noeud", { "v1-extreme": n.extreme }]} transform={`translate(${n.x},${n.y})`} style={`--s-egal:${(R_EGAL / R_MAX).toFixed(4)};--s-data:${(n.rData / R_MAX).toFixed(4)};--y-egal:${R_EGAL + 16}px;--y-data:${(n.rData + 16).toFixed(1)}px;--d:${n.delai}s`}>
+              <circle class="v1-bulle" r={R_MAX} fill={n.couleur} stroke={n.couleur} />
+              <g class="v1-etiq">
+                <text class="v1-nom" y="0">{n.d.modele}</text>
+                <text class="v1-tok" y="15">150 tokens</text>
+                <text class="v1-val" y="15">{fmt(n.d.energie_milieu_Wh)} Wh</text>
+              </g>
+            </g>
+          ))}
+        </svg>
+        <p class="ex-scene-legende">SCHÉMA · SURFACE ∝ WH ESTIMÉS (ÉTAPES 4 À 6)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 bis. Lire une sphère : interaction simple -->
+  <section class="ex-section ex-largeur v1-lire" aria-labelledby="v1-lire">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">AVANT D’EXPLORER</p>
+      <h2 class="ex-h2" id="v1-lire">Lire une sphère : <em>c’est la surface qui compte.</em></h2>
+      <p class="ex-lead">Dans le graphique, une sphère qui représente quatre fois plus d’énergie n’est pas quatre fois plus large : elle occupe quatre fois plus de <strong>surface</strong>. Essayez.</p>
+    </div>
+    <div class="v1-labo" data-reveal>
+      <div class="v1-labo-scene" aria-hidden="true">
+        <div class="v1-labo-col"><div class="v1-disque v1-disque--ref"></div><span>1 unité d’énergie</span></div>
+        <div class="v1-labo-col"><div class="v1-disque v1-disque--var" id="v1-disque"></div><span id="v1-disque-l">4 unités d’énergie</span></div>
+      </div>
+      <div class="v1-labo-reglage">
+        <label for="v1-curseur">Énergie de la seconde sphère : <strong><output id="v1-k">×4</output></strong></label>
+        <input type="range" id="v1-curseur" min="1" max="16" step="1" value="4" />
+        <dl class="v1-labo-res">
+          <div><dt>Surface</dt><dd id="v1-surface">×4</dd></div>
+          <div><dt>Diamètre</dt><dd id="v1-diametre">×2</dd></div>
+        </dl>
+        <p>C’est pourquoi {vorace.modele}, environ {fmtRapport(rapport)} fois plus énergivore que {sobre.modele}, n’apparaît « que » {fmtRapport(Math.sqrt(rapport))} fois plus large.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Méthode et données -->
+  <section class="ex-section ex-largeur" aria-labelledby="v1-methode">
+    <div class="ex-entete" data-reveal>
+      <span class="ex-nature">ESTIMATIONS, PAS DES MESURES</span>
+      <h2 class="ex-h2" id="v1-methode">D’où viennent <em>ces chiffres ?</em></h2>
+      <p class="ex-lead">Personne n’a branché de compteur sur les serveurs de ces entreprises. EcoLogits <strong>calcule</strong> une estimation à partir de ce que l’on sait, ou suppose, de la taille des modèles et du matériel qui les fait tourner. D’où des fourchettes plutôt qu’une valeur unique.</p>
+    </div>
+    <div class="ex-cartes" data-reveal-groupe>
+      <article class="ex-carte"><span class="ex-carte-k">Source</span><h3>EcoLogits</h3><p>Outil ouvert qui estime l’impact environnemental de l’utilisation des modèles d’IA générative.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">Scénario commun</span><h3>150 tokens générés</h3><p>Une même longueur de réponse pour les huit modèles, avec le mix électrique mondial.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">Valeur affichée</span><h3>Le milieu de la fourchette</h3><p>Par exemple, {vorace.modele} : de {fmt(vorace.energie_min_Wh)} à {fmt(vorace.energie_max_Wh)} Wh, affiché {fmt(vorace.energie_milieu_Wh)} Wh.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">Collecte</span><h3>19 octobre 2026</h3><p>Huit configurations, deux par fournisseur. Une sélection, pas un classement de tous les modèles existants.</p></article>
+    </div>
+  </section>
+
+  <!-- 4. Transition vers le graphique -->
+  <div class="ex-passage ex-largeur" data-reveal>
+    <p class="ex-kicker">À VOUS</p>
+    <h2 class="ex-h2">Comparez <em>par vous-même.</em></h2>
+    <p>Les huit sphères vous attendent. Cliquez sur l’une d’elles : sa fiche vous dira combien elle consomme et comment elle se situe par rapport aux autres.</p>
+    <span class="ex-passage-fleche" aria-hidden="true"></span>
+  </div>
+
+  <!-- 5 et 6. Le graphique et son mode d'emploi -->
+  <ExplorerGraphique viz={c.viz} label={c.label} note={c.note}>
+    <li><strong>Cliquez</strong> sur une sphère (ou Tab puis Entrée) : la fiche affiche sa valeur, sa fourchette et son rang.</li>
+    <li><strong>Survolez</strong> une sphère pour un aperçu rapide.</li>
+    <li>La <strong>couleur</strong> indique le fournisseur ; la <strong>surface</strong>, l’électricité estimée.</li>
+    <li>La <strong>position</strong> est décorative : elle ne signifie rien.</li>
+    <li>Les plus petites sphères sont légèrement agrandies pour rester cliquables (précisé sous le graphique).</li>
+  </ExplorerGraphique>
+
+  <!-- 7. Enseignements -->
+  <section class="ex-section ex-largeur" aria-labelledby="v1-lecons">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">CE QUE L’ON EN RETIENT</p>
+      <h2 class="ex-h2" id="v1-lecons">Trois enseignements.</h2>
+    </div>
+    <div class="ex-chiffres" data-reveal-groupe>
+      <article class="ex-chiffre"><p class="ex-chiffre-v"><small>×</small><span data-count={Math.round(rapport)} data-format="entier">{Math.round(rapport)}</span></p><p>Entre la configuration la plus sobre et la plus énergivore de notre sélection, pour le même texte.</p></article>
+      <article class="ex-chiffre"><p class="ex-chiffre-v"><span data-count={sousCentieme} data-format="entier">{sousCentieme}</span><small>/ {tries.length}</small></p><p>configurations restent sous 0,02 Wh par réponse : les versions légères, toutes marques confondues.</p></article>
+      <article class="ex-chiffre"><p class="ex-chiffre-v"><span data-count={mediane} data-chiffres="3">{fmt(mediane)}</span><small>WH</small></p><p>La médiane des huit : la moitié des modèles est au-dessus, l’autre au-dessous. La moyenne serait trompeuse, tirée vers le haut par {vorace.modele}.</p></article>
+    </div>
+  </section>
+
+  <!-- 8. Limites -->
+  <section class="ex-section ex-largeur" aria-labelledby="v1-limites">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">À GARDER EN TÊTE</p>
+      <h2 class="ex-h2" id="v1-limites">Les limites <em>de ces données.</em></h2>
+    </div>
+    <ul class="ex-limites" data-reveal-groupe>
+      <li><span><strong>Des estimations.</strong> Les fournisseurs ne publient pas la consommation réelle de leurs modèles ; EcoLogits la reconstitue avec des hypothèses, d’où des fourchettes parfois larges.</span></li>
+      <li><span><strong>Une seule longueur de réponse.</strong> Une réponse plus longue demanderait plus d’énergie ; 150 tokens servent seulement à comparer à égalité.</span></li>
+      <li><span><strong>L’utilisation seulement.</strong> L’entraînement des modèles, avant leur mise en service, n’est pas compté ici.</span></li>
+      <li><span><strong>Huit configurations.</strong> Une sélection de quatre fournisseurs, pas un panorama de toutes les IA disponibles.</span></li>
+    </ul>
+  </section>
+
+  <!-- 9. Conclusion -->
+  <section class="ex-section ex-largeur">
+    <div class="ex-fin" data-reveal>
+      <p class="ex-kicker">EN RÉSUMÉ</p>
+      <h2 class="ex-h2">Choisir un modèle, c’est aussi <em>choisir une quantité d’énergie.</em></h2>
+      <p>Pour une même réponse, l’électricité estimée change d’un facteur 300 selon le modèle. Le plus puissant n’est pas toujours nécessaire.</p>
+      <p class="ex-fin-probleme">Derrière une requête d’IA se cache donc une première variable invisible : le modèle qui la traite. Mais la nature de la tâche demandée compte aussi.</p>
+      <div class="ex-actions">
+        <a class="ex-bouton" href="/explorer/v3">CHAPITRE 03 : MESURER L’ÉNERGIE →</a>
+        <a class="ex-bouton ex-bouton--ligne" href="/?face=2">RETOUR À L’EXPÉRIENCE</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  import { mouvementReduit } from "../../scripts/explorer";
+
+  // « Lire une sphère » : la seconde sphère a une surface proportionnelle à l'énergie choisie.
+  const curseur = document.querySelector<HTMLInputElement>("#v1-curseur");
+  const disque = document.querySelector<HTMLElement>("#v1-disque");
+  if (curseur && disque) {
+    const fr = (v: number) => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }).format(v);
+    const maj = () => {
+      const k = Number(curseur.value);
+      disque.style.setProperty("--k", String(Math.sqrt(k)));
+      document.querySelector("#v1-k")!.textContent = `×${k}`;
+      document.querySelector("#v1-surface")!.textContent = `×${k}`;
+      document.querySelector("#v1-diametre")!.textContent = `×${fr(Math.sqrt(k))}`;
+      document.querySelector("#v1-disque-l")!.textContent = `${k} unité${k > 1 ? "s" : ""} d’énergie`;
+    };
+    curseur.addEventListener("input", maj);
+    maj();
+  }
+
+  // Étape 5 : le facteur « ×297 » défile au moment où l'étape devient active.
+  const sequence = document.querySelector<HTMLElement>("#v1-scrolly");
+  const facteur = sequence?.querySelector<HTMLElement>(".v1-x");
+  if (sequence && facteur && !mouvementReduit()) {
+    const final = facteur.textContent ?? "";
+    const cible = Number(final.replace(/\D/g, ""));
+    let fait = false;
+    sequence.addEventListener("scrolly:etape", (e) => {
+      if ((e as CustomEvent<{ index: number }>).detail.index !== 4 || fait) return;
+      fait = true;
+      const t0 = performance.now();
+      const pas = (t: number) => {
+        const p = Math.min(1, (t - t0) / 1200);
+        facteur.textContent = `×${Math.round(1 + (cible - 1) * (1 - Math.pow(1 - p, 3)))}`;
+        if (p < 1) requestAnimationFrame(pas);
+      };
+      requestAnimationFrame(pas);
+    });
+  }
+</script>
+
+<style>
+  /* Ouverture : huit sphères en orbite, à leur taille réelle */
+  .v1-orbite { width: min(520px, 100%); justify-self: center; aspect-ratio: 1; }
+  .v1-orbite svg { width: 100%; height: 100%; overflow: visible; }
+  .v1-orbite-anneau { fill: none; stroke: #8be8e93a; stroke-width: .3; stroke-dasharray: 1 1.5; }
+  .v1-orbite-tour { transform-origin: 50px 50px; animation: v1-tour 50s linear infinite; }
+  .v1-orbite-tour > g { animation: v1-flotte 4s ease-in-out infinite; animation-delay: calc(var(--i) * -.5s); transform-box: fill-box; transform-origin: center; }
+  .v1-orbite-halo { opacity: .18; filter: blur(2px); }
+  .v1-orbite-centre { text-anchor: middle; fill: #fff; font: 900 7px var(--titre); letter-spacing: .02em; }
+  .v1-orbite-centre2 { text-anchor: middle; fill: var(--accent); font: 500 3px var(--mono); letter-spacing: .2em; }
+  @keyframes v1-tour { to { rotate: 360deg; } }
+  @keyframes v1-flotte { 50% { transform: scale(1.12); } }
+
+  /* Scène pas à pas */
+  .v1-svg { width: 94%; height: 94%; overflow: visible; }
+  .v1-prompt rect { fill: #0d1730; stroke: #8be8e9; stroke-width: 1.2; }
+  .v1-prompt-k { fill: var(--accent); font: 500 10px var(--mono); letter-spacing: .14em; }
+  .v1-prompt-t { fill: #fff; font: 500 14px var(--mono); }
+  .v1-fils line { stroke: #8be8e966; stroke-width: 1.2; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1s ease var(--d); }
+  .v1-flux line { stroke: #d6fbff; stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 2 16; opacity: 0; transition: opacity .4s; }
+  .v1-entetes text { text-anchor: middle; font: 600 12px var(--mono); letter-spacing: .12em; opacity: 0; transition: opacity .6s; }
+  .v1-noeud { opacity: 0; transition: opacity .6s ease var(--d); }
+  .v1-bulle { fill-opacity: .35; stroke-width: 2; transform: scale(0); transition: transform 1.1s cubic-bezier(.2,.9,.25,1.1) var(--d); }
+  .v1-etiq { transform: translateY(var(--y-egal)); transition: transform 1.1s cubic-bezier(.2,.9,.25,1.1) var(--d), opacity .5s; }
+  .v1-etiq text { text-anchor: middle; }
+  .v1-nom { fill: #fff; font: 600 14px Arial, sans-serif; }
+  .v1-tok, .v1-val { font: 500 12.5px var(--mono); opacity: 0; transition: opacity .5s; }
+  .v1-tok { fill: #8be8e9; }
+  .v1-val { fill: #c3d1e7; }
+  .v1-rapport { opacity: 0; transform: translateY(8px); transition: opacity .6s ease var(--d), transform .6s ease var(--d); }
+  .v1-rapport rect { fill: #8be8e9; }
+  .v1-rapport text { text-anchor: middle; fill: #04101f; font: 700 11px var(--mono); }
+
+  /* Étape 2+ : fils, en-têtes et nœuds égaux */
+  [data-active]:not([data-active="0"]) .v1-fils line { stroke-dashoffset: 0; }
+  [data-active]:is([data-active="3"], [data-active="4"], [data-active="5"]) .v1-fils line { stroke: #8be8e926; }
+  [data-active]:not([data-active="0"]) .v1-entetes text,
+  [data-active]:not([data-active="0"]) .v1-noeud { opacity: 1; }
+  :is([data-active="1"], [data-active="2"]) .v1-bulle { transform: scale(var(--s-egal)); }
+  /* Étape 3 : les tokens circulent */
+  [data-active="2"] .v1-flux line { opacity: .9; animation: v1-flux 1.1s linear infinite; }
+  [data-active="2"] .v1-tok { opacity: 1; }
+  /* Étapes 4 à 6 : taille réelle */
+  :is([data-active="3"], [data-active="4"], [data-active="5"]) .v1-bulle { transform: scale(var(--s-data)); }
+  :is([data-active="3"], [data-active="4"], [data-active="5"]) .v1-etiq { transform: translateY(var(--y-data)); }
+  :is([data-active="3"], [data-active="4"], [data-active="5"]) .v1-val { opacity: 1; }
+  [data-active][data-active="4"] .v1-noeud:not(.v1-extreme) { opacity: .28; }
+  [data-active="4"] .v1-extreme .v1-bulle { fill-opacity: .6; stroke-width: 3; }
+  [data-active="5"] .v1-rapport { opacity: 1; transform: none; }
+  @keyframes v1-flux { to { stroke-dashoffset: -18; } }
+
+  .v1-tokens { display: flex; flex-wrap: wrap; gap: 4px; }
+  .v1-tokens span { padding: 4px 6px; border: 1px solid #8be8e988; background: #8be8e914; color: #d6fbff; font: 12px var(--mono); white-space: pre; }
+  .v1-x { color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  /* Lire une sphère */
+  .v1-labo { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); gap: 24px; align-items: center; padding: clamp(18px, 3vw, 32px); border: 1px solid #ffffff1c; background: #0b1328; }
+  .v1-labo-scene { display: grid; grid-template-columns: 1fr 1fr; align-items: end; justify-items: center; min-height: 320px; }
+  .v1-labo-col { display: grid; justify-items: center; gap: 14px; font: 500 11px var(--mono); letter-spacing: .08em; color: #c3d1e7; }
+  .v1-disque { --taille: min(70px, 10vw); width: calc(var(--taille) * var(--k, 1)); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffffffd0, #8be8e955 55%, #8be8e999); border: 2px solid #8be8e9; box-shadow: 0 0 30px #8be8e933; transition: width .5s cubic-bezier(.2,.9,.25,1.1); }
+  .v1-labo-reglage { display: grid; gap: 16px; }
+  .v1-labo-reglage label { color: #fff; font-size: 15px; }
+  .v1-labo-reglage input { width: 100%; accent-color: #8be8e9; }
+  .v1-labo-reglage p { margin: 0; color: #c3d1e7; font-size: 14.5px; line-height: 1.55; }
+  .v1-labo-res { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; }
+  .v1-labo-res div { padding: 12px; border: 1px solid #ffffff1c; }
+  .v1-labo-res dt { font: 500 10px var(--mono); letter-spacing: .14em; color: var(--accent); text-transform: uppercase; }
+  .v1-labo-res dd { margin: 4px 0 0; font: 900 34px/1 var(--titre); font-variant-numeric: tabular-nums; }
+
+  @media (max-width: 900px) {
+    .v1-orbite { width: min(340px, 80%); }
+    .v1-labo { grid-template-columns: 1fr; }
+    .v1-labo-scene { min-height: 300px; }
+  }
+  /* Téléphone : le schéma est réduit de moitié ; on garde les valeurs, lisibles, et les en-têtes de fournisseur. */
+  @media (max-width: 600px) {
+    .v1-nom { display: none; }
+    .v1-tok, .v1-val { font-size: 19px; }
+    .v1-entetes text { font-size: 17px; }
+    .v1-prompt-t { font-size: 17px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .v1-orbite-tour, .v1-orbite-tour > g, .v1-flux line { animation: none !important; }
+    .v1-fils line, .v1-noeud, .v1-bulle, .v1-etiq, .v1-rapport, .v1-disque { transition: none; }
+  }
+</style>
+

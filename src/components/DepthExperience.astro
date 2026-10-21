@@ -1,4 +1,4 @@
----
+﻿---
 import ObservableViz from './ObservableViz.astro';
 import { chapitres } from '../data/chapitres';
 
@@ -11,11 +11,21 @@ const chapters = chapitres;
     <div class="intro-orbit orbit-one" aria-hidden="true"></div>
     <div class="intro-orbit orbit-two" aria-hidden="true"></div>
     <div class="intro-center">
-      <p class="intro-overline">CONTEXTE · UNE EXPÉRIENCE INTERACTIVE</p>
+      
       <h1 class="hero-heading"><button type="button" class="hero-title" id="hero-title" aria-describedby="intro-hint"><span>DERRIÈRE</span> <span>LE <em>PROMPT</em><b>.</b></span><i class="title-scan" aria-hidden="true"></i></button></h1>
+      <p class="intro-lead">On pose une question à une IA, la réponse s’affiche en quelques secondes. Rien ne bouge, rien ne chauffe, rien ne se voit.<br/><strong>Vraiment ?</strong></p>
       <p class="intro-hint" id="intro-hint">SURVOLEZ OU CLIQUEZ SUR LE TITRE</p>
       <form class="prompt-box" id="prompt-form" aria-label="Prompt fictif"><label for="prompt-input">ET SI TOUT COMMENÇAIT PAR UNE QUESTION ?</label><div class="prompt-line"><span aria-hidden="true">&gt;_</span><input id="prompt-input" name="prompt" type="text" maxlength="130" value="Pourquoi le ciel est-il bleu ?" autocomplete="off" required/><button type="submit">ENVOYER ↗</button></div><small>SIMULATION LOCALE — AUCUNE REQUÊTE ENVOYÉE À UNE IA</small></form>
       <div class="token-display" id="token-display" aria-live="polite"></div>
+      <div class="intro-story" id="intro-story">
+        <p>Voilà votre question découpée en petits morceaux. Une IA lit et écrit ainsi, par <strong>tokens</strong> : un mot, ou un bout de mot. <em>(Ici, simple découpage en mots.)</em></p>
+        <p>Sur un vrai service, ces morceaux partiraient vers des <strong>serveurs</strong>, qui calculeraient la réponse token après token.</p>
+        <p>Ces calculs demandent de l’<strong>électricité</strong>, des <strong>machines</strong>, des <strong>bâtiments</strong>. Instantané ne veut pas dire immatériel.</p>
+        <blockquote class="intro-question"><span>NOTRE QUESTION</span>Que se cache-t-il derrière une requête d’intelligence artificielle, de sa consommation énergétique aux infrastructures qui la rendent possible&nbsp;?</blockquote>
+        <ol class="intro-road" aria-label="Les quatre étapes du parcours">
+          {chapters.map((c) => <li><b>{c.n}</b>{c.k}</li>)}
+        </ol>
+      </div>
       <div class="credits" id="credits"><span>UNE EXPÉRIENCE DE</span><strong id="authors">NOAH LITZLER · CLÉMENT BERTRAND</strong></div>
       <button class="enter" id="enter" type="button">ENTRER DANS LES DONNÉES ↓</button>
     </div>
@@ -30,14 +40,14 @@ const chapters = chapitres;
           <section class={`cube-face chapter-${c.kind}`} data-face={i} id={`chapitre-${c.n}`} aria-label={`${c.n} — ${c.k}`}>
             <div class="face-content">
               <header class="face-header">
-                <div class="face-heading"><span class="eyebrow">{c.temps} · {c.n} / 04 — {c.k}</span><h2>{c.title.replace('\n',' ')}</h2></div>
-                <p>{c.desc}</p>
+                <div class="face-heading"><span class="eyebrow">{c.temps} · {c.n} / 04 — {c.k}</span><h2>{c.title.replace('\n',' ')}</h2><p class="face-question"><span aria-hidden="true">?</span>{c.question}</p></div>
+                <p class="face-desc">{c.desc}</p>
+                <a class="explore-link" href={`/explorer/${c.viz}`} data-face-index={i} aria-label={`Voir plus : ${c.label}`}><span>VOIR PLUS</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.5 1.5h5v5M14.5 1.5 9 7M6.5 14.5h-5v-5M1.5 14.5 7 9"/></svg></a>
               </header>
               <div class="viz-frame">
-                <div class="viz-actions"><a class="explore-link" href={`/explorer/${c.viz}`} data-face-index={i} aria-label={`Explorer en grand : ${c.label}`}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.5 1.5h5v5M14.5 1.5 9 7M6.5 14.5h-5v-5M1.5 14.5 7 9"/></svg>Explorer</a></div>
                 <ObservableViz viz={c.viz} label={c.label} class="viz-slot" />
               </div>
-              <div class="face-foot"><span>{c.note}</span></div>
+              <div class="face-foot"><span>{c.note}</span><span class="face-next">{i < chapters.length - 1 ? `SUITE ↓ ${c.suite}` : `CONCLUSION ↓ ${c.suite}`}</span></div>
             </div>
           </section>
         ))}
@@ -48,13 +58,34 @@ const chapters = chapitres;
     </nav>
   </div>
 </main>
-<section class="outro" id="conclusion"><p class="outro-kicker">CONCLUSION · FIN DE L'EXPLORATION</p><h2>L'INVISIBLE <em>EXISTE.</em></h2><p>Une requête semble instantanée. Derrière elle, il y a de l'énergie, des ressources et des infrastructures physiques. Ces données donnent des ordres de grandeur, pas l'empreinte exacte de chaque prompt.</p><a href="/methode">DÉCOUVRIR NOTRE MÉTHODE ↗</a></section>
+<section class="outro" id="conclusion" aria-labelledby="outro-titre">
+  <p class="outro-kicker" data-outro>CONCLUSION · FIN DE L'EXPLORATION</p>
+  <h2 id="outro-titre" data-outro>L'INVISIBLE <em>EXISTE.</em></h2>
+  <p class="outro-lead" data-outro>Derrière une requête d’IA, nous avons trouvé&nbsp;:</p>
+  <ol class="outro-steps">
+    <li data-outro><b>01</b><strong>Des calculs.</strong> Chaque réponse est produite morceau par morceau par des serveurs, et ces calculs consomment de l’électricité.</li>
+    <li data-outro><b>02</b><strong>Des écarts.</strong> Pour une même réponse, l’électricité estimée varie d’environ 1 à 300 selon le modèle choisi.</li>
+    <li data-outro><b>03</b><strong>Des tâches inégales.</strong> Mesurée sur GPU, générer une image demande en médiane des centaines de fois plus d’énergie que comparer deux phrases.</li>
+    <li data-outro><b>04</b><strong>Des lieux.</strong> Ces machines vivent dans des bâtiments bien réels : 23 installations localisées en France dans notre sélection.</li>
+  </ol>
+  <p class="outro-answer" data-outro>Une requête d’IA n’est donc ni instantanée ni immatérielle : elle repose sur de l’énergie, des machines et des territoires. Nos chiffres sont des ordres de grandeur, estimations d’un côté, mesures partielles de l’autre, pas l’empreinte exacte de chaque prompt. Ils suffisent pourtant à rendre visible ce poids physique, et à utiliser l’IA en connaissance de cause.</p>
+  <div class="outro-actions" data-outro><a href="/methode">DÉCOUVRIR NOTRE MÉTHODE ↗</a><button type="button" class="outro-restart" id="outro-restart">REVOIR LE PARCOURS ↑</button></div>
+</section>
   <div class="hud" id="hud">
     <div class="hud-top">
       <button type="button" class="brand-logo" id="brand-logo" aria-label="Retour à l’introduction" title="Retour à l’introduction">
         <svg viewBox="0 0 100 100" role="img" aria-label="Logo moitié Terre, moitié robot" xmlns="http://www.w3.org/2000/svg"><g fill="currentColor"><path d="M47 8A42 42 0 0 0 47 92v-8A34 34 0 0 1 47 16V8Z"/><path d="M44 16c-7 1-12 4-17 9l5 3-5 6-9 3-2 11 8 5 9-2 6 6-3 11 7 14 4 2V16h-3Z"/><path d="M53 8a42 42 0 0 1 37 30l-7 3A34 34 0 0 0 53 16V8Z"/><path d="M53 22a28 28 0 0 1 0 56V22Z"/><rect x="58" y="47" width="18" height="8" rx="4" fill="#060915"/><path d="M87 24V9h6v15Z"/><circle cx="90" cy="7" r="6"/><rect x="89" y="43" width="7" height="21" rx="3.5"/><path d="M53 84a34 34 0 0 0 30-19l7 3A42 42 0 0 1 53 92v-8Z"/></g></svg>
       </button>
-      <a href="/methode">MÉTHODE ↗</a>
+      <nav class="hud-chapters" aria-label="Accès direct aux graphiques">
+  {chapters.map((c, i) => (
+    <button type="button" class="hud-chapter-link"
+      data-header-index={i}
+      aria-label={`Aller au graphique ${c.n} : ${c.k}`}>
+      {c.k}
+    </button>
+  ))}
+</nav>
+<a href="/methode">MÉTHODE ↗</a>
     </div>
     <div class="hud-bottom"><span>SCROLL POUR EXPLORER ↓</span><div class="track"><div id="fill"></div></div><span id="counter">01 / 04</span></div>
   </div>
@@ -90,39 +121,95 @@ const chapters = chapitres;
 .cube-face[data-face="3"]{transform:rotateX(-270deg) translateZ(var(--face-depth));--accent:#96dfcb}
 .cube-face.is-active{pointer-events:auto}
 .face-content{width:100%;height:100%;max-height:none;display:flex;flex-direction:column;gap:5px;min-height:0}
-.face-header{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:20px;align-items:end;min-height:0;flex:none}
+.face-header{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:20px;align-items:end;min-height:0;flex:none;margin-bottom:6px}
 .eyebrow{display:block;font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.13em;color:var(--accent);margin-bottom:5px}
 .face-header h2{font:900 clamp(29px,3.1vw,49px)/.95 'Barlow Condensed',Impact,sans-serif;margin:0;letter-spacing:.01em;text-wrap:balance}
-.face-header p{font:14px/1.45 Arial,sans-serif;color:#c3d1e7;margin:0 0 3px;max-width:550px}
+/* La question à laquelle répond le chapitre */
+.face-question{display:flex;align-items:center;gap:8px;margin:7px 0 0;font:500 12px/1.3 'IBM Plex Mono',monospace;color:#e7f2ff}
+.face-question span{flex:none;display:grid;place-items:center;width:18px;height:18px;border:1px solid var(--accent);border-radius:50%;color:var(--accent);font-size:11px}
+.face-desc{font:14px/1.45 Arial,sans-serif;color:#c3d1e7;margin:0 0 3px;max-width:560px}
 .viz-frame{min-height:0;flex:1;display:flex;flex-direction:column;padding:5px;border:1px solid color-mix(in srgb,var(--accent) 50%,#263b59);background:#0b1224;box-shadow:0 20px 55px #0005}
-/* Bouton « Explorer » : ouvre la visualisation dans sa page dédiée */
-.viz-actions{display:flex;justify-content:flex-end;margin-bottom:5px}
-.explore-link{display:inline-flex;align-items:center;gap:7px;padding:4px 9px;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent);font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;transition:background .25s,border-color .25s,color .25s}
-.explore-link svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.explore-link:hover,.explore-link:focus-visible{background:color-mix(in srgb,var(--accent) 16%,transparent);border-color:var(--accent);color:#e9fbff}
-.explore-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* Bouton « VOIR PLUS » : ouvre la page dédiée du chapitre, à droite du texte de présentation */
+.explore-link{position:relative;align-self:end;display:inline-flex;align-items:center;gap:12px;overflow:hidden;padding:15px 22px;border:0;border-radius:3px;background:linear-gradient(115deg,#8ce8f1,#5d8dff);color:#04101f;font:600 13px 'IBM Plex Mono',monospace;letter-spacing:.16em;white-space:nowrap;text-decoration:none;box-shadow:0 0 0 1px #b9f6fb66,0 8px 28px -8px #5fc8ff99;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s,filter .3s}
+.explore-link::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 25%,#ffffff8c 50%,transparent 75%);transform:translateX(-130%);transition:transform .7s ease;pointer-events:none}
+.explore-link svg{position:relative;width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.explore-link span{position:relative}
+.explore-link:hover,.explore-link:focus-visible{transform:translateY(-2px);filter:brightness(1.06);box-shadow:0 0 0 1px #d6fbff,0 12px 34px -8px #6fd8ffcc}
+.explore-link:hover::before{transform:translateX(130%)}
+.explore-link:hover svg,.explore-link:focus-visible svg{transform:scale(1.18)}
+.explore-link:focus-visible{outline:2px solid #e9fbff;outline-offset:3px}
+.face-next{text-align:right;color:color-mix(in srgb,var(--accent) 80%,#fff);opacity:.55;transition:opacity .6s ease .2s}
+.cube-face.is-active .face-next{opacity:1}
 .viz-frame :global(.viz-slot){display:block;flex:1;min-height:0;width:100%;height:100%;background:#fbfaf7;overflow:hidden}
 /* Le cadre sombre sert de bordure : le fond crème des graphiques va jusqu'aux bords, sans coins arrondis ni liseré. */
 .viz-frame :global(.obs-viz-stage > *){border:0!important;border-radius:0!important}
-.face-foot{flex:none;display:flex;justify-content:space-between;gap:10px;color:#a5b7d7;font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.07em}
+.face-foot{flex:none;display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 10px;color:#a5b7d7;font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.07em}
 .chapter-nav{position:absolute;right:29px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:17px;z-index:20}
 .nav-entry{position:relative;width:22px;height:22px;display:grid;place-items:center;background:none;border:0;cursor:pointer;padding:0}
 .nav-tick{width:6px;height:6px;background:#9caecb;border-radius:50%;transition:.25s}
 .nav-entry[aria-current="true"] .nav-tick,.nav-entry:hover .nav-tick{width:13px;height:13px;background:#8deaf0;box-shadow:0 0 18px #8deaf0}
 .nav-tooltip{position:absolute;right:32px;top:50%;transform:translateY(-50%);background:#0c152bea;color:#e4efff;padding:8px 12px;border:1px solid #637ba1;font:10px 'IBM Plex Mono',monospace;white-space:nowrap;opacity:0;pointer-events:none}
 .nav-entry:hover .nav-tooltip,.nav-entry:focus-visible .nav-tooltip{opacity:1}
-.hud{position:fixed;z-index:30;inset:0;pointer-events:none}
+.hud{position:absolute;z-index:30;top:0;left:0;right:0;height:0;pointer-events:none}
 .hud-top{position:absolute;top:20px;left:25px;right:25px;display:flex;justify-content:space-between;align-items:center}
 .brand-logo{pointer-events:auto;width:43px;height:43px;padding:2px;border:0;background:none;color:#fff;cursor:pointer}.brand-logo svg{width:100%;height:100%}
 .hud-top a{pointer-events:auto;text-decoration:none;color:#a4eff0;font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.12em}
 .hud-bottom{position:absolute;bottom:12px;left:25px;right:25px;display:flex;gap:18px;align-items:center;color:#a8b9d7;font:9px 'IBM Plex Mono',monospace}
 .track{margin-left:auto;width:115px;height:2px;background:#4c5b7a}.track>div{height:100%;width:0;background:#8deaf0}
-.outro{min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:110px 30px;background:#090f20}
-.outro-kicker{font:11px 'IBM Plex Mono',monospace;color:#8deaf0}.outro h2{font:900 clamp(55px,8vw,110px)/.9 'Barlow Condensed',Impact,sans-serif;margin:24px 0}.outro h2 em{font-style:normal;color:#aab8ff}.outro p:not(.outro-kicker){max-width:640px;color:#c3d1e7;line-height:1.6}.outro a{margin-top:24px;color:#8deaf0;text-decoration:none;border:1px solid #8deaf0;padding:13px 20px;font:11px 'IBM Plex Mono',monospace}
+/* Introduction narrative : une phrase d'accroche, puis le récit qui apparaît après l'envoi du prompt */
+.intro-lead{max-width:560px;margin:30px 0 0;color:#c3d1e7;font:16px/1.6 Arial,sans-serif}.intro-lead strong{color:#fff;font:700 13px 'IBM Plex Mono',monospace;letter-spacing:.14em}.intro.sent .intro-lead{display:none}
+.intro-story{display:none;max-width:680px;margin-top:22px;text-align:left}.intro.sent .intro-story{display:block}
+.intro-story>*{opacity:0;animation:story-in .7s cubic-bezier(.2,.8,.2,1) both}.intro-story>*:nth-child(1){animation-delay:.7s}.intro-story>*:nth-child(2){animation-delay:1.6s}.intro-story>*:nth-child(3){animation-delay:2.5s}.intro-story>*:nth-child(4){animation-delay:3.4s}.intro-story>*:nth-child(5){animation-delay:3.9s}
+.intro-story p{margin:0 0 12px;padding-left:16px;border-left:1px solid #8ce8f155;color:#c3d1e7;font:15px/1.6 Arial,sans-serif}.intro-story strong{color:#fff}.intro-story em{color:#8fa2c5;font-size:13px}
+.intro-question{margin:20px 0 14px;padding:18px 20px;border:1px solid #8ce8f188;background:linear-gradient(110deg,#8ce8f114,#a3b4ff0d);color:#fff;font:700 clamp(19px,2.2vw,25px)/1.25 'Barlow Condensed',Impact,sans-serif;letter-spacing:.01em}.intro-question span{display:block;margin-bottom:8px;color:#8ce8f1;font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.2em}
+.intro-road{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0;padding:0;list-style:none}.intro-road li{padding:9px 10px;border-top:2px solid #8ce8f1;background:#0d1730;color:#dfe9fb;font:500 10px/1.35 'IBM Plex Mono',monospace;letter-spacing:.08em}.intro-road b{display:block;color:#8ce8f1;margin-bottom:3px}
+@keyframes story-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.outro{min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:110px 30px;background:radial-gradient(ellipse at 50% 30%,#132042,#090f20 65%)}
+.outro-kicker{font:11px 'IBM Plex Mono',monospace;color:#8deaf0;margin:0}.outro h2{font:900 clamp(55px,8vw,110px)/.9 'Barlow Condensed',Impact,sans-serif;margin:24px 0}.outro h2 em{font-style:normal;color:#aab8ff}.outro-lead{margin:0 0 18px;color:#c3d1e7;font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase}
+.outro-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;width:min(1100px,100%);margin:0 0 30px;padding:0;list-style:none;text-align:left}.outro-steps li{padding:16px 16px 18px;border:1px solid #8ce8f12e;border-top:2px solid #8ce8f1;background:#0c1530cc;color:#c3d1e7;font:14px/1.5 Arial,sans-serif}.outro-steps b{display:block;color:#8ce8f1;font:500 11px 'IBM Plex Mono',monospace;margin-bottom:8px}.outro-steps strong{display:block;color:#fff;font:800 22px/1 'Barlow Condensed',Impact,sans-serif;letter-spacing:.02em;margin-bottom:6px}
+.outro-answer{max-width:720px;margin:0;color:#e3ebfa;font:17px/1.65 Arial,sans-serif}
+.outro-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:28px}.outro a{color:#8deaf0;text-decoration:none;border:1px solid #8deaf0;padding:13px 20px;font:11px 'IBM Plex Mono',monospace}.outro-restart{cursor:pointer;border:1px solid #a3b4ff77;background:transparent;color:#cfd8ff;padding:13px 20px;font:11px 'IBM Plex Mono',monospace;letter-spacing:.12em}.outro-restart:hover{border-color:#cfd8ff}
+/* Apparitions discrètes de la conclusion au défilement */
+.outro [data-outro]{opacity:0;transform:translateY(18px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)}.outro [data-outro].is-in{opacity:1;transform:none}
+@media(max-width:900px){.outro-steps{grid-template-columns:1fr 1fr}.intro-road{grid-template-columns:1fr 1fr}}
+@media(max-width:550px){.outro-steps{grid-template-columns:1fr}.outro{padding:90px 18px}.intro-story p{font-size:14px}}
 @keyframes orbit-spin{to{rotate:360deg}}@keyframes hero-jolt{20%{transform:translateX(2px)}50%{transform:translateX(-3px)}100%{transform:none}}@keyframes scan{0%{opacity:0;transform:translateY(-30%)}35%{opacity:1}100%{opacity:0;transform:translateY(35%)}}@keyframes token-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@media(max-width:800px){.cube-face{padding:76px 42px 42px 20px}.face-header{grid-template-columns:1fr;gap:5px}.face-header h2{font-size:clamp(27px,5vw,42px)}.face-header p{font-size:12px}.face-foot{font-size:8px}.nav-tooltip{display:none}}
-@media(max-width:550px){.face-header h2{font-size:28px}.face-header p{font-size:11px}.cube-face{padding:72px 35px 37px 10px}.viz-frame{padding:5px}.hud-top{left:10px;right:10px}.hud-bottom{left:10px;right:10px}.hud-bottom>span:first-child{display:none}.chapter-nav{right:35px}}
-@media(prefers-reduced-motion:reduce){.background-curves i,.intro-orbit,.token{animation:none!important}:global(html){scroll-behavior:auto}}
+@media(max-width:1100px){.face-header{grid-template-columns:minmax(0,1fr) auto;gap:8px 20px}.face-desc{grid-column:1/-1;grid-row:2;max-width:none}.explore-link{grid-column:2;grid-row:1}}
+@media(max-width:800px){.cube-face{padding:76px 42px 42px 20px}.face-header{gap:5px 12px}.face-header h2{font-size:clamp(27px,5vw,42px)}.face-desc{font-size:12px}.face-question{font-size:11px;margin-top:4px}.explore-link{padding:11px 14px;font-size:11px;gap:8px}.face-foot{font-size:8px}.nav-tooltip{display:none}}
+@media(max-width:550px){.face-header h2{font-size:28px}.face-desc{font-size:11px}.face-question{display:none}.face-next{display:none}.explore-link{padding:9px 11px;font-size:10px;letter-spacing:.1em}.cube-face{padding:72px 35px 37px 10px}.viz-frame{padding:5px}.hud-top{left:10px;right:10px}.hud-bottom{left:10px;right:10px}.hud-bottom>span:first-child{display:none}.chapter-nav{right:35px}}
+@media(prefers-reduced-motion:reduce){.background-curves i,.intro-orbit,.token,.intro-story>*,.outro [data-outro]{animation:none!important;transition:none!important;opacity:1!important;transform:none!important}.explore-link,.explore-link::before,.explore-link svg{transition:none}:global(html){scroll-behavior:auto}}
+.hud-chapters {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(10px,2vw,30px);
+  pointer-events:auto;
+}
+.hud-chapter-link {
+  background:transparent;
+  border:0;
+  padding:10px 5px;
+  color:#b8c8e2;
+  cursor:pointer;
+  font:500 10px 'IBM Plex Mono',monospace;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.hud-chapter-link:hover,
+.hud-chapter-link:focus-visible,
+.hud-chapter-link[aria-current="true"] {
+  color:#8ce8f1;
+}
+@media(max-width:850px) {
+  .hud-chapters { gap:6px; }
+  .hud-chapter-link { font-size:8px;letter-spacing:0; }
+}
+@media(max-width:600px) {
+  .hud-chapters {
+    max-width:65vw;
+    overflow-x:auto;
+  }
+}
 </style>
 <script>
 function initExperience(){
@@ -140,10 +227,37 @@ function initExperience(){
  const cube=root.querySelector<HTMLElement>('#cube')!;
  const faces=Array.from(root.querySelectorAll<HTMLElement>('.cube-face'));
  const buttons=Array.from(root.querySelectorAll<HTMLButtonElement>('.nav-entry'));
+ const headerButtons=Array.from(root.querySelectorAll<HTMLButtonElement>('.hud-chapter-link'));
  const fill=root.querySelector<HTMLElement>('#fill')!;
  const counter=root.querySelector<HTMLElement>('#counter')!;
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
  let sent=false, titleTimer=0, raf=0;
+ // DLP-INTRO-SCROLL-LOCK
+ // Bloquer le scroll sur l'accueil jusqu'à l'envoi de la question.
+ const lockWheel=(e:WheelEvent)=>{
+   if(!sent && window.scrollY < intro.offsetHeight){
+     e.preventDefault();
+   }
+ };
+ let touchY=0;
+ const lockTouchStart=(e:TouchEvent)=>{
+   touchY=e.touches[0]?.clientY ?? 0;
+ };
+ const lockTouchMove=(e:TouchEvent)=>{
+   if(!sent && window.scrollY < intro.offsetHeight && touchY-(e.touches[0]?.clientY ?? touchY)>0){
+     e.preventDefault();
+   }
+ };
+ const lockKeys=(e:KeyboardEvent)=>{
+   if(sent || window.scrollY >= intro.offsetHeight) return;
+   if(['ArrowDown','PageDown',' ','End'].includes(e.key) && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)){
+     e.preventDefault();
+   }
+ };
+ window.addEventListener('wheel',lockWheel,{passive:false});
+ window.addEventListener('touchstart',lockTouchStart,{passive:true});
+ window.addEventListener('touchmove',lockTouchMove,{passive:false});
+ window.addEventListener('keydown',lockKeys);
  function reveal(){intro.classList.add('revealed')}
  function animateTitle(){reveal();if(reduced)return;title.classList.remove('processing');void title.offsetWidth;title.classList.add('processing');clearTimeout(titleTimer);titleTimer=window.setTimeout(()=>title.classList.remove('processing'),680)}
  title.addEventListener('mouseenter',animateTitle);title.addEventListener('click',animateTitle);title.addEventListener('focus',animateTitle);
@@ -153,6 +267,13 @@ function initExperience(){
  root.querySelector<HTMLButtonElement>('#brand-logo')?.addEventListener('click',()=>scrollTo(intro));
  function goTo(i:number){const travel=Math.max(1,exploration.offsetHeight-innerHeight);window.scrollTo({top:exploration.getBoundingClientRect().top+scrollY+travel*i/3,behavior:reduced?'instant':'smooth'})}
  buttons.forEach((b,i)=>b.addEventListener('click',()=>goTo(i)));
+ headerButtons.forEach((b,i)=>b.addEventListener('click',()=>goTo(i)));
+ root.querySelector<HTMLButtonElement>('#outro-restart')?.addEventListener('click',()=>goTo(0));
+ // Conclusion : les blocs apparaissent l'un après l'autre quand on y arrive.
+ const outroBlocs=Array.from(root.querySelectorAll<HTMLElement>('.outro [data-outro]'));
+ outroBlocs.forEach((el,i)=>el.style.transitionDelay=`${Math.min(i,6)*110}ms`);
+ if(reduced||!('IntersectionObserver' in window))outroBlocs.forEach(el=>el.classList.add('is-in'));
+ else{const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-in');io.unobserve(e.target)}}),{threshold:.2});outroBlocs.forEach(el=>io.observe(el))}
  // Pages Explorer : on mémorise la position avant de partir, et on la retrouve au retour
  // (ou la face demandée par ?face=, pour un lien direct depuis une page Explorer).
  root.querySelectorAll<HTMLAnchorElement>('.explore-link').forEach(a=>a.addEventListener('click',()=>{try{sessionStorage.setItem('dlp-retour',JSON.stringify({y:scrollY,face:Number(a.dataset.faceIndex)}))}catch{}}));
@@ -188,6 +309,7 @@ function initExperience(){
    if('inert' in face)face.inert=!interactive;
   });
   buttons.forEach((b,i)=>b.setAttribute('aria-current',String(inScene&&active===i)));
+  headerButtons.forEach((b,i)=>b.setAttribute('aria-current',String(inScene&&active===i)));
   fill.style.width=`${Math.round(t*100)}%`;
   counter.textContent=`${String(active+1).padStart(2,'0')} / 04`;
   if(inScene&&active!==last){last=active;const face=faces[active];window.dispatchEvent(new CustomEvent('depth:card-shown',{detail:{card:face}}));}
@@ -438,4 +560,38 @@ a[href="/methode"]:focus-visible,
     transition: none !important;
   }
 }
+.hud-chapters {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(10px,2vw,30px);
+  pointer-events:auto;
+}
+.hud-chapter-link {
+  background:transparent;
+  border:0;
+  padding:10px 5px;
+  color:#b8c8e2;
+  cursor:pointer;
+  font:500 10px 'IBM Plex Mono',monospace;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.hud-chapter-link:hover,
+.hud-chapter-link:focus-visible,
+.hud-chapter-link[aria-current="true"] {
+  color:#8ce8f1;
+}
+@media(max-width:850px) {
+  .hud-chapters { gap:6px; }
+  .hud-chapter-link { font-size:8px;letter-spacing:0; }
+}
+@media(max-width:600px) {
+  .hud-chapters {
+    max-width:65vw;
+    overflow-x:auto;
+  }
+}
 </style>
+
+

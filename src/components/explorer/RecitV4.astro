@@ -1,0 +1,372 @@
+---
+// Page « Voir plus » de V4 : les impacts estimés d'une requête (EcoLogits : électricité, eau, CO₂e).
+// Mise en scène : un tableau de bord à trois instruments qui s'allument l'un après l'autre,
+// puis un laboratoire de changement d'échelle (simple multiplication de l'estimation par requête).
+import ExplorerGraphique from "./ExplorerGraphique.astro";
+import { lireDonnees, fmt, fmtRapport, nomsFournisseurs } from "../../data/lecture";
+import type { Chapitre } from "../../data/chapitres";
+
+interface Props { chapitre: Chapitre }
+const { chapitre: c } = Astro.props;
+
+type Ligne = { fournisseur: string; modele: string; indicateur: "electricite" | "eau" | "co2"; unite: string; min: number; milieu: number; max: number };
+const { donnees } = lireDonnees<{ donnees: Ligne[] }>("v4-ecologits-impacts.json");
+
+// Valeurs par modèle, CO₂e converti de mg en g (comme dans le graphique).
+const modeles = [...new Set(donnees.map((d) => d.modele))];
+const valeurs = Object.fromEntries(
+  modeles.map((m) => {
+    const v = (i: Ligne["indicateur"]) => donnees.find((d) => d.modele === m && d.indicateur === i)!.milieu;
+    const f = donnees.find((d) => d.modele === m)!.fournisseur;
+    return [m, { fournisseur: nomsFournisseurs[f] ?? f, electricite: v("electricite"), eau: v("eau"), co2: v("co2") / 1000 }];
+  }),
+);
+const REF = "gpt-4o"; // modèle affiché au départ dans le graphique
+const ref = valeurs[REF];
+const parElec = [...modeles].sort((a, b) => valeurs[a].electricite - valeurs[b].electricite);
+const maxi = valeurs[parElec[parElec.length - 1]];
+const mini = valeurs[parElec[0]];
+const nomMaxi = parElec[parElec.length - 1];
+const nomMini = parElec[0];
+
+// Repères concrets (calculs simples à partir de l'estimation, annoncés comme tels).
+const minutesLed = (ref.electricite / 10) * 60; // ampoule LED de 10 W
+const gouttes = ref.eau / 0.05; // 1 goutte ≈ 0,05 mL
+const co2mg = ref.co2 * 1000;
+const ordreModeles = [...modeles].sort((a, b) => (valeurs[a].fournisseur + a).localeCompare(valeurs[b].fournisseur + b));
+---
+
+<div class="ex-recit recit-v4">
+  <!-- 1. Ouverture -->
+  <section class="ex-hero ex-largeur" aria-labelledby="v4-titre">
+    <div class="ex-hero-texte">
+      <p class="ex-kicker">VOIR PLUS · CHAPITRE {c.n} — {c.k}</p>
+      <h1 id="v4-titre">Un texte. <em>Des machines.</em></h1>
+      <p class="ex-question"><small>LA QUESTION</small>Une seule réponse d’IA : combien d’électricité, d’eau et de CO₂&nbsp;?</p>
+      <p class="ex-hero-lead">Une réponse s’affiche, rien ne semble se passer. Pourtant, elle laisse trois traces. Trois indicateurs, trois unités, que nous allons découvrir un par un.</p>
+      <span class="ex-defiler"><i></i>DÉFILEZ POUR COMMENCER</span>
+    </div>
+    <div class="v4-trio" aria-hidden="true">
+      <div class="v4-trio-c v4-c-elec"><span class="v4-ico v4-ico-elec"></span><b>Wh</b></div>
+      <div class="v4-trio-c v4-c-eau"><span class="v4-ico v4-ico-eau"></span><b>mL</b></div>
+      <div class="v4-trio-c v4-c-co2"><span class="v4-ico v4-ico-co2"></span><b>g CO₂e</b></div>
+      <div class="v4-trio-requete">&gt;_ 1 requête</div>
+    </div>
+  </section>
+
+  <!-- 2. Séquence : le tableau de bord s'allume -->
+  <section class="ex-section ex-largeur" aria-labelledby="v4-seq">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">TROIS TRACES</p>
+      <h2 class="ex-h2" id="v4-seq">Le tableau de bord <em>d’une réponse.</em></h2>
+      <p class="ex-lead">Exemple : une réponse de 150 tokens par <strong>{REF}</strong>, selon les estimations EcoLogits.</p>
+    </div>
+    <div class="ex-scrolly" data-scrolly id="v4-scrolly">
+      <div class="ex-etapes">
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">01 / 05</span>
+          <h3>Une requête part.</h3>
+          <p>Votre question est envoyée à des serveurs. Pour produire la réponse, leurs processeurs calculent pendant quelques instants. Ce travail laisse trois traces, que l’on peut estimer.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">02 / 05</span>
+          <h3>De l’électricité.</h3>
+          <p>Les serveurs consomment de l’électricité. On la compte en <span class="ex-terme">wattheures</span> (Wh) : 1 Wh, c’est l’énergie d’une ampoule LED de 10 W allumée 6 minutes.</p>
+          <p>Ici : <strong>{fmt(ref.electricite)} Wh</strong>, soit environ {fmt(minutesLed, 2)} minutes de cette ampoule.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">03 / 05</span>
+          <h3>De l’eau.</h3>
+          <p>Des serveurs qui calculent chauffent. Les refroidir et produire leur électricité consomme de l’eau, comptée en <span class="ex-terme">millilitres</span> (mL).</p>
+          <p>Ici : <strong>{fmt(ref.eau)} mL</strong>, environ {Math.round(gouttes)} gouttes d’eau.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">04 / 05</span>
+          <h3>Des gaz à effet de serre.</h3>
+          <p>Produire l’électricité (et fabriquer le matériel) émet des gaz qui réchauffent le climat. Le <span class="ex-terme">CO₂ équivalent</span> (CO₂e) les additionne en une seule unité : la quantité de CO₂ qui aurait le même effet.</p>
+          <p>Ici : <strong>{fmt(co2mg)} mg</strong>, soit {fmt(ref.co2)} g de CO₂e. Ce chiffre dépend beaucoup de la façon dont l’électricité est produite.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">05 / 05</span>
+          <h3>Trois unités qu’on n’additionne pas.</h3>
+          <p>Des Wh, des mL, des grammes : ce sont trois indicateurs différents. On peut comparer deux modèles sur un même indicateur, jamais additionner les trois.</p>
+        </div></article>
+      </div>
+
+      <div class="ex-scene v4-scene">
+        <div class="v4-requete" aria-hidden="true"><span>&gt;_ {REF}</span></div>
+        <div class="v4-panneaux">
+          <div class="v4-panneau v4-c-elec" data-p="1">
+            <span class="v4-ico v4-ico-elec" aria-hidden="true"></span>
+            <p class="v4-p-k">ÉLECTRICITÉ</p>
+            <p class="v4-p-v"><span class="v4-num" data-vers={ref.electricite}>{fmt(ref.electricite)}</span><small>Wh</small></p>
+            <div class="v4-led" aria-hidden="true"><i></i><span>LED 10 W · {fmt(minutesLed, 2)} min</span></div>
+          </div>
+          <div class="v4-panneau v4-c-eau" data-p="2">
+            <span class="v4-ico v4-ico-eau" aria-hidden="true"></span>
+            <p class="v4-p-k">EAU</p>
+            <p class="v4-p-v"><span class="v4-num" data-vers={ref.eau}>{fmt(ref.eau)}</span><small>mL</small></p>
+            <div class="v4-gouttes" aria-hidden="true">{Array.from({ length: Math.round(gouttes) }, (_, i) => <i style={`--i:${i}`}></i>)}</div>
+          </div>
+          <div class="v4-panneau v4-c-co2" data-p="3">
+            <span class="v4-ico v4-ico-co2" aria-hidden="true"></span>
+            <p class="v4-p-k">CO₂E</p>
+            <p class="v4-p-v"><span class="v4-num" data-vers={co2mg} data-chiffres="3">{fmt(co2mg)}</span><small>mg</small></p>
+            <div class="v4-bulles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+        <p class="v4-differents" aria-hidden="true"><span>Wh</span>≠<span>mL</span>≠<span>g</span></p>
+        <p class="ex-scene-legende">ESTIMATIONS ECOLOGITS · {REF} · 150 TOKENS</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 bis. Changer d'échelle : interaction -->
+  <section class="ex-section ex-largeur" aria-labelledby="v4-echelle">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">CHANGER D’ÉCHELLE</p>
+      <h2 class="ex-h2" id="v4-echelle">Une goutte, <em>puis un million.</em></h2>
+      <p class="ex-lead">Pour une requête, les chiffres semblent minuscules. Mais une IA répond à des requêtes en très grand nombre. Choisissez un modèle et un nombre de réponses identiques : nous multiplions simplement l’estimation par requête.</p>
+    </div>
+    <div class="v4-labo" data-reveal id="v4-labo">
+      <script type="application/json" id="v4-donnees" set:html={JSON.stringify(valeurs)} />
+      <fieldset class="v4-choix">
+        <legend>Modèle</legend>
+        {ordreModeles.map((m) => <button type="button" data-modele={m} aria-pressed={String(m === REF)}>{m}</button>)}
+      </fieldset>
+      <fieldset class="v4-choix v4-choix--n">
+        <legend>Nombre de réponses</legend>
+        {[[1, "1"], [1000, "1 000"], [1_000_000, "1 million"], [1_000_000_000, "1 milliard"]].map(([n, t]) => <button type="button" data-n={n} aria-pressed={String(n === 1)}>{t}</button>)}
+      </fieldset>
+      <div class="v4-resultats" aria-live="polite">
+        <div class="v4-res v4-c-elec"><p>ÉLECTRICITÉ</p><strong id="v4-r-elec">—</strong></div>
+        <div class="v4-res v4-c-eau"><p>EAU</p><strong id="v4-r-eau">—</strong></div>
+        <div class="v4-res v4-c-co2"><p>CO₂E</p><strong id="v4-r-co2">—</strong></div>
+      </div>
+      <p class="v4-labo-note">Simple multiplication de l’estimation EcoLogits par requête (150 tokens, mix mondial). Ce n’est pas une mesure de l’usage réel de ces modèles, dont le nombre de requêtes n’est pas public.</p>
+    </div>
+  </section>
+
+  <!-- 3. Méthode et données -->
+  <section class="ex-section ex-largeur" aria-labelledby="v4-methode">
+    <div class="ex-entete" data-reveal>
+      <span class="ex-nature">ESTIMATIONS, PAS DES MESURES</span>
+      <h2 class="ex-h2" id="v4-methode">Comment sont <em>calculés ces chiffres ?</em></h2>
+      <p class="ex-lead">EcoLogits ne mesure rien directement : il <strong>modélise</strong> une requête à partir d’hypothèses sur la taille du modèle, le matériel, le datacenter et l’électricité utilisée. Les trois indicateurs découlent de ce même calcul.</p>
+    </div>
+    <div class="ex-cartes" data-reveal-groupe>
+      <article class="ex-carte"><span class="ex-carte-k">Électricité · Wh</span><h3>L’énergie consommée</h3><p>Ce que les serveurs et leur environnement consomment pour produire la réponse.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">Eau · mL</span><h3>L’eau consommée</h3><p>Estimée notamment à partir du refroidissement et de la production d’électricité.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">CO₂e · g</span><h3>Les émissions</h3><p>Fournies en milligrammes, affichées en grammes dans le graphique.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">Paramètres fixés</span><h3>150 tokens, mix mondial</h3><p>Même longueur de réponse pour tous ; électricité supposée produite comme la moyenne mondiale.</p></article>
+    </div>
+  </section>
+
+  <!-- 4. Transition -->
+  <div class="ex-passage ex-largeur" data-reveal>
+    <p class="ex-kicker">À VOUS</p>
+    <h2 class="ex-h2">Changez de modèle, <em>regardez les compteurs.</em></h2>
+    <p>Un seul paramètre est modifiable : le modèle. Les deux autres restent fixés. Avec une réponse plus longue, les trois chiffres augmenteraient ; avec une électricité moins carbonée, le CO₂e baisserait.</p>
+    <span class="ex-passage-fleche" aria-hidden="true"></span>
+  </div>
+
+  <!-- 5 et 6. Graphique et mode d'emploi -->
+  <ExplorerGraphique viz={c.viz} label={c.label} note={c.note}>
+    <li><strong>Choisissez un modèle</strong> parmi les huit boutons, rangés par fournisseur.</li>
+    <li>Les <strong>trois compteurs</strong> s’animent vers les nouvelles estimations.</li>
+    <li>Chaque <strong>anneau</strong> va de 0 au maximum de la sélection pour son indicateur : les anneaux ne se comparent pas entre eux.</li>
+    <li>Sous chaque compteur, l’<strong>intervalle</strong> rappelle l’incertitude de l’estimation.</li>
+  </ExplorerGraphique>
+
+  <!-- 7. Enseignements -->
+  <section class="ex-section ex-largeur" aria-labelledby="v4-lecons">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">CE QUE L’ON EN RETIENT</p>
+      <h2 class="ex-h2" id="v4-lecons">Trois enseignements.</h2>
+    </div>
+    <div class="ex-chiffres" data-reveal-groupe>
+      <article class="ex-chiffre"><p class="ex-chiffre-v"><span data-count={maxi.eau} data-chiffres="3">{fmt(maxi.eau)}</span><small>ML</small></p><p>d’eau estimée pour une réponse de {nomMaxi}, contre {fmt(mini.eau)} mL pour {nomMini}.</p></article>
+      <article class="ex-chiffre"><p class="ex-chiffre-v"><span data-count={maxi.co2} data-chiffres="3">{fmt(maxi.co2)}</span><small>G CO₂E</small></p><p>pour {nomMaxi} : environ {fmtRapport(maxi.co2 / mini.co2)} fois plus que {nomMini}.</p></article>
+      <article class="ex-chiffre"><p class="ex-chiffre-v"><small>MÊME</small>ORDRE</p><p>Les trois indicateurs classent les modèles presque de la même façon : ils découlent largement de la même estimation d’énergie.</p></article>
+    </div>
+  </section>
+
+  <!-- 8. Limites -->
+  <section class="ex-section ex-largeur" aria-labelledby="v4-limites">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">À GARDER EN TÊTE</p>
+      <h2 class="ex-h2" id="v4-limites">Les limites <em>de ces données.</em></h2>
+    </div>
+    <ul class="ex-limites" data-reveal-groupe>
+      <li><span><strong>Des estimations par scénario.</strong> Elles ne décrivent pas la consommation réelle de vos propres requêtes.</span></li>
+      <li><span><strong>Un mix électrique moyen.</strong> Le CO₂e réel dépend du pays et de l’heure où l’électricité est produite.</span></li>
+      <li><span><strong>Des équivalences indicatives.</strong> Ampoule et gouttes ne servent qu’à se représenter un ordre de grandeur.</span></li>
+      <li><span><strong>Pas de total.</strong> Wh, mL et g ne s’additionnent pas : ce sont trois impacts de nature différente.</span></li>
+    </ul>
+  </section>
+
+  <!-- 9. Conclusion -->
+  <section class="ex-section ex-largeur">
+    <div class="ex-fin" data-reveal>
+      <p class="ex-kicker">EN RÉSUMÉ</p>
+      <h2 class="ex-h2">Une réponse n’est pas <em>immatérielle.</em></h2>
+      <p>Chaque requête consomme un peu d’électricité, un peu d’eau, et émet un peu de CO₂e. Pris isolément, ces chiffres sont petits ; multipliés, ils changent d’échelle.</p>
+      <p class="ex-fin-probleme">Derrière une requête d’IA se cache donc une consommation bien réelle. Reste à savoir si tous les modèles se valent.</p>
+      <div class="ex-actions">
+        <a class="ex-bouton" href="/explorer/v1">CHAPITRE 02 : COMPARER LES MODÈLES →</a>
+        <a class="ex-bouton ex-bouton--ligne" href="/?face=1">RETOUR À L’EXPÉRIENCE</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  import { animerNombre, fmtFr } from "../../scripts/explorer";
+
+  // Tableau de bord : le compteur de l'indicateur mis en avant défile quand son étape devient active.
+  const sequence = document.querySelector<HTMLElement>("#v4-scrolly");
+  if (sequence) {
+    const deja = new Set<number>();
+    const lancer = (index: number) => {
+      const panneau = sequence.querySelector<HTMLElement>(`[data-p="${index}"]`);
+      const num = panneau?.querySelector<HTMLElement>(".v4-num");
+      if (!num || deja.has(index)) return;
+      deja.add(index);
+      animerNombre(num, Number(num.dataset.vers), { duree: 1300 });
+    };
+    sequence.addEventListener("scrolly:etape", (e) => lancer((e as CustomEvent<{ index: number }>).detail.index));
+  }
+
+  // Laboratoire d'échelle : estimation par requête × nombre de réponses, avec changement d'unité.
+  const labo = document.querySelector<HTMLElement>("#v4-labo");
+  const brut = document.querySelector("#v4-donnees")?.textContent;
+  if (labo && brut) {
+    const valeurs: Record<string, { electricite: number; eau: number; co2: number }> = JSON.parse(brut);
+    let modele = labo.querySelector<HTMLElement>("[data-modele][aria-pressed='true']")?.dataset.modele ?? Object.keys(valeurs)[0];
+    let n = 1;
+    const unites = {
+      elec: [[1e6, "MWh"], [1e3, "kWh"], [1, "Wh"]],
+      eau: [[1e6, "m³"], [1e3, "L"], [1, "mL"]],
+      co2: [[1e6, "t"], [1e3, "kg"], [1, "g"], [1e-3, "mg"]],
+    } as const;
+    const courants = { elec: 0, eau: 0, co2: 0 };
+    const afficher = (cle: keyof typeof unites, total: number) => {
+      const el = labo.querySelector<HTMLElement>(`#v4-r-${cle}`)!;
+      const [div, u] = unites[cle].find(([d]) => total >= d) ?? unites[cle][unites[cle].length - 1];
+      const de = courants[cle] / div;
+      courants[cle] = total;
+      animerNombre(el, total / div, { de: Number.isFinite(de) && de < (total / div) * 50 ? de : 0, duree: 900, format: (v) => `${fmtFr(v)} ${u}` });
+    };
+    const maj = () => {
+      const v = valeurs[modele];
+      afficher("elec", v.electricite * n);
+      afficher("eau", v.eau * n);
+      afficher("co2", v.co2 * n);
+    };
+    labo.querySelectorAll<HTMLButtonElement>("[data-modele]").forEach((b) => b.addEventListener("click", () => {
+      modele = b.dataset.modele!;
+      labo.querySelectorAll("[data-modele]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      maj();
+    }));
+    labo.querySelectorAll<HTMLButtonElement>("[data-n]").forEach((b) => b.addEventListener("click", () => {
+      n = Number(b.dataset.n);
+      labo.querySelectorAll("[data-n]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      maj();
+    }));
+    maj();
+  }
+</script>
+
+<style>
+  .recit-v4 { --c-elec: #ffb44d; --c-eau: #5fb4ff; --c-co2: #c4a9ff; }
+  .v4-c-elec { --c: var(--c-elec); }
+  .v4-c-eau { --c: var(--c-eau); }
+  .v4-c-co2 { --c: var(--c-co2); }
+
+  /* Icônes dessinées en CSS : éclair, goutte, nuage */
+  .v4-ico { display: block; width: 44px; height: 44px; background: var(--c); -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
+  .v4-ico-elec { --m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M14 1 4 14h7l-2 9 11-14h-7z'/%3E%3C/svg%3E"); }
+  .v4-ico-eau { --m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1S4 10.5 4 15a8 8 0 0 0 16 0c0-4.5-8-14-8-14z'/%3E%3C/svg%3E"); }
+  .v4-ico-co2 { --m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.5 20a4.5 4.5 0 0 1-.6-9A6.5 6.5 0 0 1 18.4 9.6 5.2 5.2 0 0 1 18 20z'/%3E%3C/svg%3E"); }
+
+  /* Ouverture : trois traces autour d'une requête */
+  .v4-trio { position: relative; width: min(460px, 100%); aspect-ratio: 1; justify-self: center; }
+  .v4-trio-requete { position: absolute; left: 50%; top: 50%; translate: -50% -50%; padding: 14px 18px; border: 1px solid var(--accent); background: #0d1730; color: #fff; font: 500 14px var(--mono); box-shadow: 0 0 40px #aab8ff33; }
+  .v4-trio-c { position: absolute; display: grid; justify-items: center; gap: 8px; color: #fff; font: 900 26px var(--titre); animation: v4-flotte 5s ease-in-out infinite; }
+  .v4-trio-c b { font: inherit; color: var(--c); }
+  .v4-trio-c::after { content: ""; position: absolute; left: 50%; top: 50%; width: 1px; height: 120px; background: linear-gradient(var(--c), transparent); opacity: .4; z-index: -1; }
+  .v4-trio-c:nth-child(1) { left: 6%; top: 8%; }
+  .v4-trio-c:nth-child(2) { right: 6%; top: 18%; animation-delay: -1.6s; }
+  .v4-trio-c:nth-child(3) { left: 32%; bottom: 2%; animation-delay: -3.2s; }
+  .v4-trio-c:nth-child(1)::after { rotate: -45deg; transform-origin: top; }
+  .v4-trio-c:nth-child(2)::after { rotate: 60deg; transform-origin: top; }
+  .v4-trio-c:nth-child(3)::after { rotate: 170deg; transform-origin: top; }
+  @keyframes v4-flotte { 50% { transform: translateY(-12px); } }
+
+  /* Tableau de bord */
+  .v4-scene { align-content: center; gap: 18px; padding: 24px; }
+  .v4-requete { justify-self: center; padding: 10px 16px; border: 1px solid var(--accent); background: #0d1730; color: #fff; font: 500 13px var(--mono); }
+  [data-active="0"] .v4-requete { animation: v4-pouls 1.4s ease-in-out infinite; }
+  @keyframes v4-pouls { 50% { box-shadow: 0 0 0 10px #aab8ff00, 0 0 30px #aab8ff66; } }
+  .v4-panneaux { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: 100%; }
+  .v4-panneau { position: relative; display: grid; gap: 6px; align-content: start; justify-items: start; min-height: 260px; padding: 18px 16px; border: 1px solid #ffffff1c; background: #0b1328; opacity: .3; transform: scale(.96); transition: opacity .6s, transform .6s, border-color .6s, box-shadow .6s; overflow: hidden; }
+  .v4-panneau .v4-ico { width: 34px; height: 34px; }
+  .v4-p-k { margin: 6px 0 0; font: 600 11px var(--mono); letter-spacing: .14em; color: var(--c); }
+  .v4-p-v { display: flex; align-items: baseline; gap: 5px; margin: 0; font: 900 clamp(30px, 3.4vw, 46px)/1 var(--titre); font-variant-numeric: tabular-nums; }
+  .v4-p-v small { font: 500 12px var(--mono); color: #c3d1e7; }
+  /* Étape active : le panneau correspondant s'allume ; étape 5 : tous */
+  [data-active="1"] [data-p="1"], [data-active="2"] [data-p="2"], [data-active="3"] [data-p="3"], [data-active="4"] .v4-panneau { opacity: 1; transform: none; border-color: var(--c); box-shadow: 0 0 40px -12px var(--c); }
+
+  .v4-led { display: grid; gap: 8px; width: 100%; margin-top: auto; }
+  .v4-led i { display: block; width: 46px; height: 46px; border-radius: 50% 50% 40% 40%; border: 2px solid #ffffff44; background: #1a2340; transition: background .8s, box-shadow .8s; }
+  .v4-led span { font: 500 10px var(--mono); color: #c3d1e7; }
+  [data-active="1"] .v4-led i, [data-active="4"] .v4-led i { background: #ffe6a8; box-shadow: 0 0 34px #ffcc66; }
+
+  .v4-gouttes { display: flex; flex-wrap: wrap; gap: 5px; margin-top: auto; }
+  .v4-gouttes i { width: 9px; height: 12px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: var(--c-eau); opacity: 0; transform: translateY(-14px); transition: opacity .3s, transform .4s; transition-delay: calc(var(--i) * 35ms); }
+  :is([data-active="2"], [data-active="3"], [data-active="4"]) .v4-gouttes i { opacity: .9; transform: none; }
+
+  .v4-bulles { position: relative; width: 100%; height: 70px; margin-top: auto; }
+  .v4-bulles i { position: absolute; bottom: 0; width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--c-co2); background: #c4a9ff22; opacity: 0; }
+  .v4-bulles i:nth-child(1) { left: 6%; } .v4-bulles i:nth-child(2) { left: 26%; width: 26px; height: 26px; } .v4-bulles i:nth-child(3) { left: 50%; } .v4-bulles i:nth-child(4) { left: 68%; width: 22px; height: 22px; } .v4-bulles i:nth-child(5) { left: 84%; width: 14px; height: 14px; }
+  :is([data-active="3"], [data-active="4"]) .v4-bulles i { animation: v4-monte 3.2s ease-in infinite; }
+  .v4-bulles i:nth-child(2) { animation-delay: -.8s !important; } .v4-bulles i:nth-child(3) { animation-delay: -1.6s !important; } .v4-bulles i:nth-child(4) { animation-delay: -2.2s !important; } .v4-bulles i:nth-child(5) { animation-delay: -2.8s !important; }
+  @keyframes v4-monte { 0% { opacity: 0; transform: translateY(0) scale(.6); } 20% { opacity: .9; } 100% { opacity: 0; transform: translateY(-60px) scale(1.2); } }
+
+  .v4-differents { display: flex; justify-content: center; gap: 14px; margin: 0; font: 900 30px var(--titre); color: #fff; opacity: 0; transform: translateY(10px); transition: opacity .6s, transform .6s; }
+  .v4-differents span { color: var(--accent); }
+  [data-active="4"] .v4-differents { opacity: 1; transform: none; }
+
+  /* Laboratoire d'échelle */
+  .v4-labo { display: grid; gap: 18px; padding: clamp(18px, 3vw, 32px); border: 1px solid #ffffff1c; background: #0b1328; }
+  .v4-choix { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; border: 0; }
+  .v4-choix legend { width: 100%; margin-bottom: 8px; font: 500 10px var(--mono); letter-spacing: .16em; color: var(--accent); text-transform: uppercase; }
+  .v4-choix button { padding: 9px 14px; border: 1px solid #ffffff2e; border-radius: 999px; background: transparent; color: #dfe9fb; font: 500 12.5px var(--mono); cursor: pointer; transition: background .2s, border-color .2s, color .2s; }
+  .v4-choix button:hover { border-color: var(--accent); }
+  .v4-choix button[aria-pressed="true"] { background: linear-gradient(115deg, #8ce8f1, #5d8dff); border-color: transparent; color: #04101f; font-weight: 600; }
+  .v4-choix button:focus-visible { outline: 2px solid #e9fbff; outline-offset: 2px; }
+  .v4-choix--n button { font-size: 14px; padding: 11px 18px; }
+  .v4-resultats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .v4-res { padding: 18px; border: 1px solid var(--c); background: linear-gradient(160deg, color-mix(in srgb, var(--c) 12%, transparent), transparent); }
+  .v4-res p { margin: 0 0 8px; font: 600 10px var(--mono); letter-spacing: .14em; color: var(--c); }
+  .v4-res strong { font: 900 clamp(28px, 3.6vw, 52px)/1 var(--titre); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .v4-labo-note { margin: 0; color: #8fa2c5; font-size: 13px; line-height: 1.5; }
+
+  @media (max-width: 900px) {
+    .v4-trio { width: min(340px, 90%); }
+    .v4-panneau { min-height: 0; padding: 12px 10px; }
+    .v4-p-v { font-size: 26px; }
+    .v4-led i { width: 28px; height: 28px; }
+    .v4-bulles { height: 40px; }
+    .v4-gouttes i { width: 6px; height: 8px; }
+    .v4-scene { gap: 10px; padding: 14px; }
+  }
+  @media (max-width: 600px) {
+    .v4-resultats { grid-template-columns: 1fr; }
+    .v4-led span { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .v4-trio-c, .v4-bulles i, [data-active="0"] .v4-requete { animation: none !important; }
+    .v4-panneau, .v4-gouttes i, .v4-differents, .v4-led i { transition: none; }
+  }
+</style>

@@ -26,6 +26,7 @@ const FICHIERS: Record<Cle, string> = {
 const DOSSIER = `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}data/`;
 
 const HAUTEUR_MIN_SPHERES = 220;
+const HAUTEUR_MIN_SPHERES_ETROIT = 340;
 const HAUTEUR_MIN_CARTE = 200;
 const HAUTEUR_FICHE_EMPILEE = 190;
 
@@ -258,9 +259,12 @@ function dimensionnerSpheres(etat: Etat, vue: HTMLElement, hauteur: number, page
   // Sur écran étroit, la fiche passe sous les sphères : on lui réserve une hauteur fixe.
   const empilee = getComputedStyle(rangee).gridTemplateColumns.trim().split(/\s+/).length < 2;
   const reserveFiche = empilee ? HAUTEUR_FICHE_EMPILEE + 12 : 0;
+  // Zone étroite (mobile) : huit sphères étiquetées ne tiennent pas sans chevauchement sous 340 px de haut ;
+  // le contenu dépasse alors du rectangle et la réduction uniforme du mode carte prend le relais.
+  const hauteurMin = svg.clientWidth < 520 ? HAUTEUR_MIN_SPHERES_ETROIT : HAUTEUR_MIN_SPHERES;
   const zoneH = page
-    ? hauteur
-    : Math.max(HAUTEUR_MIN_SPHERES, hauteur - (vue.offsetHeight - rangee.offsetHeight) - reserveFiche);
+    ? Math.max(hauteurMin, hauteur)
+    : Math.max(hauteurMin, hauteur - (vue.offsetHeight - rangee.offsetHeight) - reserveFiche);
 
   svg.style.height = `${Math.round(zoneH)}px`;
   if (empilee) {
@@ -280,36 +284,10 @@ function dimensionnerSpheres(etat: Etat, vue: HTMLElement, hauteur: number, page
     return true;
   }
 
-  recadrerSpheres(svg);
+  // La constellation est dessinée dans le repère exact de sa zone (viewBox = zone, 1 unité = 1 px) :
+  // pas de recadrage a posteriori. L'ancien recadrage lisait getBBox() pendant l'animation d'entrée
+  // des sphères (échelle 0 → 1) et pouvait zoomer ou dézoomer la scène de façon imprévisible.
   return false;
-}
-
-// Resserre le viewBox sur les sphères et leurs étiquettes, au format de la zone.
-// Le zoom est uniforme : les surfaces restent proportionnelles aux valeurs.
-function recadrerSpheres(svg: SVGSVGElement) {
-  const boites = [...svg.querySelectorAll<SVGGElement>(".sphere")].map((g) => {
-    const b = g.getBBox();
-    const m = g.transform.baseVal.consolidate()?.matrix;
-    return { x: b.x + (m?.e ?? 0), y: b.y + (m?.f ?? 0), w: b.width, h: b.height };
-  });
-  if (!boites.length || !svg.clientWidth || !svg.clientHeight) return;
-
-  const marge = 14;
-  let x0 = Math.min(...boites.map((b) => b.x)) - marge;
-  let y0 = Math.min(...boites.map((b) => b.y)) - marge;
-  let w = Math.max(...boites.map((b) => b.x + b.w)) + marge - x0;
-  let h = Math.max(...boites.map((b) => b.y + b.h)) + marge - y0;
-  const format = svg.clientWidth / svg.clientHeight;
-  if (w / h < format) {
-    x0 -= (h * format - w) / 2;
-    w = h * format;
-  } else {
-    y0 -= (w / format - h) / 2;
-    h = w / format;
-  }
-  svg.setAttribute("viewBox", `${x0.toFixed(1)} ${y0.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}`);
-  // Les particules décoratives hors du nouveau cadre ne débordent pas sur la fiche.
-  svg.style.overflow = "hidden";
 }
 
 // V2 : en mode carte, les cartes prennent la hauteur laissée par les textes ; en mode page,
