@@ -1,0 +1,110 @@
+{
+ "titre": "V3 — Énergie GPU médiane par requête, 10 tâches (campagne de février 2025)",
+ "source": "AI Energy Score, Hugging Face (https://huggingface.co/spaces/AIEnergyScore/Leaderboard), données de février 2025",
+ "licence": "Apache-2.0",
+ "unite": "Wh GPU par requête du benchmark (fichiers d'origine : kWh pour 1 000 requêtes)",
+ "denominateur": "requête du benchmark ; statistiques calculées parmi les modèles évalués pour chaque tâche",
+ "arrondi": "3 chiffres significatifs (les plus petites valeurs seraient nulles avec deux décimales)",
+ "donnees": [
+  {
+   "tache": "Génération d'images",
+   "campagne": "Février 2025",
+   "origine_campagne": "rattachement du leaderboard",
+   "n_evaluations": 12,
+   "mediane_Wh_req": 0.354,
+   "moyenne_Wh_req": 0.519,
+   "min_Wh_req": 0.187,
+   "max_Wh_req": 1.64
+  },
+  {
+   "tache": "Description d'images",
+   "campagne": "Février 2025",
+   "origine_campagne": "rattachement du leaderboard",
+   "n_evaluations": 10,
+   "mediane_Wh_req": 0.102,
+   "moyenne_Wh_req": 0.105,
+   "min_Wh_req": 0.0457,
+   "max_Wh_req": 0.18
+  },
+  {
+   "tache": "Génération de texte",
+   "campagne": "Février 2025",
+   "origine_campagne": "date du CSV",
+   "n_evaluations": 40,
+   "mediane_Wh_req": 0.0171,
+   "moyenne_Wh_req": 0.288,
+   "min_Wh_req": 0.00131,
+   "max_Wh_req": 3.43
+  },
+  {
+   "tache": "Reconnaissance vocale",
+   "campagne": "Février 2025",
+   "origine_campagne": "rattachement du leaderboard",
+   "n_evaluations": 13,
+   "mediane_Wh_req": 0.0165,
+   "moyenne_Wh_req": 0.0221,
+   "min_Wh_req": 0.00062,
+   "max_Wh_req": 0.0867
+  },
+  {
+   "tache": "Résumé de texte",
+   "campagne": "Février 2025",
+   "origine_campagne": "rattachement du leaderboard",
+   "n_evaluations": 11,
+   "mediane_Wh_req": 0.00352,
+   "moyenne_Wh_req": 0.00694,
+   "min_Wh_req": 0.000785,
+   "max_Wh_req": 0.0348
+  },
+  {
+   "tache": "Détection d'objets",
+   "campagne": "Février 2025",
+   "origine_campagne": "rattachement du leaderboard",
+   "n_evaluations": 7,
+   "mediane_Wh_req": 0.00328,
+   "moyenne_Wh_req": 0.00336,
+   "min_Wh_req": 0.001,
+   "max_Wh_req": 0.00798
+  },
+  {
+   "tache": "Réponse à des questions",
+   "campagne": "Février 2025",
+   "origine_campagne": "rattachement du leaderboard",
+   "n_evaluations": 18,
+   "mediane_Wh_req": 0.000992,
+   "moyenne_Wh_req": 0.0225,
+   "min_Wh_req": 0.0000554,
+   "max_Wh_req": 0.178
+  },
+  {
+   "tache": "Classification d'images",
+   "campagne": "Février 2025",
+   "origine_campagne": "rattachement du leaderboard",
+   "n_evaluations": 23,
+   "mediane_Wh_req": 0.000832,
+   "moyenne_Wh_req": 0.00101,
+   "min_Wh_req": 0.000299,
+   "max_Wh_req": 0.00264
+  },
+  {
+   "tache": "Classification de texte",
+   "campagne": "Février 2025",
+   "origine_campagne": "rattachement du leaderboard",
+   "n_evaluations": 13,
+   "mediane_Wh_req": 0.000802,
+   "moyenne_Wh_req": 0.00439,
+   "min_Wh_req": 0.000216,
+   "max_Wh_req": 0.0278
+  },
+  {
+   "tache": "Similarité de phrases",
+   "campagne": "Février 2025",
+   "origine_campagne": "rattachement du leaderboard",
+   "n_evaluations": 19,
+   "mediane_Wh_req": 0.00059,
+   "moyenne_Wh_req": 0.00126,
+   "min_Wh_req": 0.000106,
+   "max_Wh_req": 0.00522
+  }
+ ]
+}

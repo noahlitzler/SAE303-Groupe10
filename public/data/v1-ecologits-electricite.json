@@ -1,0 +1,67 @@
+{
+ "titre": "V1 — Électricité estimée par requête, 8 configurations d'IA",
+ "source": "EcoLogits (https://ecologits.ai), estimations collectées le 19/10/2026",
+ "licence": "EcoLogits : MPL-2.0",
+ "scenario": "150 tokens générés, mix électrique mondial (WOR)",
+ "unite": "Wh par requête",
+ "milieu": "point milieu de l'intervalle min–max (choix de synthèse)",
+ "arrondi": "3 chiffres significatifs (les plus petites valeurs seraient nulles avec deux décimales)",
+ "donnees": [
+  {
+   "fournisseur": "google_genai",
+   "modele": "gemini-2.5-flash-lite",
+   "energie_min_Wh": 0.00914,
+   "energie_milieu_Wh": 0.0101,
+   "energie_max_Wh": 0.011
+  },
+  {
+   "fournisseur": "mistralai",
+   "modele": "ministral-8b-2512",
+   "energie_min_Wh": 0.0108,
+   "energie_milieu_Wh": 0.0108,
+   "energie_max_Wh": 0.0108
+  },
+  {
+   "fournisseur": "openai",
+   "modele": "gpt-4o-mini",
+   "energie_min_Wh": 0.0105,
+   "energie_milieu_Wh": 0.0116,
+   "energie_max_Wh": 0.0126
+  },
+  {
+   "fournisseur": "anthropic",
+   "modele": "claude-haiku-4-5",
+   "energie_min_Wh": 0.00976,
+   "energie_milieu_Wh": 0.0175,
+   "energie_max_Wh": 0.0253
+  },
+  {
+   "fournisseur": "anthropic",
+   "modele": "claude-sonnet-4-6",
+   "energie_min_Wh": 0.231,
+   "energie_milieu_Wh": 0.305,
+   "energie_max_Wh": 0.378
+  },
+  {
+   "fournisseur": "openai",
+   "modele": "gpt-4o",
+   "energie_min_Wh": 0.243,
+   "energie_milieu_Wh": 0.315,
+   "energie_max_Wh": 0.387
+  },
+  {
+   "fournisseur": "mistralai",
+   "modele": "mistral-large-2512",
+   "energie_min_Wh": 0.598,
+   "energie_milieu_Wh": 0.598,
+   "energie_max_Wh": 0.598
+  },
+  {
+   "fournisseur": "google_genai",
+   "modele": "gemini-2.5-pro",
+   "energie_min_Wh": 1.8,
+   "energie_milieu_Wh": 3,
+   "energie_max_Wh": 4.19
+  }
+ ]
+}

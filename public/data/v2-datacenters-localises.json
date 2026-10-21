@@ -1,0 +1,240 @@
+{
+ "titre": "V2 — Datacenters de France métropolitaine à localisation vérifiée",
+ "source": "Datacenters France v2 : objets OpenStreetMap vérifiés les 19 et 20/10/2026 (sources de chaque entrée dans le notebook)",
+ "licence": "Données dérivées d'OpenStreetMap : ODbL, © contributeurs OpenStreetMap",
+ "denominateur": "23 installations localisées sur 39 entrées du fichier",
+ "entrees_total": 39,
+ "coordonnees": "coordonnées OpenStreetMap d'origine, non arrondies",
+ "donnees": [
+  {
+   "nom": "Digital Realty PAR6",
+   "exploitant": "Digital Realty",
+   "ville": "Ivry-sur-Seine",
+   "region": "Île-de-France",
+   "adresse": "11-15 rue Galilée, 94200 Ivry-sur-Seine",
+   "precision": "adresse",
+   "latitude": 48.817032,
+   "longitude": 2.4048225
+  },
+  {
+   "nom": "Equinix PA3",
+   "exploitant": "Equinix",
+   "ville": "Saint-Denis",
+   "region": "Île-de-France",
+   "adresse": "114 rue Ambroise Croizat, 93200 Saint-Denis",
+   "precision": "adresse",
+   "latitude": 48.9271389,
+   "longitude": 2.3503458
+  },
+  {
+   "nom": "Digital Realty MRS1",
+   "exploitant": "Digital Realty",
+   "ville": "Marseille",
+   "region": "Provence-Alpes-Côte d'Azur",
+   "adresse": "40 avenue Roger Salengro, 13003 Marseille",
+   "precision": "adresse",
+   "latitude": 43.3110164,
+   "longitude": 5.3739134
+  },
+  {
+   "nom": "Equinix PA5",
+   "exploitant": "Equinix",
+   "ville": "Aubervilliers",
+   "region": "Île-de-France",
+   "adresse": "45 avenue Victor Hugo, Bât. 254, 93300 Aubervilliers",
+   "precision": "coordonnees_officielles",
+   "latitude": 48.9052934,
+   "longitude": 2.3697913
+  },
+  {
+   "nom": "Equinix PA6",
+   "exploitant": "Equinix",
+   "ville": "Aubervilliers",
+   "region": "Île-de-France",
+   "adresse": "10 rue Waldeck Rochet, Bât. 520, 93300 Aubervilliers",
+   "precision": "adresse",
+   "latitude": 48.9101878,
+   "longitude": 2.3682301
+  },
+  {
+   "nom": "Equinix PA4",
+   "exploitant": "Equinix",
+   "ville": "Pantin",
+   "region": "Île-de-France",
+   "adresse": "110 bis avenue du Général Leclerc, 93500 Pantin",
+   "precision": "coordonnees_officielles",
+   "latitude": 48.9003282,
+   "longitude": 2.4220276
+  },
+  {
+   "nom": "Equinix PA7",
+   "exploitant": "Equinix",
+   "ville": "Courbevoie",
+   "region": "Île-de-France",
+   "adresse": "130-136 boulevard de Verdun, Energy Park Bât. 9, 92400 Courbevoie",
+   "precision": "adresse",
+   "latitude": 48.904988,
+   "longitude": 2.259461
+  },
+  {
+   "nom": "Equinix PA2",
+   "exploitant": "Equinix",
+   "ville": "Saint-Denis",
+   "region": "Île-de-France",
+   "adresse": "114 rue Ambroise Croizat, 93200 Saint-Denis",
+   "precision": "adresse",
+   "latitude": 48.9275923,
+   "longitude": 2.35165
+  },
+  {
+   "nom": "Telehouse TH3 Paris Magny",
+   "exploitant": "Telehouse",
+   "ville": "Magny-les-Hameaux",
+   "region": "Île-de-France",
+   "adresse": "1 rue Pablo Picasso, 78114 Magny-les-Hameaux",
+   "precision": "adresse",
+   "latitude": 48.7260968,
+   "longitude": 2.0775948
+  },
+  {
+   "nom": "Cogent Tours",
+   "exploitant": "Cogent",
+   "ville": "Tours",
+   "region": "Centre-Val de Loire",
+   "adresse": "171 rue des Douets, 37100 Tours",
+   "precision": "adresse",
+   "latitude": 47.4323259,
+   "longitude": 0.6864916
+  },
+  {
+   "nom": "Equinix PA13x",
+   "exploitant": "Equinix",
+   "ville": "Meudon",
+   "region": "Île-de-France",
+   "adresse": "9 avenue du Maréchal Juin, 92360 Meudon",
+   "precision": "adresse",
+   "latitude": 48.7891073,
+   "longitude": 2.2165885
+  },
+  {
+   "nom": "Digital Realty PAR12",
+   "exploitant": "Digital Realty",
+   "ville": "Ferrières-en-Brie",
+   "region": "Île-de-France",
+   "adresse": "16 avenue Joseph Froelicher, 77164 Ferrières-en-Brie",
+   "precision": "adresse",
+   "latitude": 48.8243997,
+   "longitude": 2.725104
+  },
+  {
+   "nom": "Equinix PA8x",
+   "exploitant": "Equinix",
+   "ville": "Pantin",
+   "region": "Île-de-France",
+   "adresse": "110 bis avenue du Général Leclerc, Building 19, Pantin",
+   "precision": "coordonnees_officielles",
+   "latitude": 48.9007018,
+   "longitude": 2.4219855
+  },
+  {
+   "nom": "Advanced MedioMatrix",
+   "exploitant": "Advanced MedioMatrix",
+   "ville": "Peltre",
+   "region": "Grand Est",
+   "adresse": "1 rue du Jardin d’Écosse, 57245 Peltre",
+   "precision": "adresse",
+   "latitude": 49.0856606,
+   "longitude": 6.2375093
+  },
+  {
+   "nom": "Equinix PA10",
+   "exploitant": "Equinix",
+   "ville": "Saint-Denis",
+   "region": "Île-de-France",
+   "adresse": "114 rue Ambroise Croizat, 93200 Saint-Denis",
+   "precision": "adresse",
+   "latitude": 48.9275575,
+   "longitude": 2.3489505
+  },
+  {
+   "nom": "Equinix PA9x",
+   "exploitant": "Equinix",
+   "ville": "Saint-Denis",
+   "region": "Île-de-France",
+   "adresse": "114 rue Ambroise Croizat, 93200 Saint-Denis",
+   "precision": "adresse",
+   "latitude": 48.926852,
+   "longitude": 2.3489753
+  },
+  {
+   "nom": "Prévessin Data Centre (CERN)",
+   "exploitant": "CERN",
+   "ville": "Prévessin-Moëns",
+   "region": "Auvergne-Rhône-Alpes",
+   "adresse": "Site CERN de Prévessin, Route Dirac, 01630 Prévessin-Moëns",
+   "precision": "site",
+   "latitude": 46.2554114,
+   "longitude": 6.0564182
+  },
+  {
+   "nom": "Cogent Paris 2",
+   "exploitant": "Cogent",
+   "ville": "Vélizy-Villacoublay",
+   "region": "Île-de-France",
+   "adresse": "16 rue Grange Dame Rose, 78140 Vélizy-Villacoublay",
+   "precision": "adresse",
+   "latitude": 48.7842025,
+   "longitude": 2.2069451
+  },
+  {
+   "nom": "dc2scale PAR2",
+   "exploitant": "dc2scale",
+   "ville": "Vélizy-Villacoublay",
+   "region": "Île-de-France",
+   "adresse": "16 rue Grange Dame Rose, 78140 Vélizy-Villacoublay",
+   "precision": "adresse",
+   "latitude": 48.7837888,
+   "longitude": 2.2080871
+  },
+  {
+   "nom": "DATA4 PAR02",
+   "exploitant": "DATA4",
+   "ville": "Marcoussis",
+   "region": "Île-de-France",
+   "adresse": "15 rue Angiboust, 91460 Marcoussis",
+   "precision": "adresse",
+   "latitude": 48.6642946,
+   "longitude": 2.2083235
+  },
+  {
+   "nom": "DATA4 PAR01",
+   "exploitant": "DATA4",
+   "ville": "Nozay",
+   "region": "Île-de-France",
+   "adresse": "3 route de Marcoussis, 91620 Nozay",
+   "precision": "site",
+   "latitude": 48.6502794,
+   "longitude": 2.228042
+  },
+  {
+   "nom": "Equinix BX1",
+   "exploitant": "Equinix",
+   "ville": "Bruges",
+   "region": "Nouvelle-Aquitaine",
+   "adresse": "39 rue de Strasbourg, 33520 Bruges",
+   "precision": "adresse",
+   "latitude": 44.8962313,
+   "longitude": -0.6117206
+  },
+  {
+   "nom": "Telehouse TH2 Paris Voltaire",
+   "exploitant": "Telehouse",
+   "ville": "Paris",
+   "region": "Île-de-France",
+   "adresse": "137 boulevard Voltaire, 75011 Paris",
+   "precision": "adresse",
+   "latitude": 48.8561326,
+   "longitude": 2.3833044
+  }
+ ]
+}
