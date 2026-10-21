@@ -1,5 +1,5 @@
-- URL site WEB : https://derriere-le-prompt-sae303.netlify.app/
-- URL Notebook Observable : https://old.observablehq.com/d/227527a47a175959
+- URL site WEB : https://sae303-clement-noah-10.netlify.app/
+- URL Notebook Observable : https://observablehq.com/@mmi-montbeliard/sae-303-gr-10
 - Nom : LITZLER
 - Prénom : Noah
 - Nom binome : BERTRAND
