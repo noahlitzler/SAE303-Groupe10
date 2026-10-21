@@ -1,4 +1,4 @@
----
+﻿---
 import fs from "node:fs";
 import path from "node:path";
 import Layout from "../layouts/Layout.astro";
@@ -103,7 +103,7 @@ const fichiers = [
     <div class="ambient ambient-b" aria-hidden="true"></div>
 
     <header class="method-header">
-      <a href="/" class="back-link" aria-label="Retour à l'expérience">
+      <a href="/?retour=1" class="back-link" aria-label="Retour à l'expérience">
         <span aria-hidden="true">←</span>
         RETOUR À L'EXPÉRIENCE
       </a>
@@ -310,7 +310,7 @@ const fichiers = [
         et les incertitudes qui se cachent derrière chaque résultat.
         L'usage de l'IA dans ce projet est déclaré dans le journal IA du notebook.
       </p>
-      <a href="/" class="closing-link">RETOURNER À L'EXPÉRIENCE <span aria-hidden="true">↗</span></a>
+      <a href="/?retour=1" class="closing-link">RETOURNER À L'EXPÉRIENCE <span aria-hidden="true">↗</span></a>
     </section>
 
     <footer class="method-footer">
@@ -445,3 +445,4 @@ const fichiers = [
     *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   }
 </style>
+

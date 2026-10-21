@@ -1,4 +1,4 @@
-﻿---
+---
 import ObservableViz from './ObservableViz.astro';
 import { chapitres } from '../data/chapitres';
 
@@ -150,7 +150,7 @@ const chapters = chapitres;
 .nav-entry[aria-current="true"] .nav-tick,.nav-entry:hover .nav-tick{width:13px;height:13px;background:#8deaf0;box-shadow:0 0 18px #8deaf0}
 .nav-tooltip{position:absolute;right:32px;top:50%;transform:translateY(-50%);background:#0c152bea;color:#e4efff;padding:8px 12px;border:1px solid #637ba1;font:10px 'IBM Plex Mono',monospace;white-space:nowrap;opacity:0;pointer-events:none}
 .nav-entry:hover .nav-tooltip,.nav-entry:focus-visible .nav-tooltip{opacity:1}
-.hud{position:absolute;z-index:30;top:0;left:0;right:0;height:0;pointer-events:none}
+.hud{position:fixed;z-index:30;top:0;left:0;right:0;height:0;pointer-events:none}
 .hud-top{position:absolute;top:20px;left:25px;right:25px;display:flex;justify-content:space-between;align-items:center}
 .brand-logo{pointer-events:auto;width:43px;height:43px;padding:2px;border:0;background:none;color:#fff;cursor:pointer}.brand-logo svg{width:100%;height:100%}
 .hud-top a{pointer-events:auto;text-decoration:none;color:#a4eff0;font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.12em}
@@ -264,7 +264,7 @@ function initExperience(){
  form.addEventListener('submit',e=>{e.preventDefault();const value=input.value.trim();if(!value)return;sent=true;intro.classList.add('sent');tokens.replaceChildren();(value.match(/\S+\s*/g)||[]).slice(0,18).forEach((part,i)=>{const token=document.createElement('span');token.className='token';token.style.animationDelay=`${i*65}ms`;token.textContent=part.trim();tokens.append(token)});const full='NOAH LITZLER · CLÉMENT BERTRAND';if(reduced){authors.textContent=full}else{authors.textContent='';let i=0;const type=()=>{if(!authors.isConnected)return;authors.textContent=full.slice(0,++i);if(i<full.length)window.setTimeout(type,55)};window.setTimeout(type,350)}});
  const scrollTo=(el:HTMLElement)=>el.scrollIntoView({behavior:reduced?'instant':'smooth',block:'start'});
  enter.addEventListener('click',()=>{if(sent)scrollTo(exploration)});
- root.querySelector<HTMLButtonElement>('#brand-logo')?.addEventListener('click',()=>scrollTo(intro));
+ root.querySelector<HTMLButtonElement>('#brand-logo')?.addEventListener('click',()=>{sessionStorage.setItem('dlp-skip-intro','1');sent=true;intro.classList.add('sent');scrollTo(intro)});
  function goTo(i:number){const travel=Math.max(1,exploration.offsetHeight-innerHeight);window.scrollTo({top:exploration.getBoundingClientRect().top+scrollY+travel*i/3,behavior:reduced?'instant':'smooth'})}
  buttons.forEach((b,i)=>b.addEventListener('click',()=>goTo(i)));
  headerButtons.forEach((b,i)=>b.addEventListener('click',()=>goTo(i)));
@@ -280,7 +280,13 @@ function initExperience(){
  function restaurerPosition(){
   let retour:{y?:number,face?:number}|null=null;
   try{retour=JSON.parse(sessionStorage.getItem('dlp-retour')||'null');sessionStorage.removeItem('dlp-retour')}catch{}
-  const face=Number(new URLSearchParams(location.search).get('face'));
+  const params = new URLSearchParams(location.search);
+  const retourAccueil = params.get('retour') === '1';
+  const face = Number(params.get('face'));
+  if (retourAccueil) {
+    sent = true;
+    intro.classList.add('sent');
+  }
   if(retour?.y!=null){sent=true;intro.classList.add('sent');window.scrollTo({top:retour.y,behavior:'instant'})}
   else if(face>=1&&face<=4){sent=true;intro.classList.add('sent');const travel=Math.max(1,exploration.offsetHeight-innerHeight);window.scrollTo({top:exploration.getBoundingClientRect().top+scrollY+travel*(face-1)/3,behavior:'instant'})}
   // ?face= ne sert qu'une fois : un rechargement ultérieur repart de l'introduction.
@@ -593,5 +599,7 @@ a[href="/methode"]:focus-visible,
   }
 }
 </style>
+
+
 
 

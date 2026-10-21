@@ -46,7 +46,7 @@ const Recit = { v1: RecitV1, v2: RecitV2, v3: RecitV3, v4: RecitV4 }[c.viz];
             <span>← CHAPITRE {precedent.n}</span>
             <strong>{precedent.title.replace("\n", " ")}</strong>
           </a>
-        ) : <a href="/" class="voisin"><span>← DÉBUT</span><strong>L'introduction</strong></a>}
+        ) : <a href="/?retour=1" class="voisin"><span>← DÉBUT</span><strong>L'introduction</strong></a>}
         {suivant ? (
           <a href={`/explorer/${suivant.viz}`} class="voisin voisin--suivant">
             <span>CHAPITRE {suivant.n} →</span>
