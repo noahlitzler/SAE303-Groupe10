@@ -1,16 +1,18 @@
 ---
 // Emplacement d'une visualisation du notebook Observable. Le graphique (un <figure> avec sa
 // <figcaption> et son alternative textuelle) est dessiné côté navigateur par src/visualisations/client.ts.
+// mode « carte » : il tient dans le rectangle d'une face du cube ; mode « page » : page Explorer.
 interface Props {
   viz: "v1" | "v2" | "v3" | "v4";
   label: string;
+  mode?: "carte" | "page";
   class?: string;
 }
 
-const { viz, label, class: className } = Astro.props;
+const { viz, label, mode = "carte", class: className } = Astro.props;
 ---
 
-<div class:list={["obs-viz", className]} data-obs-viz={viz} aria-busy="true">
+<div class:list={["obs-viz", `obs-viz--${mode}`, className]} data-obs-viz={viz} data-obs-mode={mode} aria-busy="true">
   <div class="obs-viz-stage"></div>
   <p class="obs-viz-status" role="status"><span class="sr-only">{label} — </span>CHARGEMENT DE LA VISUALISATION…</p>
   <noscript><p class="obs-viz-status">{label} — cette visualisation interactive nécessite JavaScript.</p></noscript>
@@ -31,6 +33,16 @@ const { viz, label, class: className } = Astro.props;
     left: 0;
     width: 100%;
     transform-origin: 0 0;
+  }
+
+  /* Page Explorer : le graphique suit le flux de la page, sans réduction. */
+  .obs-viz--page {
+    min-height: 60vh;
+    overflow: visible;
+  }
+
+  .obs-viz--page .obs-viz-stage {
+    position: relative;
   }
 
   .obs-viz.is-overflowing {

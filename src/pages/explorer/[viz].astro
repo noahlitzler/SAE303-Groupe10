@@ -1,0 +1,168 @@
+---
+// Une page par visualisation (/explorer/v1 … /explorer/v4) : le même graphique que dans le cube,
+// dessiné par le même code, mais en mode « page » (grandes dimensions, sans réduction).
+// Le retour ouvre l'expérience sur la face d'origine ; la position exacte, mémorisée au clic
+// sur « Explorer », est restaurée par DepthExperience.
+import Layout from "../../layouts/Layout.astro";
+import ObservableViz from "../../components/ObservableViz.astro";
+import { chapitres } from "../../data/chapitres";
+
+export function getStaticPaths() {
+  return chapitres.map((chapitre, index) => ({ params: { viz: chapitre.viz }, props: { index } }));
+}
+
+const { index } = Astro.props;
+const c = chapitres[index];
+const precedent = chapitres[index - 1];
+const suivant = chapitres[index + 1];
+const retour = `/?face=${index + 1}`;
+---
+
+<Layout title={`${c.viz.toUpperCase()} — ${c.title.replace("\n", " ")} · Derrière le prompt`} description={c.desc}>
+  <div class="explorer" style={`--accent:${["#aab8ff", "#8be8e9", "#c4a9ff", "#96dfcb"][index]}`}>
+    <div class="curves" aria-hidden="true"><i></i><i></i></div>
+
+    <header class="barre">
+      <a href={retour} class="retour" id="retour">
+        <span aria-hidden="true">←</span> RETOUR À L'EXPÉRIENCE
+      </a>
+      <a href="/methode" class="methode">MÉTHODE ↗</a>
+    </header>
+
+    <main class="contenu">
+      <div class="intro">
+        <span class="eyebrow">{c.temps} · {c.n} / 04 — {c.k}</span>
+        <h1>{c.title.replace("\n", " ")}</h1>
+        <p>{c.desc}</p>
+      </div>
+
+      <div class="cadre">
+        <h2 class="sr-only">Visualisation interactive</h2>
+        <ObservableViz viz={c.viz} label={c.label} mode="page" />
+      </div>
+
+      <p class="source">{c.note}</p>
+
+      <nav class="suite" aria-label="Autres visualisations">
+        {precedent ? (
+          <a href={`/explorer/${precedent.viz}`} class="voisin">
+            <span>← {precedent.n} / 04</span>
+            <strong>{precedent.title.replace("\n", " ")}</strong>
+          </a>
+        ) : <span></span>}
+        {suivant ? (
+          <a href={`/explorer/${suivant.viz}`} class="voisin voisin--suivant">
+            <span>{suivant.n} / 04 →</span>
+            <strong>{suivant.title.replace("\n", " ")}</strong>
+          </a>
+        ) : <span></span>}
+      </nav>
+    </main>
+  </div>
+</Layout>
+
+<style>
+  .explorer {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    color: #f3f5ff;
+    background: radial-gradient(ellipse at 50% 0%, #172541, var(--fond) 60%);
+    font-family: Arial, sans-serif;
+  }
+
+  .curves { position: absolute; inset: 0; pointer-events: none; opacity: .5; }
+  .curves i { position: absolute; display: block; border: 1px solid #7be3f22e; border-radius: 48% 52% 58% 42%; animation: orbite 60s linear infinite; }
+  .curves i:first-child { width: 70vw; height: 70vw; left: -40vw; top: -25vw; }
+  .curves i:last-child { width: 55vw; height: 55vw; right: -30vw; top: 40%; border-color: #a8a3ff30; animation-direction: reverse; }
+  @keyframes orbite { to { rotate: 360deg; } }
+
+  .barre {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 22px clamp(16px, 4vw, 48px);
+    border-bottom: 1px solid #ffffff1a;
+  }
+
+  .retour, .methode {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 16px;
+    border: 1px solid #8ce8f159;
+    background: #8ce8f10b;
+    color: #b6f4f7;
+    font: 500 11px var(--mono);
+    letter-spacing: .12em;
+    text-decoration: none;
+    transition: background .25s, border-color .25s, transform .25s;
+  }
+  .retour { border-color: var(--cyan); color: var(--cyan); }
+  .retour:hover, .methode:hover, .retour:focus-visible, .methode:focus-visible { background: #8ce8f11f; border-color: var(--cyan); transform: translateY(-1px); }
+  .retour:focus-visible, .methode:focus-visible, .voisin:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+
+  .contenu {
+    position: relative;
+    z-index: 1;
+    width: min(1440px, 100%);
+    margin: 0 auto;
+    padding: clamp(28px, 5vw, 56px) clamp(16px, 4vw, 48px) 48px;
+  }
+
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+    gap: 12px 40px;
+    align-items: end;
+    margin-bottom: 24px;
+  }
+  .eyebrow { grid-column: 1 / -1; font: 500 11px var(--mono); letter-spacing: .14em; color: var(--accent); }
+  h1 { margin: 0; font: 900 clamp(38px, 5.5vw, 84px)/.92 var(--titre); letter-spacing: -.01em; text-wrap: balance; }
+  .intro p { margin: 0; max-width: 560px; color: #c3d1e7; font-size: 16px; line-height: 1.6; }
+
+  .cadre {
+    padding: 6px;
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, #263b59);
+    background: #0b1224;
+    box-shadow: 0 0 60px color-mix(in srgb, var(--accent) 10%, transparent), 0 30px 70px #0007;
+  }
+  /* Le fond crème des graphiques va jusqu'au cadre, sans coins arrondis ni liseré. */
+  .cadre :global(.obs-viz) { background: #fbfaf7; }
+  .cadre :global(.obs-viz-stage > *) { border: 0 !important; border-radius: 0 !important; }
+
+  .source { margin: 14px 0 0; font: 500 10px var(--mono); letter-spacing: .1em; color: #a5b7d7; }
+
+  .suite {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 48px;
+    border-top: 1px solid #ffffff22;
+    padding-top: 24px;
+  }
+  .voisin { display: grid; gap: 8px; padding: 18px 0; color: #f3f5ff; text-decoration: none; transition: color .25s; }
+  .voisin span { font: 500 11px var(--mono); letter-spacing: .12em; color: var(--cyan); }
+  .voisin strong { font: 800 clamp(22px, 2.4vw, 34px)/1 var(--titre); }
+  .voisin:hover strong { color: var(--cyan); }
+  .voisin--suivant { text-align: right; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  @media (max-width: 800px) {
+    .intro { grid-template-columns: 1fr; }
+    .intro p { font-size: 14px; }
+    .barre { padding-block: 16px; }
+    .retour, .methode { padding: 9px 12px; font-size: 10px; }
+    .suite { grid-template-columns: 1fr; }
+    .voisin--suivant { text-align: left; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .curves i { animation: none; }
+    .retour, .methode { transition: none; }
+  }
+</style>

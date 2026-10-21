@@ -1,0 +1,9 @@
+// Les quatre chapitres de l'expérience, partagés par le cube (DepthExperience) et les pages Explorer.
+export const chapitres = [
+  { n: '01', temps: 'CONTEXTE', k: 'LE DÉCLENCHEUR', title: 'UN TEXTE.\nDES MACHINES.', desc: 'Une seule requête de 150 tokens n’est pas immatérielle. Choisissez un modèle : électricité, eau et CO₂e estimés par EcoLogits.', note: 'ECOLOGITS / 150 TOKENS · MIX MONDIAL', viz: 'v4', kind: 'input', label: 'V4 — L’empreinte invisible d’une requête : compteurs interactifs d’électricité, d’eau et de CO₂e par modèle' },
+  { n: '02', temps: 'EXPLORATION', k: 'MESURER L’ÉNERGIE', title: 'TOUS LES MODÈLES\nNE SE VALENT PAS.', desc: 'Huit configurations, huit sphères : leur surface suit l’électricité estimée pour une même réponse. Cliquez sur une sphère pour la comparer.', note: 'ECOLOGITS / ESTIMATIONS DU 19/10/2026', viz: 'v1', kind: 'energy', label: 'V1 — Toutes les IA ne consomment pas autant : huit sphères EcoLogits proportionnelles à l’électricité estimée' },
+  { n: '03', temps: 'EXPLORATION', k: 'COMPRENDRE LES ORDRES DE GRANDEUR', title: 'CHANGER\nD’ÉCHELLE.', desc: 'Dix tâches mesurées sur GPU par AI Energy Score : de la similarité de phrases à la génération d’images, l’énergie varie de plusieurs ordres de grandeur.', note: 'AI ENERGY SCORE / CAMPAGNE FÉVRIER 2025', viz: 'v3', kind: 'scale', label: 'V3 — Une tâche, un impact : énergie GPU médiane par requête pour dix tâches, échelle linéaire ou logarithmique' },
+  { n: '04', temps: 'RÉVÉLATION', k: 'LES INFRASTRUCTURES', title: 'LE NUMÉRIQUE\nA UNE ADRESSE.', desc: '23 installations dont la localisation a été vérifiée, en France et en Île-de-France, sans prétendre localiser le trajet d’un prompt.', note: 'DATACENTERS FRANCE / © OPENSTREETMAP', viz: 'v2', kind: 'earth', label: 'V2 — Le numérique a une adresse : cartes des datacenters vérifiés en France et en Île-de-France' },
+] as const;
+
+export type Chapitre = (typeof chapitres)[number];
