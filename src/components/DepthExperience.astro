@@ -2,10 +2,10 @@
 import ObservableViz from './ObservableViz.astro';
 
 const chapters = [
-  { n: '01', k: 'LE DÉCLENCHEUR', title: 'UN TEXTE.\nDES MACHINES.', desc: 'Une seule requête de 150 tokens n’est pas immatérielle. Choisissez un modèle : électricité, eau et CO₂e estimés par EcoLogits.', note: 'ECOLOGITS / 150 TOKENS · MIX MONDIAL', viz: 'v4', kind: 'input', label: 'V4 — L’empreinte invisible d’une requête : compteurs interactifs d’électricité, d’eau et de CO₂e par modèle' },
-  { n: '02', k: 'MESURER L’ÉNERGIE', title: 'TOUS LES MODÈLES\nNE SE VALENT PAS.', desc: 'Huit configurations, huit sphères : leur surface suit l’électricité estimée pour une même réponse. Cliquez sur une sphère pour la comparer.', note: 'ECOLOGITS / ESTIMATIONS DU 19/10/2026', viz: 'v1', kind: 'energy', label: 'V1 — Toutes les IA ne consomment pas autant : huit sphères EcoLogits proportionnelles à l’électricité estimée' },
-  { n: '03', k: 'COMPRENDRE LES ORDRES DE GRANDEUR', title: 'CHANGER\nD’ÉCHELLE.', desc: 'Dix tâches mesurées sur GPU par AI Energy Score : de la similarité de phrases à la génération d’images, l’énergie varie de plusieurs ordres de grandeur.', note: 'AI ENERGY SCORE / CAMPAGNE FÉVRIER 2025', viz: 'v3', kind: 'scale', label: 'V3 — Une tâche, un impact : énergie GPU médiane par requête pour dix tâches, échelle linéaire ou logarithmique' },
-  { n: '04', k: 'LES INFRASTRUCTURES', title: 'LE NUMÉRIQUE\nA UNE ADRESSE.', desc: '23 installations dont la localisation a été vérifiée, en France et en Île-de-France, sans prétendre localiser le trajet d’un prompt.', note: 'DATACENTERS FRANCE / © OPENSTREETMAP', viz: 'v2', kind: 'earth', label: 'V2 — Le numérique a une adresse : cartes des datacenters vérifiés en France et en Île-de-France' },
+  { n: '01', temps: 'CONTEXTE', k: 'LE DÉCLENCHEUR', title: 'UN TEXTE.\nDES MACHINES.', desc: 'Une seule requête de 150 tokens n’est pas immatérielle. Choisissez un modèle : électricité, eau et CO₂e estimés par EcoLogits.', note: 'ECOLOGITS / 150 TOKENS · MIX MONDIAL', viz: 'v4', kind: 'input', label: 'V4 — L’empreinte invisible d’une requête : compteurs interactifs d’électricité, d’eau et de CO₂e par modèle' },
+  { n: '02', temps: 'EXPLORATION', k: 'MESURER L’ÉNERGIE', title: 'TOUS LES MODÈLES\nNE SE VALENT PAS.', desc: 'Huit configurations, huit sphères : leur surface suit l’électricité estimée pour une même réponse. Cliquez sur une sphère pour la comparer.', note: 'ECOLOGITS / ESTIMATIONS DU 19/10/2026', viz: 'v1', kind: 'energy', label: 'V1 — Toutes les IA ne consomment pas autant : huit sphères EcoLogits proportionnelles à l’électricité estimée' },
+  { n: '03', temps: 'EXPLORATION', k: 'COMPRENDRE LES ORDRES DE GRANDEUR', title: 'CHANGER\nD’ÉCHELLE.', desc: 'Dix tâches mesurées sur GPU par AI Energy Score : de la similarité de phrases à la génération d’images, l’énergie varie de plusieurs ordres de grandeur.', note: 'AI ENERGY SCORE / CAMPAGNE FÉVRIER 2025', viz: 'v3', kind: 'scale', label: 'V3 — Une tâche, un impact : énergie GPU médiane par requête pour dix tâches, échelle linéaire ou logarithmique' },
+  { n: '04', temps: 'RÉVÉLATION', k: 'LES INFRASTRUCTURES', title: 'LE NUMÉRIQUE\nA UNE ADRESSE.', desc: '23 installations dont la localisation a été vérifiée, en France et en Île-de-France, sans prétendre localiser le trajet d’un prompt.', note: 'DATACENTERS FRANCE / © OPENSTREETMAP', viz: 'v2', kind: 'earth', label: 'V2 — Le numérique a une adresse : cartes des datacenters vérifiés en France et en Île-de-France' },
 ] as const;
 ---
 
@@ -15,8 +15,8 @@ const chapters = [
     <div class="intro-orbit orbit-one" aria-hidden="true"></div>
     <div class="intro-orbit orbit-two" aria-hidden="true"></div>
     <div class="intro-center">
-      <p class="intro-overline">UNE EXPÉRIENCE INTERACTIVE</p>
-      <button type="button" class="hero-title" id="hero-title" aria-label="Activer le titre et révéler le prompt"><span>DERRIÈRE</span><span>LE <em>PROMPT</em><b>.</b></span><i class="title-scan" aria-hidden="true"></i></button>
+      <p class="intro-overline">CONTEXTE · UNE EXPÉRIENCE INTERACTIVE</p>
+      <h1 class="hero-heading"><button type="button" class="hero-title" id="hero-title" aria-describedby="intro-hint"><span>DERRIÈRE</span> <span>LE <em>PROMPT</em><b>.</b></span><i class="title-scan" aria-hidden="true"></i></button></h1>
       <p class="intro-hint" id="intro-hint">SURVOLEZ OU CLIQUEZ SUR LE TITRE</p>
       <form class="prompt-box" id="prompt-form" aria-label="Prompt fictif"><label for="prompt-input">ET SI TOUT COMMENÇAIT PAR UNE QUESTION ?</label><div class="prompt-line"><span aria-hidden="true">&gt;_</span><input id="prompt-input" name="prompt" type="text" maxlength="130" value="Pourquoi le ciel est-il bleu ?" autocomplete="off" required/><button type="submit">ENVOYER ↗</button></div><small>SIMULATION LOCALE — AUCUNE REQUÊTE ENVOYÉE À UNE IA</small></form>
       <div class="token-display" id="token-display" aria-live="polite"></div>
@@ -35,7 +35,7 @@ const chapters = [
           <section class={`cube-face chapter-${c.kind}`} data-face={i} id={`chapitre-${c.n}`} aria-label={`${c.n} — ${c.k}`}>
             <div class="face-content">
               <header class="face-header">
-                <div class="face-heading"><span class="eyebrow">{c.n} / 04 — {c.k}</span><h2>{c.title.replace('\n',' ')}</h2></div>
+                <div class="face-heading"><span class="eyebrow">{c.temps} · {c.n} / 04 — {c.k}</span><h2>{c.title.replace('\n',' ')}</h2></div>
                 <p>{c.desc}</p>
               </header>
               <div class="viz-frame">
@@ -49,12 +49,12 @@ const chapters = [
       </div>
     </div>
     <nav class="chapter-nav" id="chapter-nav" aria-label="Accès aux quatre visualisations">
-      {chapters.map((c,i)=><button type="button" class="nav-entry" data-nav-index={i} aria-label={`Aller au chapitre ${c.n} : ${c.k}`} aria-current="false"><span class="nav-tick"></span><span class="nav-tooltip">{c.n} — {c.k}</span></button>)}
+      {chapters.map((c,i)=><button type="button" class="nav-entry" data-nav-index={i} aria-label={`Aller au chapitre ${c.n} : ${c.k}`} aria-current="false"><span class="nav-tick"></span><span class="nav-tooltip">{c.temps} · {c.n} — {c.k}</span></button>)}
     </nav>
     <div class="scene-instruction" aria-hidden="true">DÉFILER POUR FAIRE PIVOTER ↕</div>
   </div>
 </main>
-<section class="outro" id="conclusion"><p class="outro-kicker">FIN DE L'EXPLORATION / 04</p><h2>L'INVISIBLE <em>EXISTE.</em></h2><p>Une requête semble instantanée. Derrière elle, il y a de l'énergie, des ressources et des infrastructures physiques. Ces données donnent des ordres de grandeur, pas l'empreinte exacte de chaque prompt.</p><a href="/methode">DÉCOUVRIR NOTRE MÉTHODE ↗</a></section>
+<section class="outro" id="conclusion"><p class="outro-kicker">CONCLUSION · FIN DE L'EXPLORATION</p><h2>L'INVISIBLE <em>EXISTE.</em></h2><p>Une requête semble instantanée. Derrière elle, il y a de l'énergie, des ressources et des infrastructures physiques. Ces données donnent des ordres de grandeur, pas l'empreinte exacte de chaque prompt.</p><a href="/methode">DÉCOUVRIR NOTRE MÉTHODE ↗</a></section>
   <div class="hud" id="hud">
     <div class="hud-top">
       <button type="button" class="brand-logo" id="brand-logo" aria-label="Retour à l’introduction" title="Retour à l’introduction">
@@ -67,7 +67,6 @@ const chapters = [
 </section>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 :global(html){scroll-behavior:smooth}
 :global(body){margin:0;background:#070b19;color:#f3f5ff;font-family:Arial,sans-serif}
 :global(*){box-sizing:border-box}
@@ -77,6 +76,7 @@ const chapters = [
 .intro-center{position:relative;z-index:2;width:min(1000px,94vw);display:flex;flex-direction:column;align-items:center;text-align:center}
 .intro-orbit{position:absolute;width:85vmin;aspect-ratio:1;border:1px solid #9baefb23;border-radius:50%;pointer-events:none;animation:orbit-spin 42s linear infinite}.orbit-two{width:115vmin;border-color:#85e7ef14;animation-duration:55s;animation-direction:reverse}
 .intro-overline,.intro-hint,.intro-coordinate{font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.2em;color:#9be5e7}.intro-overline{margin:0 0 28px}.intro-hint{margin:35px 0 0;color:#a4b3d2}.intro-coordinate{position:absolute;bottom:30px;left:5%;color:#7584a8}
+.hero-heading{margin:0;font:inherit}
 .hero-title{position:relative;display:flex;flex-direction:column;align-items:center;border:0;padding:0 10px;background:transparent;color:#f4f6ff;font:900 clamp(58px,11vw,172px)/.78 'Barlow Condensed',Impact,sans-serif;letter-spacing:-.028em;cursor:crosshair;text-align:center}.hero-title span{white-space:nowrap}.hero-title em{font-style:normal;color:#a3b4ff}.hero-title b{color:#8ce5ec}.hero-title:hover,.hero-title:focus-visible{filter:drop-shadow(0 0 22px #7b9aff75)}.hero-title.processing{animation:hero-jolt .48s steps(3,end)}.title-scan{position:absolute;inset:0;background:linear-gradient(transparent 47%,#91efff66 50%,transparent 53%);opacity:0;pointer-events:none}.hero-title.processing .title-scan{animation:scan .65s ease-out}
 .prompt-box{display:none;width:min(640px,90vw);margin-top:32px;padding:22px;background:#10192de8;border:1px solid #8da6df77;text-align:left}.intro.revealed .prompt-box{display:block}.prompt-box label,.prompt-box small{display:block;font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#a7b9db}.prompt-line{display:flex;gap:12px;align-items:center;margin:13px 0;background:#060e1d;border:1px solid #4a5e83;padding:8px 10px}.prompt-line>span{color:#91e5e9;font-family:monospace}.prompt-line input{min-width:0;flex:1;color:#f0f4ff;font:15px 'IBM Plex Mono',monospace;background:transparent;border:0;outline:0}.prompt-line button,.enter{cursor:pointer;border:0;background:#99e6ed;color:#071122;font:600 11px 'IBM Plex Mono',monospace;padding:13px 15px}.prompt-line button:hover,.enter:hover{background:#c1f6f8}.prompt-box small{font-size:9px;color:#879abd}.intro.revealed .intro-hint{display:none}.token-display{display:none;max-width:680px;margin-top:18px;flex-wrap:wrap;justify-content:center;gap:6px}.intro.sent .token-display{display:flex}.token{padding:7px 10px;background:#9ae6ed15;border:1px solid #9ae6ed88;color:#baf2f5;font:11px 'IBM Plex Mono',monospace;animation:token-in .45s both}.credits{display:none;flex-direction:column;gap:8px;margin-top:22px;font:10px 'IBM Plex Mono',monospace;letter-spacing:.13em;color:#9eafd0}.credits strong{font-size:13px;color:#fff;min-height:1.5em}.intro.sent .credits{display:flex}.enter{display:none;margin-top:20px}.intro.sent .enter{display:block}.intro.sent .prompt-box{display:none}
 
@@ -103,7 +103,9 @@ const chapters = [
 .viz-frame{min-height:0;flex:1;display:flex;flex-direction:column;padding:5px;border:1px solid color-mix(in srgb,var(--accent) 50%,#263b59);background:#0b1224;box-shadow:0 20px 55px #0005}
 .viz-topline{display:flex;justify-content:space-between;gap:10px;margin-bottom:5px;color:#a8badb;font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.08em}
 .viz-live{color:var(--accent)}
-.viz-frame :global(.viz-slot){display:block;flex:1;min-height:0;width:100%;height:100%;background:#fff;overflow:hidden}
+.viz-frame :global(.viz-slot){display:block;flex:1;min-height:0;width:100%;height:100%;background:#fbfaf7;overflow:hidden}
+/* Le cadre sombre sert de bordure : le fond crème des graphiques va jusqu'aux bords, sans coins arrondis ni liseré. */
+.viz-frame :global(.obs-viz-stage > section){border:0!important;border-radius:0!important}
 .face-foot{flex:none;display:flex;justify-content:space-between;gap:10px;color:#a5b7d7;font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.07em}
 .face-foot span:last-child{color:var(--accent)}
 .chapter-nav{position:absolute;right:29px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:17px;z-index:20}

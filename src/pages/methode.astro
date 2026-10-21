@@ -1,6 +1,9 @@
-
 ---
+import fs from "node:fs";
+import path from "node:path";
 import Layout from "../layouts/Layout.astro";
+
+const NOTEBOOK = "https://old.observablehq.com/d/227527a47a175959";
 
 const sources = [
   {
@@ -8,9 +11,11 @@ const sources = [
     name: "ECOLOGITS",
     category: "ESTIMATIONS",
     description:
-      "Estimations de l'impact environnemental de différentes configurations de modèles d'intelligence artificielle.",
+      "Impacts estimés d'une requête (électricité, eau, CO₂e) pour 8 configurations de 4 fournisseurs : OpenAI, Anthropic, Google, Mistral AI.",
+    date: "Collecte : 19/10/2026",
+    licence: "Bibliothèque EcoLogits : MPL-2.0",
     limitation:
-      "Les résultats dépendent des hypothèses de calcul. Ils ne constituent pas des mesures directes de chaque requête.",
+      "Des estimations issues d'un modèle de calcul, pas des mesures. Pour 6 configurations, l'architecture n'est pas publiée : l'estimation repose sur des hypothèses, d'où un intervalle.",
     url: "https://ecologits.ai/",
   },
   {
@@ -18,9 +23,11 @@ const sources = [
     name: "AI ENERGY SCORE",
     category: "MESURES",
     description:
-      "Données de consommation énergétique GPU selon les tâches et configurations testées.",
+      "Énergie GPU mesurée sur NVIDIA H100 pour 1 000 requêtes par tâche : 11 fichiers, 206 évaluations de modèles ouverts.",
+    date: "Campagnes : février et décembre 2025 (le site montre février 2025)",
+    licence: "Apache-2.0",
     limitation:
-      "Les mesures correspondent à un protocole précis et ne représentent pas nécessairement la consommation totale d'un service d'IA.",
+      "Seule l'énergie des GPU est comptée (ni refroidissement, ni réseau). Les modèles propriétaires étudiés avec EcoLogits n'y figurent pas.",
     url: "https://huggingface.co/spaces/AIEnergyScore/Leaderboard",
   },
   {
@@ -28,45 +35,72 @@ const sources = [
     name: "DATACENTERS FRANCE",
     category: "LOCALISATIONS",
     description:
-      "Inventaire de centres de données utilisé pour représenter les infrastructures physiques sur une carte.",
+      "Notre fichier : 39 entrées issues d'OpenStreetMap, vérifiées une à une (sites des exploitants, sources institutionnelles, PeeringDB).",
+    date: "Vérification : 19 et 20/10/2026",
+    licence: "Dérivé d'OpenStreetMap : ODbL, © contributeurs OpenStreetMap",
     limitation:
-      "La présence d'un datacenter ne signifie pas que les requêtes étudiées y sont traitées.",
-    url: "",
+      "Seules les 23 installations à localisation vérifiée sont cartographiées. L'inventaire n'est pas exhaustif et ne dit pas où sont traitées les requêtes.",
+    url: NOTEBOOK,
   },
 ];
 
-const etapes = [
+const traitements = [
   {
-    number: "01",
-    title: "COLLECTER",
-    description:
-      "Identifier les producteurs, les sources et les variables utiles à notre question.",
+    source: "EcoLogits",
+    etapes: [
+      "Chaque indicateur est un intervalle min – max : on ajoute un point milieu (min + max) / 2, valeur de synthèse affichée, en gardant les bornes.",
+      "CO₂e converti de mg en g à l'affichage (V4). Scénario commun conservé avec chaque valeur : 150 tokens générés, mix électrique mondial.",
+      "8 lignes en entrée, 8 en sortie : aucune configuration retirée.",
+    ],
   },
   {
-    number: "02",
-    title: "VÉRIFIER",
-    description:
-      "Contrôler les unités, les doublons, les valeurs manquantes et les limites de comparaison.",
+    source: "AI Energy Score",
+    etapes: [
+      "Les 11 fichiers sont réunis en une table (206 évaluations, aucune retirée).",
+      "« total_gpu_energy » est en kWh pour 1 000 requêtes, soit des Wh par requête : l'unité a été vérifiée dans la documentation du leaderboard.",
+      "Les campagnes de février et de décembre 2025 ne sont jamais mélangées ; les 9 fichiers sans date sont rattachés à février 2025, comme sur le leaderboard.",
+      "Deux modèles apparaissent deux fois dans un même fichier : les deux mesures sont gardées. Médiane, moyenne, min et max sont calculés par tâche et par campagne.",
+    ],
   },
   {
-    number: "03",
-    title: "TRANSFORMER",
-    description:
-      "Préparer les données, harmoniser les unités et conserver les informations nécessaires à leur interprétation.",
+    source: "Datacenters France",
+    etapes: [
+      "Seules les entrées « localisation vérifiée » sont affichées : 23 installations sur 39 entrées.",
+      "Coordonnées OpenStreetMap d'origine, jamais modifiées ; les points superposés d'un même campus s'ouvrent en éventail au clic.",
+    ],
   },
   {
-    number: "04",
-    title: "RACONTER",
-    description:
-      "Construire quatre visualisations pour rendre les résultats compréhensibles sans effacer leurs incertitudes.",
+    source: "Export vers le site",
+    etapes: [
+      "Une table par visualisation, issue des tables donneesV1 à donneesV4 du notebook : seulement les colonnes affichées, avec l'unité et le dénominateur.",
+      "Valeurs arrondies à 3 chiffres significatifs plutôt qu'à deux décimales : les plus petites valeurs (0,00059 Wh par requête) seraient sinon ramenées à zéro. Coordonnées non arrondies.",
+      "Contrôle : le texte affiché par chaque visualisation est identique avec les données arrondies et avec les données complètes du notebook.",
+    ],
   },
 ];
+
+const routes = [
+  { viz: "V4", titre: "L'empreinte invisible d'une requête", route: "B · chez le lecteur", raison: "Le lecteur choisit un modèle : les trois compteurs sont recalculés et animés." },
+  { viz: "V1", titre: "Toutes les IA ne consomment pas autant", route: "B · chez le lecteur", raison: "Une fiche s'ouvre au clic sur chaque sphère ; la disposition s'adapte à la largeur de l'écran." },
+  { viz: "V3", titre: "Une tâche, un impact", route: "B · chez le lecteur", raison: "Le lecteur bascule entre échelle logarithmique et linéaire, avec transition animée." },
+  { viz: "V2", titre: "Le numérique a une adresse", route: "B · chez le lecteur", raison: "Deux cartes Leaflet à déplacer et zoomer, avec une fiche par installation au clic." },
+];
+
+const fichiers = [
+  { nom: "v1-ecologits-electricite.json", contenu: "V1 · électricité par requête, 8 configurations" },
+  { nom: "v4-ecologits-impacts.json", contenu: "V4 · eau, CO₂e et électricité par requête" },
+  { nom: "v3-ai-energy-score-taches.json", contenu: "V3 · énergie GPU médiane, 10 tâches" },
+  { nom: "v2-datacenters-localises.json", contenu: "V2 · 23 installations localisées" },
+].map((f) => ({
+  ...f,
+  taille: `${(fs.statSync(path.join(process.cwd(), "public/data", f.nom)).size / 1024).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} Ko`,
+}));
 ---
 
-<Layout title="Méthode — Derrière le Prompt">
+<Layout title="Méthode — Derrière le Prompt" description="Sources, dates, licences, traitements, limites et données téléchargeables de Derrière le prompt.">
   <main class="method-page">
-    <div class="ambient ambient-a"></div>
-    <div class="ambient ambient-b"></div>
+    <div class="ambient ambient-a" aria-hidden="true"></div>
+    <div class="ambient ambient-b" aria-hidden="true"></div>
 
     <header class="method-header">
       <a href="/" class="back-link" aria-label="Retour à l'expérience">
@@ -78,7 +112,7 @@ const etapes = [
 
     <section class="hero">
       <div class="hero-kicker">
-        <span class="signal"></span>
+        <span class="signal" aria-hidden="true"></span>
         TRANSPARENCE DES DONNÉES
       </div>
 
@@ -87,8 +121,8 @@ const etapes = [
       <div class="hero-bottom">
         <p>
           Une visualisation ne vaut que par les données qui la composent.
-          Découvrez les sources, les choix et les limites de notre exploration
-          de l'impact environnemental de l'intelligence artificielle.
+          Voici nos sources, nos traitements et leurs limites : tout ce qui est
+          publié ici peut être vérifié dans le notebook et dans les fichiers téléchargeables.
         </p>
         <div class="hero-index">00 / MÉTHODE</div>
       </div>
@@ -109,15 +143,17 @@ const etapes = [
             </div>
             <h3>{source.name}</h3>
             <p>{source.description}</p>
+            <dl class="source-meta">
+              <div><dt>DATE</dt><dd>{source.date}</dd></div>
+              <div><dt>LICENCE</dt><dd>{source.licence}</dd></div>
+            </dl>
             <div class="source-limitation">
               <span>À RETENIR</span>
               <p>{source.limitation}</p>
             </div>
-            {source.url && (
-              <a href={source.url} target="_blank" rel="noopener noreferrer">
-                CONSULTER LA SOURCE ↗
-              </a>
-            )}
+            <a href={source.url} target="_blank" rel="noopener noreferrer">
+              CONSULTER LA SOURCE ↗
+            </a>
           </article>
         ))}
       </div>
@@ -125,25 +161,49 @@ const etapes = [
 
     <section class="section" id="traitements">
       <div class="section-heading">
-        <span class="eyebrow">02 / PROCESSUS</span>
+        <span class="eyebrow">02 / TRAITEMENTS</span>
         <h2>DE LA DONNÉE<br />AU RÉCIT.</h2>
       </div>
 
       <div class="process">
-        {etapes.map((etape) => (
+        {traitements.map((t, i) => (
           <div class="process-row">
-            <span class="process-number">{etape.number}</span>
-            <h3>{etape.title}</h3>
-            <p>{etape.description}</p>
-            <span class="process-arrow" aria-hidden="true">↗</span>
+            <span class="process-number">{String(i + 1).padStart(2, "0")}</span>
+            <h3>{t.source}</h3>
+            <ul>
+              {t.etapes.map((etape) => <li>{etape}</li>)}
+            </ul>
           </div>
         ))}
       </div>
     </section>
 
+    <section class="section" id="routes">
+      <div class="section-heading">
+        <span class="eyebrow">03 / INTÉGRATION</span>
+        <h2>QUATRE GRAPHIQUES,<br /><em>UNE ROUTE.</em></h2>
+      </div>
+
+      <p class="section-intro">
+        La question qui tranche : est-ce que le graphique doit bouger chez le lecteur ?
+        Pour nos quatre visualisations, oui. Elles sont donc dessinées dans le navigateur (route B),
+        par les fonctions écrites dans le notebook, à partir des fichiers préfiltrés ci-dessous.
+      </p>
+
+      <table class="routes">
+        <caption class="sr-only">Route d'export choisie pour chaque visualisation et justification</caption>
+        <thead><tr><th scope="col">Visualisation</th><th scope="col">Route</th><th scope="col">Pourquoi</th></tr></thead>
+        <tbody>
+          {routes.map((r) => (
+            <tr><th scope="row"><span>{r.viz}</span> {r.titre}</th><td>{r.route}</td><td>{r.raison}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+
     <section class="section" id="limites">
       <div class="section-heading">
-        <span class="eyebrow">03 / REGARD CRITIQUE</span>
+        <span class="eyebrow">04 / REGARD CRITIQUE</span>
         <h2>CE QUE LES DONNÉES<br /><em>NE DISENT PAS.</em></h2>
       </div>
 
@@ -151,52 +211,108 @@ const etapes = [
         <div>
           <span>01 — ESTIMER N'EST PAS MESURER</span>
           <p>
-            Une estimation repose sur un modèle de calcul. Une mesure dépend
-            d'un appareil et d'un protocole. Ces deux résultats ne doivent pas
-            être confondus.
+            EcoLogits estime, AI Energy Score mesure les GPU en laboratoire. Ces
+            deux résultats ne s'additionnent pas et ne se comparent pas directement.
           </p>
         </div>
         <div>
           <span>02 — LE CONTEXTE CHANGE TOUT</span>
           <p>
             Le modèle, la tâche, la longueur de la réponse et l'infrastructure
-            utilisée influencent la consommation. Il n'existe pas de valeur
-            universelle pour une requête d'IA.
+            influencent la consommation. Il n'existe pas de valeur universelle pour
+            une requête d'IA ; le point milieu est un choix de synthèse.
           </p>
         </div>
         <div>
           <span>03 — UNE CARTE N'EST PAS UNE PREUVE DE TRAJET</span>
           <p>
-            Nos cartes montrent des lieux identifiés. Elles ne permettent pas
-            de connaître le datacenter qui traite une conversation donnée.
+            Nos cartes montrent des lieux vérifiés. Aucun datacenter n'est relié à
+            un modèle ; sans donnée de consommation par site, nous ne cartographions
+            aucune valeur.
+          </p>
+        </div>
+        <div>
+          <span>04 — CE QUI MANQUE</span>
+          <p>
+            8 configurations ne représentent pas toutes les IA. Des sites connus mais
+            non localisés précisément (OVHcloud à Roubaix, Gravelines, Strasbourg) ne
+            sont pas sur la carte.
           </p>
         </div>
       </div>
     </section>
 
-    <section class="section" id="exploration">
+    <section class="section" id="donnees">
       <div class="section-heading">
-        <span class="eyebrow">04 / EXPLORATION</span>
-        <h2>QUATRE REGARDS.<br />UNE QUESTION.</h2>
+        <span class="eyebrow">05 / VÉRIFIER</span>
+        <h2>LES DONNÉES,<br /><em>À TÉLÉCHARGER.</em></h2>
       </div>
 
-      <div class="viz-grid">
-        <article><span>V1</span><h3>COMPARER LES MODÈLES</h3><p>Observer la distribution des estimations.</p></article>
-        <article><span>V2</span><h3>LOCALISER LES INFRASTRUCTURES</h3><p>Identifier des datacenters dont la position est vérifiée.</p></article>
-        <article><span>V3</span><h3>COMPARER LES TÂCHES</h3><p>Explorer les mesures de consommation énergétique.</p></article>
-        <article><span>V4</span><h3>INTERROGER UNE REQUÊTE</h3><p>Comparer les indicateurs estimés selon le modèle sélectionné.</p></article>
+      <ul class="downloads">
+        {fichiers.map((f) => (
+          <li>
+            <a href={`/data/${f.nom}`} download>
+              <span class="dl-name">{f.nom}</span>
+              <span class="dl-desc">{f.contenu}</span>
+              <span class="dl-size">JSON · {f.taille} ↓</span>
+            </a>
+          </li>
+        ))}
+        <li>
+          <a href={NOTEBOOK} target="_blank" rel="noopener noreferrer">
+            <span class="dl-name">Notebook Observable</span>
+            <span class="dl-desc">Chargement, contrôles, cinq questions, fiches des visualisations, journal IA</span>
+            <span class="dl-size">OUVRIR ↗</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="section" id="accessibilite">
+      <div class="section-heading">
+        <span class="eyebrow">06 / LISIBILITÉ</span>
+        <h2>LISIBLE<br /><em>PAR TOUS.</em></h2>
+      </div>
+
+      <div class="limitations">
+        <div>
+          <span>ALTERNATIVES TEXTUELLES</span>
+          <p>
+            Chaque visualisation est une figure avec sa légende de source et une
+            description complète (type de graphique, données, conclusion), mise à jour
+            quand le lecteur change de modèle.
+          </p>
+        </div>
+        <div>
+          <span>CLAVIER ET MOUVEMENT</span>
+          <p>
+            Sphères, boutons et barres sont utilisables au clavier. Les animations
+            sont désactivées si le système demande de réduire les mouvements.
+          </p>
+        </div>
+        <div>
+          <span>PALETTE DE DONNÉES TESTÉE</span>
+          <p>
+            Palette claire, distincte de la charte sombre. Testée en contraste (chaque
+            couleur atteint au moins 3:1 sur le fond crème) et en simulation de daltonisme :
+            les quatre fournisseurs de V1 restent distincts ;
+            pour V3 et V4, la couleur n'est jamais le seul repère, chaque barre et chaque
+            compteur est nommé.
+          </p>
+        </div>
       </div>
     </section>
 
     <section class="closing">
-      <span class="eyebrow">05 / CONCLUSION</span>
+      <span class="eyebrow">07 / CONCLUSION</span>
       <h2>COMPRENDRE,<br /><span>AVANT DE COMPARER.</span></h2>
       <p>
         Notre objectif n'est pas de donner un chiffre définitif à l'impact
         d'une requête, mais de rendre visibles les méthodes, les différences
         et les incertitudes qui se cachent derrière chaque résultat.
+        L'usage de l'IA dans ce projet est déclaré dans le journal IA du notebook.
       </p>
-      <a href="/" class="closing-link">RETOURNER À L'EXPÉRIENCE <span>↗</span></a>
+      <a href="/" class="closing-link">RETOURNER À L'EXPÉRIENCE <span aria-hidden="true">↗</span></a>
     </section>
 
     <footer class="method-footer">
@@ -209,18 +325,16 @@ const etapes = [
 
 <style>
   :global(html) { scroll-behavior: smooth; }
-  :global(body) { margin: 0; background: #090f20; }
   :global(*) { box-sizing: border-box; }
 
   .method-page {
-    --cyan: #8ce8f1;
     --muted: #a5b1c9;
     position: relative;
     min-height: 100vh;
     overflow: hidden;
-    background: #090f20;
+    background: var(--fond);
     color: #f5f7ff;
-    font-family: "Arial", sans-serif;
+    font-family: Arial, sans-serif;
   }
   .ambient { position: absolute; border-radius: 50%; filter: blur(110px); pointer-events: none; opacity: .25; }
   .ambient-a { width: 600px; height: 600px; top: 150px; right: -350px; background: #194e83; }
@@ -235,10 +349,10 @@ const etapes = [
     border-bottom: 1px solid #ffffff1a;
   }
   .back-link, .header-id, .eyebrow, .hero-kicker, .hero-index,
-  .source-top, .source-category, .source-limitation span, .source-card a,
-  .process-number, .limitations span, .viz-grid article > span,
+  .source-top, .source-category, .source-limitation span, .source-card a, .source-meta dt,
+  .process-number, .limitations span, .routes th span, .dl-size,
   .closing-link, .method-footer {
-    font-family: monospace; font-size: 12px; letter-spacing: .12em;
+    font-family: var(--mono); font-size: 12px; letter-spacing: .12em;
   }
   a { color: inherit; text-decoration: none; }
   .back-link { color: var(--cyan); display: flex; gap: 16px; align-items: center; }
@@ -249,8 +363,8 @@ const etapes = [
   .hero-kicker { display: flex; align-items: center; gap: 12px; color: var(--cyan); }
   .signal { width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 18px var(--cyan); }
   h1, h2, h3, p { margin: 0; }
-  h1, h2, .closing h2 { font-family: Impact, "Arial Narrow", sans-serif; font-stretch: condensed; }
-  h1 { font-size: clamp(75px, 12vw, 210px); line-height: .85; letter-spacing: -.035em; margin: 45px 0 75px; }
+  h1, h2, .closing h2 { font-family: var(--titre); font-weight: 900; }
+  h1 { font-size: clamp(75px, 12vw, 210px); line-height: .85; letter-spacing: -.02em; margin: 45px 0 75px; }
   h1 span, .closing h2 span { color: var(--cyan); }
   .hero-bottom { display: flex; align-items: end; justify-content: space-between; gap: 40px; }
   .hero-bottom p { font-size: clamp(17px, 1.5vw, 23px); line-height: 1.6; color: var(--muted); max-width: 710px; }
@@ -259,58 +373,74 @@ const etapes = [
   .section { padding: 115px 5%; border-bottom: 1px solid #ffffff20; }
   .eyebrow { color: var(--cyan); }
   .section-heading { display: flex; align-items: start; justify-content: space-between; gap: 50px; margin-bottom: 65px; }
-  .section-heading h2 { width: 70%; font-size: clamp(48px, 6vw, 100px); line-height: .95; letter-spacing: -.025em; }
+  .section-heading h2 { width: 70%; font-size: clamp(48px, 6vw, 100px); line-height: .95; letter-spacing: -.01em; }
   .section-heading h2 em { color: var(--cyan); font-style: normal; }
+  .section-intro { max-width: 760px; color: var(--muted); font-size: 17px; line-height: 1.7; margin-bottom: 40px; }
 
   .sources { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
   .source-card { background: #111b30; border: 1px solid #ffffff20; padding: 30px; min-height: 440px; display: flex; flex-direction: column; transition: border-color .3s, transform .3s; }
   .source-card:hover { border-color: #8ce8f18c; transform: translateY(-5px); }
   .source-top { display: flex; justify-content: space-between; gap: 12px; color: #8c9bb6; }
   .source-category { color: var(--cyan); }
-  .source-card h3 { font-size: clamp(24px, 2.5vw, 38px); margin: 50px 0 20px; overflow-wrap: anywhere; }
+  .source-card h3 { font-family: var(--titre); font-weight: 800; font-size: clamp(26px, 2.6vw, 40px); margin: 50px 0 20px; overflow-wrap: anywhere; }
   .source-card > p { color: var(--muted); line-height: 1.7; }
+  .source-meta { margin: 24px 0 0; display: grid; gap: 10px; }
+  .source-meta dt { color: #8c9bb6; font-size: 11px; }
+  .source-meta dd { margin: 3px 0 0; color: #dbe4f3; font-size: 14px; line-height: 1.5; }
   .source-limitation { margin-top: auto; padding-top: 35px; }
   .source-limitation span { color: var(--cyan); }
   .source-limitation p { margin: 10px 0 20px; color: #c4cee0; line-height: 1.6; font-size: 14px; }
   .source-card a { color: var(--cyan); border-top: 1px solid #ffffff20; padding-top: 18px; }
 
   .process { border-top: 1px solid #ffffff3b; }
-  .process-row { display: grid; grid-template-columns: 80px 1fr 1fr 30px; align-items: center; gap: 30px; padding: 32px 0; border-bottom: 1px solid #ffffff30; }
-  .process-number { color: var(--cyan); }
-  .process-row h3 { font-size: clamp(28px, 3.2vw, 52px); }
-  .process-row p { color: var(--muted); line-height: 1.6; max-width: 500px; }
-  .process-arrow { font-size: 25px; color: var(--cyan); }
+  .process-row { display: grid; grid-template-columns: 80px minmax(0, .8fr) minmax(0, 1.4fr); align-items: start; gap: 30px; padding: 32px 0; border-bottom: 1px solid #ffffff30; }
+  .process-number { color: var(--cyan); padding-top: 10px; }
+  .process-row h3 { font-family: var(--titre); font-weight: 800; font-size: clamp(28px, 3.2vw, 52px); line-height: 1; }
+  .process-row ul { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.65; display: grid; gap: 10px; }
+  .process-row li::marker { color: var(--cyan); }
 
-  .limitations { display: grid; grid-template-columns: repeat(3, 1fr); gap: 45px; }
+  .routes { width: 100%; border-collapse: collapse; color: var(--muted); line-height: 1.55; }
+  .routes th, .routes td { text-align: left; padding: 20px 18px 20px 0; border-bottom: 1px solid #ffffff26; vertical-align: top; }
+  .routes thead th { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: #8c9bb6; font-weight: 500; }
+  .routes tbody th { color: #f5f7ff; font-weight: 600; }
+  .routes th span { color: var(--cyan); margin-right: 10px; }
+  .routes td:nth-child(2) { color: var(--cyan); white-space: nowrap; font-family: var(--mono); font-size: 12px; }
+
+  .limitations { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 45px; }
   .limitations > div { border-top: 2px solid var(--cyan); padding-top: 25px; }
   .limitations span { color: var(--cyan); }
   .limitations p { color: #c1cce0; line-height: 1.8; margin-top: 20px; }
 
-  .viz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-  .viz-grid article { background: #101a2e; border: 1px solid #ffffff20; padding: 35px; min-height: 230px; }
-  .viz-grid article > span { color: var(--cyan); }
-  .viz-grid h3 { margin: 25px 0 15px; font-size: 25px; }
-  .viz-grid p { color: var(--muted); line-height: 1.6; }
+  .downloads { list-style: none; margin: 0; padding: 0; border-top: 1px solid #ffffff3b; }
+  .downloads a { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) auto; gap: 24px; align-items: center; padding: 24px 0; border-bottom: 1px solid #ffffff30; transition: background .3s, padding .3s; }
+  .downloads a:hover, .downloads a:focus-visible { background: #8ce8f10d; padding-inline: 14px; }
+  .dl-name { font-family: var(--mono); font-size: 14px; color: #f5f7ff; overflow-wrap: anywhere; }
+  .dl-desc { color: var(--muted); line-height: 1.5; }
+  .dl-size { color: var(--cyan); white-space: nowrap; }
 
   .closing { padding: 140px 5%; }
   .closing h2 { font-size: clamp(60px, 9vw, 150px); line-height: .9; margin: 35px 0 45px; }
   .closing p { max-width: 750px; font-size: 20px; color: var(--muted); line-height: 1.8; }
   .closing-link { display: inline-flex; gap: 60px; align-items: center; padding: 22px 28px; border: 1px solid var(--cyan); margin-top: 55px; color: var(--cyan); transition: background .3s, color .3s; }
-  .closing-link:hover { background: var(--cyan); color: #090f20; }
+  .closing-link:hover { background: var(--cyan); color: var(--fond); }
 
   .method-footer { display: flex; justify-content: space-between; gap: 20px; padding: 25px 5%; border-top: 1px solid #ffffff30; color: #8b98b4; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
   @media (max-width: 850px) {
     .header-id { display: none; }
     .hero { padding-top: 80px; }
     .hero-bottom, .section-heading { flex-direction: column; align-items: start; }
     .section-heading h2 { width: 100%; }
-    .sources, .limitations { grid-template-columns: 1fr; }
+    .sources { grid-template-columns: 1fr; }
     .source-card { min-height: 330px; }
-    .process-row { grid-template-columns: 40px 1fr 25px; }
-    .process-row p { grid-column: 2 / 3; }
-    .process-arrow { grid-column: 3; grid-row: 1; }
-    .viz-grid { grid-template-columns: 1fr; }
+    .process-row { grid-template-columns: 40px 1fr; }
+    .process-row ul { grid-column: 1 / -1; }
+    .routes thead { display: none; }
+    .routes tr { display: grid; padding: 16px 0; border-bottom: 1px solid #ffffff26; }
+    .routes th, .routes td { border: 0; padding: 4px 0; }
+    .downloads a { grid-template-columns: 1fr; gap: 8px; }
     .method-footer { flex-direction: column; }
   }
   @media (prefers-reduced-motion: reduce) {

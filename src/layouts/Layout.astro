@@ -1,17 +1,26 @@
 ﻿---
 interface Props {
   title?: string;
+  description?: string;
 }
 
-const { title = "Derrière le Prompt" } = Astro.props;
+const {
+  title = "Derrière le Prompt",
+  description = "Que se cache-t-il derrière une requête d'IA ? Électricité, eau, CO₂e et datacenters, à partir de données ouvertes vérifiées.",
+} = Astro.props;
 ---
 
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#090f20" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#070b19" />
     <link rel="icon" type="image/png" href="/favicon.png" />
+    <!-- Polices de la charte, communes à toutes les pages -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
     <title>{title}</title>
   </head>
 
@@ -21,6 +30,13 @@ const { title = "Derrière le Prompt" } = Astro.props;
 </html>
 
 <style is:global>
+  :root {
+    --fond: #070b19;
+    --cyan: #8ce8f1;
+    --titre: "Barlow Condensed", Impact, sans-serif;
+    --mono: "IBM Plex Mono", monospace;
+  }
+
   html,
   body {
     margin: 0;
@@ -28,6 +44,6 @@ const { title = "Derrière le Prompt" } = Astro.props;
   }
 
   body {
-    background: #090f20;
+    background: var(--fond);
   }
 </style>
