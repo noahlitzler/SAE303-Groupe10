@@ -1,0 +1,361 @@
+---
+// Page « Voir plus » de V2 : les datacenters (sélection Datacenters France, localisations vérifiées).
+// Mise en scène : un schéma qui se construit, de l'écran au bâtiment (symbolique, pas un trajet réel),
+// puis 39 points qui deviennent 23 installations, 18 franciliennes, et un seul amas à l'échelle de la France.
+import ExplorerGraphique from "./ExplorerGraphique.astro";
+import { lireDonnees } from "../../data/lecture";
+import type { Chapitre } from "../../data/chapitres";
+
+interface Props { chapitre: Chapitre }
+const { chapitre: c } = Astro.props;
+
+type Installation = { nom: string; ville: string; region: string; precision: string; latitude: number; longitude: number };
+const { donnees, entrees_total } = lireDonnees<{ donnees: Installation[]; entrees_total: number }>("v2-datacenters-localises.json");
+const total = entrees_total;
+const localisees = donnees.length;
+const idf = donnees.filter((d) => d.region === "Île-de-France");
+const ailleurs = donnees.filter((d) => d.region !== "Île-de-France");
+const parVille = Object.entries(donnees.reduce<Record<string, number>>((acc, d) => ((acc[d.ville] = (acc[d.ville] ?? 0) + 1), acc), {})).sort((a, b) => b[1] - a[1]);
+const villesMulti = parVille.filter(([, n]) => n > 1);
+const precisions = donnees.reduce<Record<string, number>>((acc, d) => ((acc[d.precision] = (acc[d.precision] ?? 0) + 1), acc), {});
+const partIdf = Math.round((100 * idf.length) / localisees);
+const listeVilles = villesMulti.map(([v, n]) => `${v} (${n})`).join(", ").replace(/, ([^,]*)$/, " et $1");
+
+// Points de l'entonnoir : positions (en %) pour chaque état de la séquence.
+// a : grille des entrées du fichier ; c : Île-de-France regroupée / autres régions en colonne ; d : vue « France » (amas).
+const COLS = 8;
+const etats = Array.from({ length: total }, (_, i) => {
+  // Les entrées non localisées sont réparties dans la grille (ordre fixe) pour un effacement lisible.
+  const rang = (i * 17) % total;
+  const ax = 14 + (rang % COLS) * 10.5, ay = 22 + Math.floor(rang / COLS) * 13;
+  if (i >= localisees) return { ax, ay, cx: ax, cy: ay, dx: ax, dy: ay, type: "absente" };
+  const inst = donnees[i];
+  if (inst.region === "Île-de-France") {
+    const k = idf.indexOf(inst), a = k * 2.399963, r = 3 + 2.6 * Math.sqrt(k);
+    return { ax, ay, cx: 30 + r * Math.cos(a), cy: 52 + r * Math.sin(a) * 1.25, dx: 30 + Math.cos(a) * 0.6, dy: 52 + Math.sin(a) * 0.6, type: "idf" };
+  }
+  const k = ailleurs.indexOf(inst);
+  return { ax, ay, cx: 66, cy: 26 + k * 13, dx: 66, dy: 26 + k * 13, type: "ailleurs", region: inst.region };
+});
+---
+
+<div class="ex-recit recit-v2">
+  <!-- 1. Ouverture -->
+  <section class="ex-hero ex-largeur" aria-labelledby="v2-titre">
+    <div class="ex-hero-texte">
+      <p class="ex-kicker">VOIR PLUS · CHAPITRE {c.n} — {c.k}</p>
+      <h1 id="v2-titre">Le numérique <em>a une adresse.</em></h1>
+      <p class="ex-question"><small>LA QUESTION</small>Quand on dit que l’IA est « dans le cloud », de quoi parle-t-on vraiment&nbsp;?</p>
+      <p class="ex-hero-lead">Le « nuage » est une image. En réalité, les calculs ont lieu dans des bâtiments, construits sur des terrains, raccordés à des câbles. Allons les voir.</p>
+      <span class="ex-defiler"><i></i>DÉFILEZ POUR COMMENCER</span>
+    </div>
+    <div class="v2-nuage" aria-hidden="true">
+      <div class="v2-nuage-forme"><span>« LE CLOUD »</span></div>
+      <div class="v2-nuage-pluie">{Array.from({ length: 7 }, (_, i) => <i style={`--i:${i}`}></i>)}</div>
+      <div class="v2-batiment">
+        {Array.from({ length: 24 }, (_, i) => <i style={`--d:${((i * 7) % 11) / 4}s`}></i>)}
+      </div>
+      <div class="v2-sol"></div>
+    </div>
+  </section>
+
+  <!-- 2a. Séquence : de l'écran au bâtiment -->
+  <section class="ex-section ex-largeur" aria-labelledby="v2-seq">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">DE L’ÉCRAN AU BÂTIMENT</p>
+      <h2 class="ex-h2" id="v2-seq">Ce qu’il faut <em>pour répondre.</em></h2>
+    </div>
+    <div class="ex-scrolly" data-scrolly id="v2-scrolly">
+      <div class="ex-etapes">
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">01 / 05</span>
+          <h3>Votre appareil pose la question.</h3>
+          <p>Pour les grands modèles en ligne, le calcul ne se fait pas dans votre téléphone : il est bien trop lourd. Votre appareil se contente d’envoyer la demande.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">02 / 05</span>
+          <h3>Elle voyage par le réseau.</h3>
+          <p>Antennes, câbles, fibres : la demande rejoint des machines distantes.</p>
+          <p><strong>Attention :</strong> ce schéma est symbolique. On ne sait pas où une requête donnée est traitée ; nos cartes ne montrent pas ce trajet.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">03 / 05</span>
+          <h3>Des serveurs calculent.</h3>
+          <p>Un <span class="ex-terme">serveur</span> est un ordinateur sans écran, empilé avec d’autres dans des armoires. Équipés de processeurs et de GPU, ils produisent la réponse.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">04 / 05</span>
+          <h3>Un bâtiment les abrite.</h3>
+          <p>Un <span class="ex-terme">datacenter</span> regroupe un grand nombre de serveurs. Il les alimente en électricité jour et nuit, et les refroidit pour qu’ils ne surchauffent pas.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">05 / 05</span>
+          <h3>Il a donc une adresse.</h3>
+          <p>Un terrain, un raccordement électrique, parfois de l’eau pour le refroidissement : un datacenter s’inscrit dans un territoire. C’est pourquoi sa localisation compte.</p>
+        </div></article>
+      </div>
+
+      <div class="ex-scene v2-scene" aria-hidden="true">
+        <svg viewBox="0 0 600 420" class="v2-svg">
+          <!-- sol et repère -->
+          <line class="v2-sol-l" x1="20" y1="350" x2="580" y2="350" />
+          <g class="v2-epingle"><path d="M440 52c-14 0-24 10-24 23 0 18 24 39 24 39s24-21 24-39c0-13-10-23-24-23z" /><circle cx="440" cy="75" r="8" /><text x="440" y="38">UNE ADRESSE</text></g>
+          <!-- appareil -->
+          <g class="v2-appareil">
+            <rect x="40" y="230" width="62" height="110" rx="9" />
+            <rect x="48" y="244" width="46" height="74" rx="2" class="v2-ecran" />
+            <g class="v2-bulle"><rect x="20" y="186" width="104" height="30" rx="4" /><text x="72" y="206">&gt;_ question</text></g>
+          </g>
+          <!-- réseau -->
+          <path class="v2-reseau" d="M106 286 C 180 286, 190 200, 260 200 S 330 270, 360 270" pathLength="1" />
+          <path class="v2-paquets" d="M106 286 C 180 286, 190 200, 260 200 S 330 270, 360 270" />
+          <g class="v2-alerte"><rect x="168" y="146" width="186" height="24" rx="12" /><text x="261" y="162">SCHÉMA · PAS UN TRAJET RÉEL</text></g>
+          <!-- serveurs -->
+          <g class="v2-armoire">
+            {[0, 1, 2].map((k) => (
+              <g transform={`translate(${372 + k * 44},226)`}>
+                <rect width="38" height="118" rx="2" class="v2-baie" />
+                {Array.from({ length: 7 }, (_, j) => <g transform={`translate(4,${6 + j * 16})`}><rect width="30" height="12" class="v2-lame" /><circle cx="25" cy="6" r="2" class="v2-led" style={`--d:${((k * 7 + j * 3) % 10) / 6}s`} /></g>)}
+              </g>
+            ))}
+          </g>
+          <!-- bâtiment, électricité, refroidissement -->
+          <g class="v2-bat">
+            <path d="M350 350 V200 L440 150 L530 200 V350" class="v2-murs" pathLength="1" />
+            <g class="v2-elec"><path d="M560 120 V350 M548 130 H572 M552 150 H568" /><path d="M560 210 H530" class="v2-cable" /><text x="560" y="110">ÉLECTRICITÉ</text></g>
+            <g class="v2-froid" transform="translate(470,200)"><circle r="13" /><path d="M0 -10 V10 M-10 0 H10 M-7 -7 L7 7 M-7 7 L7 -7" class="v2-pales" /><text y="170">REFROIDISSEMENT</text></g>
+          </g>
+        </svg>
+        <p class="ex-scene-legende">SCHÉMA SYMBOLIQUE · NE REPRÉSENTE PAS LE TRAJET D’UNE REQUÊTE</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2b. Pourquoi la localisation compte -->
+  <section class="ex-section ex-largeur" aria-labelledby="v2-pourquoi">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">POURQUOI LE LIEU COMPTE</p>
+      <h2 class="ex-h2" id="v2-pourquoi">Un bâtiment, <em>un territoire.</em></h2>
+      <p class="ex-lead">Là où un datacenter est construit, il puise dans des ressources locales. Sa localisation fait partie de son empreinte.</p>
+    </div>
+    <div class="ex-cartes" data-reveal-groupe>
+      <article class="ex-carte"><span class="ex-carte-k">Électricité</span><h3>Le mix du pays</h3><p>La façon dont l’électricité locale est produite fixe une grande partie des émissions liées au calcul.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">Réseau</span><h3>Une demande continue</h3><p>Un datacenter consomme jour et nuit : sa demande pèse sur le réseau électrique de la zone.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">Eau et climat</span><h3>Refroidir</h3><p>Les besoins de refroidissement dépendent du climat et des ressources disponibles sur place.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">Territoire</span><h3>Du foncier</h3><p>Des terrains, des bâtiments, des raccordements : le numérique occupe de l’espace.</p></article>
+    </div>
+  </section>
+
+  <!-- 2c. Séquence : du fichier à la carte -->
+  <section class="ex-section ex-largeur" aria-labelledby="v2-points">
+    <div class="ex-entete" data-reveal>
+      <span class="ex-nature">DONNÉES GÉOGRAPHIQUES VÉRIFIÉES</span>
+      <h2 class="ex-h2" id="v2-points">Du fichier <em>à la carte.</em></h2>
+      <p class="ex-lead">Avant d’ouvrir la carte, comptons ce qu’elle montre, et ce qu’elle ne montre pas.</p>
+    </div>
+    <div class="ex-scrolly" data-scrolly id="v2-entonnoir">
+      <div class="ex-etapes">
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">01 / 04</span>
+          <h3>{total} entrées dans notre fichier.</h3>
+          <p>Notre fichier de travail compte {total} entrées : des datacenters en France, repérés notamment dans OpenStreetMap, la carte collaborative mondiale.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">02 / 04</span>
+          <h3>{localisees} localisations vérifiées.</h3>
+          <p>Nous n’affichons que les installations dont l’emplacement a été vérifié, à l’adresse ou au site près. Les {total - localisees} autres restent hors de la carte.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">03 / 04</span>
+          <h3>{idf.length} en Île-de-France.</h3>
+          <p>Soit {partIdf} % de notre sélection, autour de Paris. Les {ailleurs.length} autres sont dispersées dans {ailleurs.length} régions, une chacune.</p>
+        </div></article>
+        <article class="ex-etape" data-step><div class="ex-etape-carte">
+          <span class="ex-etape-n">04 / 04</span>
+          <h3>{localisees} installations, mais pas {localisees} points visibles.</h3>
+          <p>À l’échelle de la France, les {idf.length} installations franciliennes sont si proches qu’elles se superposent en un seul amas. Certaines partagent même une ville : {listeVilles}.</p>
+          <p>D’où une seconde carte, zoomée sur l’Île-de-France.</p>
+        </div></article>
+      </div>
+
+      <div class="ex-scene v2-entonnoir" aria-hidden="true">
+        <div class="v2-zone v2-zone--idf"><span>ÎLE-DE-FRANCE</span></div>
+        <div class="v2-zone v2-zone--ailleurs"><span>AUTRES RÉGIONS</span></div>
+        <div class="v2-amas-l">≈ 1 amas sur la carte de France</div>
+        {etats.map((e) => (
+          <i class:list={["v2-pt", `v2-pt--${e.type}`]} style={`--ax:${e.ax.toFixed(1)}%;--ay:${e.ay.toFixed(1)}%;--cx:${e.cx.toFixed(1)}%;--cy:${e.cy.toFixed(1)}%;--dx:${e.dx.toFixed(1)}%;--dy:${e.dy.toFixed(1)}%`}></i>
+        ))}
+        {ailleurs.map((d, k) => <span class="v2-region" style={`top:${26 + k * 13}%`}><b>{d.ville}</b>{d.region}</span>)}
+        <p class="v2-compte"><b class="v2-c v2-c0">{total}</b><b class="v2-c v2-c1">{localisees}</b><b class="v2-c v2-c2">{idf.length} + {ailleurs.length}</b><b class="v2-c v2-c3">{idf.length} → 1</b><small class="v2-c v2-c0">entrées</small><small class="v2-c v2-c1">localisées</small><small class="v2-c v2-c2">Île-de-France + ailleurs</small><small class="v2-c v2-c3">installations franciliennes ≈ un amas à l’échelle de la France</small></p>
+        <p class="ex-scene-legende">SCHÉMA · POSITIONS NON GÉOGRAPHIQUES</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Méthode et données -->
+  <section class="ex-section ex-largeur" aria-labelledby="v2-methode">
+    <div class="ex-entete" data-reveal>
+      <h2 class="ex-h2" id="v2-methode">Comment nous <em>avons localisé.</em></h2>
+      <p class="ex-lead">Il n’existe pas de liste officielle et complète des datacenters français. Nous avons donc construit une sélection documentée, entrée par entrée.</p>
+    </div>
+    <div class="ex-cartes" data-reveal-groupe>
+      <article class="ex-carte"><span class="ex-carte-k">Source</span><h3>OpenStreetMap</h3><p>Objets cartographiés par des contributeurs, vérifiés un par un les 19 et 20 octobre 2026.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">Précision</span><h3>Trois niveaux</h3><p>{precisions.adresse ?? 0} à l’adresse, {precisions.coordonnees_officielles ?? 0} par coordonnées officielles, {precisions.site ?? 0} au site.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">Couverture</span><h3>{localisees} sur {total}</h3><p>Une sélection, non exhaustive : d’autres datacenters existent en France.</p></article>
+      <article class="ex-carte"><span class="ex-carte-k">Consommation</span><h3>Non disponible</h3><p>Aucune donnée de consommation par installation : tous les points de la carte sont gris.</p></article>
+    </div>
+  </section>
+
+  <!-- 4. Transition -->
+  <div class="ex-passage ex-largeur" data-reveal>
+    <p class="ex-kicker">À VOUS</p>
+    <h2 class="ex-h2">Deux cartes, <em>deux échelles.</em></h2>
+    <p>À gauche, la France entière : l’amas francilien saute aux yeux. À droite, l’Île-de-France : l’amas se sépare en installations distinctes.</p>
+    <span class="ex-passage-fleche" aria-hidden="true"></span>
+  </div>
+
+  <!-- 5 et 6. Graphique et mode d'emploi -->
+  <ExplorerGraphique viz={c.viz} label={c.label} note={c.note}>
+    <li><strong>Faites glisser</strong> une carte pour la déplacer ; zoomez avec les boutons + et −.</li>
+    <li>La <strong>molette</strong> ne zoome pas : elle fait défiler la page.</li>
+    <li><strong>Cliquez sur un point</strong> pour lire le nom, l’exploitant, l’adresse et la précision de localisation.</li>
+    <li>Des <strong>points superposés</strong> s’ouvrent en éventail au clic.</li>
+  </ExplorerGraphique>
+
+  <!-- 7. Enseignements -->
+  <section class="ex-section ex-largeur" aria-labelledby="v2-lecons">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">CE QUE L’ON EN RETIENT</p>
+      <h2 class="ex-h2" id="v2-lecons">Trois enseignements.</h2>
+    </div>
+    <div class="ex-chiffres" data-reveal-groupe>
+      <article class="ex-chiffre"><p class="ex-chiffre-v"><span data-count={partIdf} data-format="entier">{partIdf}</span><small>%</small></p><p>des installations de notre sélection sont en Île-de-France : une forte concentration autour de Paris.</p></article>
+      <article class="ex-chiffre"><p class="ex-chiffre-v"><span data-count={villesMulti[0][1]} data-format="entier">{villesMulti[0][1]}</span><small>À {villesMulti[0][0].toUpperCase()}</small></p><p>Une même commune peut accueillir plusieurs installations : {listeVilles}.</p></article>
+      <article class="ex-chiffre"><p class="ex-chiffre-v"><span data-count={ailleurs.length} data-format="entier">{ailleurs.length}</span><small>RÉGIONS</small></p><p>hors Île-de-France, avec une seule installation chacune dans notre sélection.</p></article>
+    </div>
+  </section>
+
+  <!-- 8. Limites -->
+  <section class="ex-section ex-largeur" aria-labelledby="v2-limites">
+    <div class="ex-entete" data-reveal>
+      <p class="ex-kicker">À GARDER EN TÊTE</p>
+      <h2 class="ex-h2" id="v2-limites">Les limites <em>de ces cartes.</em></h2>
+    </div>
+    <ul class="ex-limites" data-reveal-groupe>
+      <li><span><strong>Pas le trajet d’une requête.</strong> Vos requêtes peuvent être traitées dans d’autres pays ; aucune carte ne dit où.</span></li>
+      <li><span><strong>Une sélection.</strong> {localisees} installations vérifiées sur {total} entrées, et d’autres datacenters ne figurent pas dans OpenStreetMap.</span></li>
+      <li><span><strong>Pas de taille ni de consommation.</strong> Un point représente une installation, qu’elle soit petite ou immense.</span></li>
+      <li><span><strong>Pas forcément de l’IA.</strong> Ces bâtiments hébergent toutes sortes de services numériques, pas seulement des modèles d’IA.</span></li>
+    </ul>
+  </section>
+
+  <!-- 9. Conclusion -->
+  <section class="ex-section ex-largeur">
+    <div class="ex-fin" data-reveal>
+      <p class="ex-kicker">EN RÉSUMÉ</p>
+      <h2 class="ex-h2">Le cloud a <em>des murs, des câbles et une adresse.</em></h2>
+      <p>Les calculs de l’IA reposent sur des infrastructures physiques, concentrées dans certains territoires. Les rendre visibles, c’est rappeler que le numérique a un poids matériel.</p>
+      <p class="ex-fin-probleme">Derrière une requête d’IA se cachent donc des calculs, de l’énergie, et des bâtiments bien réels : c’est la réponse à notre question de départ.</p>
+      <div class="ex-actions">
+        <a class="ex-bouton" href="/#conclusion">LIRE LA CONCLUSION →</a>
+        <a class="ex-bouton ex-bouton--ligne" href="/?face=4">RETOUR À L’EXPÉRIENCE</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  /* Ouverture : le nuage laisse place au bâtiment */
+  .v2-nuage { position: relative; justify-self: center; width: min(460px, 100%); aspect-ratio: 1; }
+  .v2-nuage-forme { position: absolute; left: 14%; right: 14%; top: 4%; height: 26%; display: grid; place-items: center; border: 1px dashed #96dfcb88; border-radius: 999px; animation: v2-dissout 6s ease-in-out infinite; }
+  .v2-nuage-forme span { font: 500 12px var(--mono); letter-spacing: .2em; color: #c3d1e7; }
+  .v2-nuage-pluie { position: absolute; left: 22%; right: 22%; top: 31%; height: 18%; }
+  .v2-nuage-pluie i { position: absolute; left: calc(var(--i) * 15%); top: 0; width: 1px; height: 22px; background: linear-gradient(#96dfcb, transparent); animation: v2-pluie 2.4s linear infinite; animation-delay: calc(var(--i) * -.33s); }
+  .v2-batiment { position: absolute; left: 24%; right: 24%; bottom: 14%; height: 40%; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 14px; border: 1px solid #96dfcb; background: #0c1a24; box-shadow: 0 0 60px #96dfcb26; }
+  .v2-batiment i { background: #96dfcb; opacity: .15; animation: v2-clignote 2.6s steps(2) infinite; animation-delay: calc(var(--d) * -1); }
+  .v2-sol { position: absolute; left: 6%; right: 6%; bottom: 14%; height: 1px; background: linear-gradient(90deg, transparent, #96dfcb, transparent); }
+  @keyframes v2-dissout { 0%, 100% { opacity: .9; transform: none; } 50% { opacity: .35; transform: translateY(-6px) scale(.97); } }
+  @keyframes v2-pluie { from { transform: translateY(0); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(60px); opacity: 0; } }
+  @keyframes v2-clignote { 50% { opacity: .85; } }
+
+  /* Schéma : de l'écran au bâtiment */
+  .v2-svg { width: 96%; height: 92%; overflow: visible; }
+  .v2-svg text { font: 500 10px var(--mono); letter-spacing: .12em; fill: #c3d1e7; text-anchor: middle; }
+  .v2-sol-l { stroke: #96dfcb55; stroke-dasharray: 4 6; }
+  .v2-appareil rect { fill: #0d1730; stroke: #96dfcb; stroke-width: 1.5; }
+  .v2-appareil .v2-ecran { fill: #96dfcb22; stroke: none; }
+  .v2-bulle rect { fill: #96dfcb; stroke: none; }
+  .v2-bulle text { fill: #04101f; font-weight: 600; }
+  .v2-bulle { animation: v2-flotte 3s ease-in-out infinite; }
+  .v2-reseau { fill: none; stroke: #96dfcb88; stroke-width: 1.5; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.2s ease; }
+  .v2-paquets { fill: none; stroke: #d6fff3; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 2 18; opacity: 0; transition: opacity .4s; }
+  .v2-alerte { opacity: 0; transition: opacity .5s; }
+  .v2-alerte rect { fill: #ffd27a1a; stroke: #ffd27a; }
+  .v2-alerte text { fill: #ffd27a; font-size: 9.5px; }
+  .v2-armoire, .v2-bat > *, .v2-epingle { opacity: 0; transition: opacity .7s, transform .7s; }
+  .v2-armoire { transform: translateY(16px); }
+  .v2-baie { fill: #0b1328; stroke: #96dfcb; stroke-width: 1.2; }
+  .v2-lame { fill: #132238; }
+  .v2-led { fill: #96dfcb; animation: v2-led 1.3s steps(2) infinite; animation-delay: calc(var(--d) * -1); }
+  .v2-murs { fill: #96dfcb0a; stroke: #96dfcb; stroke-width: 2; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.2s ease; }
+  .v2-elec path { fill: none; stroke: #ffb44d; stroke-width: 2; }
+  .v2-elec .v2-cable { stroke-dasharray: 4 4; animation: v2-courant .8s linear infinite; }
+  .v2-elec text { fill: #ffb44d; }
+  .v2-froid circle { fill: #0b1328; stroke: #5fb4ff; stroke-width: 1.5; }
+  .v2-froid .v2-pales { stroke: #5fb4ff; stroke-width: 2; animation: v2-tourne 1.2s linear infinite; transform-box: fill-box; transform-origin: center; }
+  .v2-froid text { fill: #5fb4ff; font-size: 8.5px; }
+  .v2-epingle path { fill: #96dfcb; }
+  .v2-epingle circle { fill: #04101f; }
+  .v2-epingle text { fill: #96dfcb; font-weight: 600; }
+  .v2-epingle { transform: translateY(-14px); }
+  @keyframes v2-flotte { 50% { transform: translateY(-5px); } }
+  @keyframes v2-led { 50% { opacity: .2; } }
+  @keyframes v2-courant { to { stroke-dashoffset: -8; } }
+  @keyframes v2-tourne { to { rotate: 360deg; } }
+  @keyframes v2-paquets { to { stroke-dashoffset: -20; } }
+
+  [data-active]:not([data-active="0"]) .v2-reseau { stroke-dashoffset: 0; }
+  [data-active="1"] .v2-paquets { opacity: 1; animation: v2-paquets .9s linear infinite; }
+  [data-active="1"] .v2-alerte, [data-active="2"] .v2-alerte { opacity: 1; }
+  :is([data-active="2"], [data-active="3"], [data-active="4"]) .v2-armoire { opacity: 1; transform: none; }
+  :is([data-active="3"], [data-active="4"]) .v2-bat > * { opacity: 1; }
+  :is([data-active="3"], [data-active="4"]) .v2-murs { stroke-dashoffset: 0; }
+  [data-active="4"] .v2-epingle { opacity: 1; transform: none; }
+  [data-active="4"] .v2-sol-l { stroke: #96dfcb; stroke-dasharray: none; }
+
+  /* Entonnoir : 39 → 23 → 18 + 5 → un amas */
+  .v2-entonnoir { display: block; }
+  .v2-pt { position: absolute; left: var(--ax); top: var(--ay); width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #96dfcb; border: 2px solid #0a1124; box-shadow: 0 0 10px #96dfcb88; transition: left 1s cubic-bezier(.2,.8,.2,1), top 1s cubic-bezier(.2,.8,.2,1), opacity .6s, transform .6s; }
+  .v2-pt--absente { background: #6b7280; box-shadow: none; }
+  :is([data-active="1"], [data-active="2"], [data-active="3"]) .v2-pt--absente { opacity: 0; transform: scale(.2); }
+  :is([data-active="2"]) .v2-pt { left: var(--cx); top: var(--cy); }
+  [data-active="3"] .v2-pt { left: var(--dx); top: var(--dy); }
+  [data-active="3"] .v2-pt--idf { box-shadow: 0 0 22px #96dfcb; }
+  .v2-zone { position: absolute; top: 12%; bottom: 12%; border: 1px dashed #96dfcb55; opacity: 0; transition: opacity .6s; }
+  .v2-zone span { position: absolute; left: 10px; top: 8px; font: 500 10px var(--mono); letter-spacing: .14em; color: var(--accent); }
+  .v2-zone--idf { left: 8%; width: 44%; }
+  .v2-zone--ailleurs { left: 58%; right: 4%; }
+  :is([data-active="2"], [data-active="3"]) .v2-zone { opacity: 1; }
+  .v2-region { position: absolute; left: calc(66% + 14px); translate: 0 -50%; display: grid; font: 500 9px/1.3 var(--mono); color: #8fa2c5; opacity: 0; transition: opacity .6s .4s; max-width: 29%; }
+  .v2-region b { color: #fff; font: 600 11px/1.3 Arial, sans-serif; }
+  :is([data-active="2"], [data-active="3"]) .v2-region { opacity: 1; }
+  .v2-amas-l { position: absolute; left: 8%; width: 44%; top: 70%; text-align: center; font: 500 11px var(--mono); color: #fff; opacity: 0; transition: opacity .6s .5s; }
+  [data-active="3"] .v2-amas-l { opacity: 1; }
+  .v2-compte { position: absolute; left: 14px; top: 10px; margin: 0; display: grid; }
+  .v2-compte b { font: 900 34px/1 var(--titre); color: #fff; }
+  .v2-compte small { font: 500 10px var(--mono); letter-spacing: .1em; color: var(--accent); }
+  .v2-c { display: none; }
+  [data-active="0"] .v2-c0, [data-active="1"] .v2-c1, [data-active="2"] .v2-c2, [data-active="3"] .v2-c3 { display: block; }
+  [data-active="2"] .v2-compte, [data-active="3"] .v2-compte { left: auto; right: 14px; top: auto; bottom: 34px; text-align: right; }
+
+  @media (max-width: 900px) {
+    .v2-nuage { width: min(320px, 80%); }
+    .v2-pt { width: 10px; height: 10px; margin: -5px 0 0 -5px; }
+    .v2-compte b { font-size: 24px; }
+    .v2-region { font-size: 8.5px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .v2-nuage-forme, .v2-nuage-pluie i, .v2-batiment i, .v2-bulle, .v2-led, .v2-elec .v2-cable, .v2-froid .v2-pales, .v2-paquets { animation: none !important; }
+    .v2-reseau, .v2-armoire, .v2-bat > *, .v2-epingle, .v2-murs, .v2-pt, .v2-zone, .v2-region, .v2-amas-l, .v2-alerte { transition: none; }
+  }
+</style>

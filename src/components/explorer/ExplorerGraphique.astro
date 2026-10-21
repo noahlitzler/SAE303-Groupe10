@@ -1,0 +1,27 @@
+---
+// Le graphique interactif d'une page « Voir plus », sur toute la largeur, précédé de son mode d'emploi.
+// Le graphique est celui du cube, dessiné par le même code (ObservableViz en mode « page »).
+import ObservableViz from "../ObservableViz.astro";
+
+interface Props {
+  viz: "v1" | "v2" | "v3" | "v4";
+  label: string;
+  note: string;
+}
+
+const { viz, label, note } = Astro.props;
+---
+
+<div class="ex-graphique ex-largeur" id="graphique">
+  <aside class="ex-mode" aria-label="Mode d'emploi du graphique" data-reveal>
+    <h3>MODE D’EMPLOI</h3>
+    <ol>
+      <slot />
+    </ol>
+  </aside>
+  <div class="ex-cadre" data-reveal>
+    <h2 class="ex-sr">Visualisation interactive</h2>
+    <ObservableViz viz={viz} label={label} mode="page" />
+  </div>
+  <p class="ex-source">{note}</p>
+</div>

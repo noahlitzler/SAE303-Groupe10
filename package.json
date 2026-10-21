@@ -10,13 +10,12 @@
   },
   "dependencies": {
     "@astrojs/netlify": "^8.2.3",
-    "@observablehq/plot": "^0.6.17",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.2.4",
-    "jsdom": "^30.0.1",
+    "leaflet": "^1.9.4",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
-    "@types/jsdom": "^30.0.0"
+    "@types/leaflet": "^1.9.22"
   }
 }

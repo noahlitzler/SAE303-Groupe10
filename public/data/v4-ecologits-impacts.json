@@ -1,0 +1,226 @@
+{
+ "titre": "V4 — Eau, CO₂e et électricité estimés par requête, 8 configurations d'IA",
+ "source": "EcoLogits (https://ecologits.ai), estimations collectées le 19/10/2026",
+ "licence": "EcoLogits : MPL-2.0",
+ "scenario": "150 tokens générés, mix électrique mondial (WOR)",
+ "unite": "par requête ; unité de chaque indicateur dans la colonne « unite » (le CO₂e est converti de mg en g à l'affichage)",
+ "arrondi": "3 chiffres significatifs (les plus petites valeurs seraient nulles avec deux décimales)",
+ "donnees": [
+  {
+   "fournisseur": "google_genai",
+   "modele": "gemini-2.5-pro",
+   "indicateur": "electricite",
+   "unite": "Wh",
+   "min": 1.8,
+   "milieu": 3,
+   "max": 4.19
+  },
+  {
+   "fournisseur": "mistralai",
+   "modele": "mistral-large-2512",
+   "indicateur": "electricite",
+   "unite": "Wh",
+   "min": 0.598,
+   "milieu": 0.598,
+   "max": 0.598
+  },
+  {
+   "fournisseur": "openai",
+   "modele": "gpt-4o",
+   "indicateur": "electricite",
+   "unite": "Wh",
+   "min": 0.243,
+   "milieu": 0.315,
+   "max": 0.387
+  },
+  {
+   "fournisseur": "anthropic",
+   "modele": "claude-sonnet-4-6",
+   "indicateur": "electricite",
+   "unite": "Wh",
+   "min": 0.231,
+   "milieu": 0.305,
+   "max": 0.378
+  },
+  {
+   "fournisseur": "anthropic",
+   "modele": "claude-haiku-4-5",
+   "indicateur": "electricite",
+   "unite": "Wh",
+   "min": 0.00976,
+   "milieu": 0.0175,
+   "max": 0.0253
+  },
+  {
+   "fournisseur": "openai",
+   "modele": "gpt-4o-mini",
+   "indicateur": "electricite",
+   "unite": "Wh",
+   "min": 0.0105,
+   "milieu": 0.0116,
+   "max": 0.0126
+  },
+  {
+   "fournisseur": "mistralai",
+   "modele": "ministral-8b-2512",
+   "indicateur": "electricite",
+   "unite": "Wh",
+   "min": 0.0108,
+   "milieu": 0.0108,
+   "max": 0.0108
+  },
+  {
+   "fournisseur": "google_genai",
+   "modele": "gemini-2.5-flash-lite",
+   "indicateur": "electricite",
+   "unite": "Wh",
+   "min": 0.00914,
+   "milieu": 0.0101,
+   "max": 0.011
+  },
+  {
+   "fournisseur": "google_genai",
+   "modele": "gemini-2.5-pro",
+   "indicateur": "co2",
+   "unite": "mgCO₂e",
+   "min": 870,
+   "milieu": 1420,
+   "max": 1960
+  },
+  {
+   "fournisseur": "mistralai",
+   "modele": "mistral-large-2512",
+   "indicateur": "co2",
+   "unite": "mgCO₂e",
+   "min": 326,
+   "milieu": 326,
+   "max": 326
+  },
+  {
+   "fournisseur": "openai",
+   "modele": "gpt-4o",
+   "indicateur": "co2",
+   "unite": "mgCO₂e",
+   "min": 122,
+   "milieu": 156,
+   "max": 189
+  },
+  {
+   "fournisseur": "anthropic",
+   "modele": "claude-sonnet-4-6",
+   "indicateur": "co2",
+   "unite": "mgCO₂e",
+   "min": 119,
+   "milieu": 153,
+   "max": 187
+  },
+  {
+   "fournisseur": "anthropic",
+   "modele": "claude-haiku-4-5",
+   "indicateur": "co2",
+   "unite": "mgCO₂e",
+   "min": 4.98,
+   "milieu": 8.79,
+   "max": 12.6
+  },
+  {
+   "fournisseur": "openai",
+   "modele": "gpt-4o-mini",
+   "indicateur": "co2",
+   "unite": "mgCO₂e",
+   "min": 5.34,
+   "milieu": 5.81,
+   "max": 6.28
+  },
+  {
+   "fournisseur": "mistralai",
+   "modele": "ministral-8b-2512",
+   "indicateur": "co2",
+   "unite": "mgCO₂e",
+   "min": 5.57,
+   "milieu": 5.57,
+   "max": 5.57
+  },
+  {
+   "fournisseur": "google_genai",
+   "modele": "gemini-2.5-flash-lite",
+   "indicateur": "co2",
+   "unite": "mgCO₂e",
+   "min": 4.59,
+   "milieu": 5.02,
+   "max": 5.45
+  },
+  {
+   "fournisseur": "google_genai",
+   "modele": "gemini-2.5-pro",
+   "indicateur": "eau",
+   "unite": "mL",
+   "min": 8.7,
+   "milieu": 14.5,
+   "max": 20.2
+  },
+  {
+   "fournisseur": "mistralai",
+   "modele": "mistral-large-2512",
+   "indicateur": "eau",
+   "unite": "mL",
+   "min": 2.38,
+   "milieu": 2.38,
+   "max": 2.38
+  },
+  {
+   "fournisseur": "openai",
+   "modele": "gpt-4o",
+   "indicateur": "eau",
+   "unite": "mL",
+   "min": 1.06,
+   "milieu": 1.38,
+   "max": 1.7
+  },
+  {
+   "fournisseur": "anthropic",
+   "modele": "claude-sonnet-4-6",
+   "indicateur": "eau",
+   "unite": "mL",
+   "min": 0.929,
+   "milieu": 1.37,
+   "max": 1.81
+  },
+  {
+   "fournisseur": "anthropic",
+   "modele": "claude-haiku-4-5",
+   "indicateur": "eau",
+   "unite": "mL",
+   "min": 0.0393,
+   "milieu": 0.0802,
+   "max": 0.121
+  },
+  {
+   "fournisseur": "openai",
+   "modele": "gpt-4o-mini",
+   "indicateur": "eau",
+   "unite": "mL",
+   "min": 0.0462,
+   "milieu": 0.0507,
+   "max": 0.0552
+  },
+  {
+   "fournisseur": "google_genai",
+   "modele": "gemini-2.5-flash-lite",
+   "indicateur": "eau",
+   "unite": "mL",
+   "min": 0.0441,
+   "milieu": 0.0486,
+   "max": 0.0531
+  },
+  {
+   "fournisseur": "mistralai",
+   "modele": "ministral-8b-2512",
+   "indicateur": "eau",
+   "unite": "mL",
+   "min": 0.0429,
+   "milieu": 0.0429,
+   "max": 0.0429
+  }
+ ]
+}

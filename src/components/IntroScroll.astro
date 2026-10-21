@@ -1,0 +1,246 @@
+﻿<div class="scroll-intro" id="scroll-intro" role="dialog" aria-modal="true" aria-labelledby="scroll-intro-title">
+  <div class="scroll-intro-content">
+    <div class="scroll-intro-logo" aria-hidden="true">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <g fill="currentColor">
+          <path d="M47 8A42 42 0 0 0 47 92v-8A34 34 0 0 1 47 16V8Z"/>
+          <path d="M44 16c-7 1-12 4-17 9l5 3-5 6-9 3-2 11 8 5 9-2 6 6-3 11 7 14 4 2V16h-3Z"/>
+          <path d="M53 8a42 42 0 0 1 37 30l-7 3A34 34 0 0 0 53 16V8Z"/>
+          <path d="M53 22a28 28 0 0 1 0 56V22Z"/>
+          <rect x="58" y="47" width="18" height="8" rx="4" fill="#080e20"/>
+          <path d="M87 24V9h6v15Z"/>
+          <circle cx="90" cy="7" r="6"/>
+          <rect x="89" y="43" width="7" height="21" rx="3.5"/>
+          <path d="M53 84a34 34 0 0 0 30-19l7 3A42 42 0 0 1 53 92v-8Z"/>
+        </g>
+      </svg>
+    </div>
+
+    <span class="scroll-intro-eyebrow">AVANT DE COMMENCER</span>
+    <h2 id="scroll-intro-title">UNE EXPÉRIENCE<br /><em>À FAIRE DÉFILER.</em></h2>
+
+    <p class="scroll-intro-message" id="scroll-intro-message" aria-label="Faites défiler la page vers le bas pour avancer dans l'histoire. À chaque étape, continuez à défiler pour découvrir la suite et faire apparaître les visualisations.">
+      <span id="scroll-intro-typed" aria-hidden="true"></span><span class="scroll-intro-cursor" aria-hidden="true">|</span>
+    </p>
+
+    <div class="scroll-intro-demo" aria-hidden="true">
+      <div class="scroll-intro-mouse"><span></span></div>
+      <div class="scroll-intro-arrow">↓</div>
+      <span>DÉFILEZ VERS LE BAS</span>
+    </div>
+
+    <button class="scroll-intro-start" id="scroll-intro-start" type="button" disabled>
+      COMMENCER L'EXPÉRIENCE <span aria-hidden="true">↗</span>
+    </button>
+  </div>
+</div>
+
+<style>
+  .scroll-intro {
+    position:fixed;
+    inset:0;
+    z-index:100000;
+    display:grid;
+    place-items:center;
+    overflow-y:auto;
+    padding:32px 20px;
+    background:radial-gradient(ellipse at 50% 45%,#172541,#080e20 65%,#070b19);
+    color:#f3f5ff;
+    opacity:1;
+    transition:opacity .75s ease,visibility .75s ease;
+  }
+  .scroll-intro.is-closing {opacity:0;visibility:hidden;pointer-events:none}
+  .scroll-intro-content {
+    width:min(650px,100%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:0;
+    margin:auto;
+  }
+  .scroll-intro-logo {
+    width:82px;
+    height:82px;
+    margin-bottom:33px;
+    color:#f4f7ff;
+    animation:scroll-logo-rotate 6s linear infinite;
+    filter:drop-shadow(0 0 18px #8ce8f155);
+  }
+  .scroll-intro-logo svg {width:100%;height:100%}
+  .scroll-intro-eyebrow {
+    color:#8ce8f1;
+    font:500 10px 'IBM Plex Mono',monospace;
+    letter-spacing:.22em;
+  }
+  .scroll-intro h2 {
+    margin:18px 0 23px;
+    font:900 clamp(43px,7vw,79px)/.94 'Barlow Condensed',Impact,sans-serif;
+    letter-spacing:.015em;
+  }
+  .scroll-intro h2 em {font-style:normal;color:#a3b4ff}
+  .scroll-intro-message {
+    max-width:540px;
+    min-height:100px;
+    margin:0;
+    color:#c3d1e7;
+    font:15px/1.75 Arial,sans-serif;
+  }
+  .scroll-intro-cursor {
+    color:#8ce8f1;
+    animation:scroll-cursor-blink .7s steps(1) infinite;
+  }
+  .scroll-intro-demo {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:9px;
+    margin:15px 0 28px;
+    color:#8ce8f1;
+    font:500 10px 'IBM Plex Mono',monospace;
+    letter-spacing:.15em;
+  }
+  .scroll-intro-mouse {
+    position:relative;
+    width:30px;
+    height:47px;
+    border:2px solid #8ce8f1;
+    border-radius:17px;
+  }
+  .scroll-intro-mouse span {
+    position:absolute;
+    top:9px;
+    left:11px;
+    width:4px;
+    height:10px;
+    border-radius:4px;
+    background:#8ce8f1;
+    animation:scroll-wheel 1.6s ease-in-out infinite;
+  }
+  .scroll-intro-arrow {
+    font-size:22px;
+    line-height:1;
+    animation:scroll-arrow 1.6s ease-in-out infinite;
+  }
+  .scroll-intro-start {
+    padding:16px 27px;
+    border:1px solid #8ce8f1;
+    background:#8ce8f1;
+    color:#071122;
+    cursor:pointer;
+    font:600 11px 'IBM Plex Mono',monospace;
+    letter-spacing:.12em;
+    opacity:0;
+    transform:translateY(14px);
+    pointer-events:none;
+    transition:opacity .6s ease,transform .6s ease,background .2s ease;
+  }
+  .scroll-intro-start.is-ready {
+    opacity:1;
+    transform:none;
+    pointer-events:auto;
+  }
+  .scroll-intro-start:hover {background:#c1f6f8}
+  .scroll-intro-start:focus-visible {outline:2px solid white;outline-offset:4px}
+  @keyframes scroll-logo-rotate {to{transform:rotate(360deg)}}
+  @keyframes scroll-cursor-blink {50%{opacity:0}}
+  @keyframes scroll-wheel {0%{transform:translateY(0);opacity:1}80%{transform:translateY(13px);opacity:0}100%{opacity:0}}
+  @keyframes scroll-arrow {50%{transform:translateY(5px)}}
+  @media(max-width:550px) {
+    .scroll-intro-logo{width:65px;height:65px;margin-bottom:22px}
+    .scroll-intro h2{margin:14px 0 20px}
+    .scroll-intro-message{font-size:13px;min-height:115px}
+    .scroll-intro-demo{margin:12px 0 20px}
+  }
+  @media(prefers-reduced-motion:reduce) {
+    .scroll-intro-logo,.scroll-intro-cursor,
+    .scroll-intro-mouse span,.scroll-intro-arrow{animation:none}
+    .scroll-intro,.scroll-intro-start{transition:none}
+  }
+</style>
+
+<script>
+  function initScrollIntro() {
+    const overlay = document.querySelector<HTMLElement>('#scroll-intro');
+    const typed = overlay?.querySelector<HTMLElement>('#scroll-intro-typed');
+    const button = overlay?.querySelector<HTMLButtonElement>('#scroll-intro-start');
+    if (!overlay || !typed || !button || overlay.dataset.initialized) return;
+    overlay.dataset.initialized = 'true';
+
+    const message = "Faites défiler la page vers le bas pour avancer dans l'histoire. À chaque étape, continuez à défiler pour découvrir la suite et faire apparaître les visualisations.";
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const ready = () => {
+      button.disabled = false;
+      button.classList.add('is-ready');
+      button.focus({preventScroll:true});
+    };
+
+    if (reduced) {
+      typed.textContent = message;
+      ready();
+    } else {
+      let index = 0;
+      const type = () => {
+        if (!overlay.isConnected) return;
+        typed.textContent = message.slice(0, ++index);
+        if (index < message.length) {
+          window.setTimeout(type, 24);
+        } else {
+          window.setTimeout(ready, 1800);
+        }
+      };
+      window.setTimeout(type, 850);
+    }
+
+    let entering = false;
+
+    const enterExperience = () => {
+      if (entering || button.disabled) return;
+      entering = true;
+      overlay.classList.add('is-closing');
+      document.body.style.overflow = previousOverflow;
+      const finish = () => overlay.remove();
+      if (reduced) finish();
+      else window.setTimeout(finish, 800);
+    };
+
+    // Molette et trackpad : un défilement vers le bas lance l'expérience.
+    const onWheel = (event: WheelEvent) => {
+      if (event.deltaY > 5) {
+        event.preventDefault();
+        enterExperience();
+      }
+    };
+
+    // Écran tactile : glisser vers le haut lance l'expérience.
+    let touchStartY = 0;
+    overlay.addEventListener('touchstart', (event) => {
+      touchStartY = event.touches[0]?.clientY ?? 0;
+    }, { passive: true });
+
+    overlay.addEventListener('touchend', (event) => {
+      const endY = event.changedTouches[0]?.clientY ?? touchStartY;
+      if (touchStartY - endY > 35) enterExperience();
+    });
+
+    overlay.addEventListener('wheel', onWheel, { passive: false });
+
+    button.addEventListener('click', enterExperience);
+
+    /* Ancien gestionnaire remplacé */
+    /* button.addEventListener('click', () => {
+      overlay.classList.add('is-closing');
+      document.body.style.overflow = previousOverflow;
+      const finish = () => overlay.remove();
+      if (reduced) finish();
+      else window.setTimeout(finish, 800);
+    }); */
+  }
+
+  initScrollIntro();
+  document.addEventListener('astro:page-load', initScrollIntro);
+</script>
+

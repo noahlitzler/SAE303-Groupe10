@@ -1,0 +1,151 @@
+---
+// Une page « Voir plus » par visualisation (/explorer/v1 … /explorer/v4) : un parcours pédagogique
+// propre à chaque sujet (src/components/explorer/RecitV*.astro), qui mène au même graphique que
+// dans le cube, dessiné par le même code en mode « page ».
+// Le retour ouvre l'expérience sur la face d'origine ; la position exacte, mémorisée au clic
+// sur « Voir plus », est restaurée par DepthExperience.
+import Layout from "../../layouts/Layout.astro";
+import RecitV1 from "../../components/explorer/RecitV1.astro";
+import RecitV2 from "../../components/explorer/RecitV2.astro";
+import RecitV3 from "../../components/explorer/RecitV3.astro";
+import RecitV4 from "../../components/explorer/RecitV4.astro";
+import { chapitres } from "../../data/chapitres";
+import "../../styles/explorer.css";
+
+export function getStaticPaths() {
+  return chapitres.map((chapitre, index) => ({ params: { viz: chapitre.viz }, props: { index } }));
+}
+
+const { index } = Astro.props;
+const c = chapitres[index];
+const precedent = chapitres[index - 1];
+const suivant = chapitres[index + 1];
+const retour = `/?face=${index + 1}`;
+const Recit = { v1: RecitV1, v2: RecitV2, v3: RecitV3, v4: RecitV4 }[c.viz];
+---
+
+<Layout title={`${c.title.replace("\n", " ")} · Voir plus · Derrière le prompt`} description={c.desc}>
+  <div class="explorer" style={`--accent:${["#aab8ff", "#8be8e9", "#c4a9ff", "#96dfcb"][index]}`}>
+    <div class="curves" aria-hidden="true"><i></i><i></i></div>
+
+    <header class="barre">
+      <a href={retour} class="retour" id="retour">
+        <span aria-hidden="true">←</span> <span class="retour-long">RETOUR À L'EXPÉRIENCE</span><span class="retour-court">RETOUR</span>
+      </a>
+      <span class="chapitre" aria-hidden="true">{c.n} / 04 · {c.k}</span>
+      <a href="/methode" class="methode">MÉTHODE ↗</a>
+      <div class="progression" aria-hidden="true"><i id="ex-progress"></i></div>
+    </header>
+
+    <main class="contenu">
+      <Recit chapitre={c} />
+
+      <nav class="suite ex-largeur" aria-label="Autres pages Voir plus">
+        {precedent ? (
+          <a href={`/explorer/${precedent.viz}`} class="voisin">
+            <span>← CHAPITRE {precedent.n}</span>
+            <strong>{precedent.title.replace("\n", " ")}</strong>
+          </a>
+        ) : <a href="/" class="voisin"><span>← DÉBUT</span><strong>L'introduction</strong></a>}
+        {suivant ? (
+          <a href={`/explorer/${suivant.viz}`} class="voisin voisin--suivant">
+            <span>CHAPITRE {suivant.n} →</span>
+            <strong>{suivant.title.replace("\n", " ")}</strong>
+          </a>
+        ) : <a href="/methode" class="voisin voisin--suivant"><span>NOTRE MÉTHODE →</span><strong>Sources et limites</strong></a>}
+      </nav>
+    </main>
+  </div>
+</Layout>
+
+<script>
+  import { initExplorer } from "../../scripts/explorer";
+  initExplorer();
+</script>
+
+<style>
+  .explorer {
+    position: relative;
+    min-height: 100vh;
+    overflow-x: clip;
+    color: #f3f5ff;
+    background: radial-gradient(ellipse at 50% 0%, #172541, var(--fond) 60%) no-repeat, var(--fond);
+    background-size: 100% 120svh, auto;
+    font-family: Arial, sans-serif;
+  }
+
+  .curves { position: absolute; inset: 0 0 auto; height: 200svh; pointer-events: none; opacity: .5; overflow: hidden; }
+  .curves i { position: absolute; display: block; border: 1px solid #7be3f22e; border-radius: 48% 52% 58% 42%; animation: orbite 60s linear infinite; }
+  .curves i:first-child { width: 70vw; height: 70vw; left: -40vw; top: -25vw; }
+  .curves i:last-child { width: 55vw; height: 55vw; right: -30vw; top: 40%; border-color: #a8a3ff30; animation-direction: reverse; }
+  @keyframes orbite { to { rotate: 360deg; } }
+
+  /* Barre collante : le retour reste toujours accessible */
+  .barre {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 14px clamp(16px, 4vw, 48px);
+    border-bottom: 1px solid #ffffff1a;
+    background: #070b19cc;
+    backdrop-filter: blur(14px);
+  }
+  .chapitre { font: 500 10px var(--mono); letter-spacing: .16em; color: var(--accent); }
+  .progression { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; }
+  .progression i { display: block; height: 100%; background: linear-gradient(90deg, #8ce8f1, #5d8dff); transform: scaleX(0); transform-origin: left; }
+
+  .retour, .methode {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 16px;
+    border: 1px solid #8ce8f159;
+    background: #8ce8f10b;
+    color: #b6f4f7;
+    font: 500 11px var(--mono);
+    letter-spacing: .12em;
+    text-decoration: none;
+    transition: background .25s, border-color .25s, transform .25s;
+  }
+  .retour { border-color: var(--cyan); color: var(--cyan); }
+  .retour-court { display: none; }
+  .retour:hover, .methode:hover, .retour:focus-visible, .methode:focus-visible { background: #8ce8f11f; border-color: var(--cyan); transform: translateY(-1px); }
+  .retour:focus-visible, .methode:focus-visible, .voisin:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+
+  .contenu { position: relative; z-index: 1; padding-bottom: 48px; }
+
+  .suite {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 64px;
+    border-top: 1px solid #ffffff22;
+    padding-top: 24px;
+  }
+  .voisin { display: grid; gap: 8px; padding: 18px 0; color: #f3f5ff; text-decoration: none; transition: color .25s; }
+  .voisin span { font: 500 11px var(--mono); letter-spacing: .12em; color: var(--cyan); }
+  .voisin strong { font: 800 clamp(22px, 2.4vw, 34px)/1 var(--titre); }
+  .voisin:hover strong { color: var(--cyan); }
+  .voisin--suivant { text-align: right; }
+
+  @media (max-width: 800px) {
+    .barre { padding-block: 10px; }
+    .chapitre { display: none; }
+    .retour, .methode { padding: 9px 12px; font-size: 10px; }
+    .suite { grid-template-columns: 1fr; }
+    .voisin--suivant { text-align: left; }
+  }
+  @media (max-width: 420px) {
+    .retour-long { display: none; }
+    .retour-court { display: inline; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .curves i { animation: none; }
+    .retour, .methode { transition: none; }
+  }
+</style>
