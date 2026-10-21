@@ -167,6 +167,15 @@
     if (!overlay || !typed || !button || overlay.dataset.initialized) return;
     overlay.dataset.initialized = 'true';
 
+    // Ignorer l'introduction lors d'un retour depuis une page secondaire.
+    const params = new URLSearchParams(window.location.search);
+    const retour = params.get('retour') === '1' || sessionStorage.getItem('dlp-skip-intro') === '1' || sessionStorage.getItem('dlp-retour') !== null || params.has('face');
+    if (retour) {
+      sessionStorage.removeItem('dlp-skip-intro');
+      overlay.remove();
+      return;
+    }
+
     const message = "Faites défiler la page vers le bas pour avancer dans l'histoire. À chaque étape, continuez à défiler pour découvrir la suite et faire apparaître les visualisations.";
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const previousOverflow = document.body.style.overflow;
@@ -243,4 +252,5 @@
   initScrollIntro();
   document.addEventListener('astro:page-load', initScrollIntro);
 </script>
+
 
